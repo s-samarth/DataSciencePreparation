@@ -1,0 +1,21 @@
+<svg aria-label="Recursive partitioning tree" role="img" viewBox="0 0 560 250" xmlns="http://www.w3.org/2000/svg">
+<!-- root -->
+<rect fill="#1c222e" height="40" rx="8" stroke="#e8b059" stroke-width="1.5" width="100" x="230" y="20"></rect>
+<text fill="#e6e9ef" font-family="monospace" font-size="12" text-anchor="middle" x="280" y="44">S (root)</text>
+<!-- level 2 -->
+<line stroke="#2a3240" x1="280" x2="150" y1="60" y2="100"></line>
+<line stroke="#2a3240" x1="280" x2="410" y1="60" y2="100"></line>
+<rect fill="#1c222e" height="40" rx="8" stroke="#5fb3a3" stroke-width="1.5" width="100" x="100" y="100"></rect>
+<text fill="#e6e9ef" font-family="monospace" font-size="12" text-anchor="middle" x="150" y="124">child A</text>
+<rect fill="#1c222e" height="40" rx="8" stroke="#5fb3a3" stroke-width="1.5" width="100" x="360" y="100"></rect>
+<text fill="#e6e9ef" font-family="monospace" font-size="12" text-anchor="middle" x="410" y="124">child B</text>
+<!-- level 3 -->
+<line stroke="#2a3240" x1="150" x2="90" y1="140" y2="190"></line>
+<line stroke="#2a3240" x1="150" x2="210" y1="140" y2="190"></line>
+<rect fill="#161b24" height="36" rx="8" stroke="#c97b8e" stroke-width="1.2" width="90" x="45" y="190"></rect>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="middle" x="90" y="212">LEAF</text>
+<rect fill="#161b24" height="36" rx="8" stroke="#c97b8e" stroke-width="1.2" width="90" x="165" y="190"></rect>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="middle" x="210" y="212">LEAF</text>
+<text fill="#9aa6b8" font-family="Helvetica" font-size="12" text-anchor="middle" x="410" y="215">...recurse until stop</text>
+<text fill="#e8b059" font-family="monospace" font-size="10" x="217" y="86">max-gain split</text>
+</svg>

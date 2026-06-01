@@ -1,0 +1,23 @@
+<svg aria-label="Contour paths of batch, mini-batch and SGD descent" role="img" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+<!-- contours -->
+<g fill="none" stroke="#d8cfb8" stroke-width="1.4">
+<ellipse cx="470" cy="130" rx="150" ry="92"></ellipse>
+<ellipse cx="470" cy="130" rx="112" ry="68"></ellipse>
+<ellipse cx="470" cy="130" rx="74" ry="44"></ellipse>
+<ellipse cx="470" cy="130" rx="38" ry="22"></ellipse>
+</g>
+<circle cx="470" cy="130" fill="#7c2d12" r="4.5"></circle>
+<text fill="#7c2d12" font-family="monospace" font-size="11" text-anchor="middle" x="470" y="118">min</text>
+<!-- batch: smooth arc -->
+<path d="M70,40 Q250,70 470,130" fill="none" stroke="#1d4d4f" stroke-width="2.6"></path>
+<circle cx="70" cy="40" fill="#1d4d4f" r="4"></circle>
+<text fill="#1d4d4f" font-family="monospace" font-size="12" x="60" y="32">Batch</text>
+<!-- mini-batch: slightly wobbly -->
+<path d="M70,110 Q180,150 250,120 T390,150 Q440,140 470,130" fill="none" stroke="#9a7b2e" stroke-width="2.2"></path>
+<circle cx="70" cy="110" fill="#9a7b2e" r="4"></circle>
+<text fill="#9a7b2e" font-family="monospace" font-size="12" x="60" y="103">Mini-batch</text>
+<!-- sgd: drunk stumble -->
+<path d="M70,210 L120,170 L100,200 L165,160 L150,195 L220,150 L205,185 L280,150 L270,170 L340,140 L330,165 L400,140 L395,150 L450,135 L460,140 L470,130" fill="none" stroke="#7c2d12" stroke-width="1.7"></path>
+<circle cx="70" cy="210" fill="#7c2d12" r="4"></circle>
+<text fill="#7c2d12" font-family="monospace" font-size="12" x="60" y="232">SGD</text>
+</svg>

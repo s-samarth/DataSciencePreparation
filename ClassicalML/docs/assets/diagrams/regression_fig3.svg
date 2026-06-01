@@ -1,0 +1,24 @@
+<svg aria-label="L1 diamond vs L2 circle constraint geometry" role="img" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+<g font-family="monospace" font-size="12">
+<!-- L1 -->
+<g transform="translate(0,0)">
+<line stroke="#d8cfb8" x1="40" x2="290" y1="140" y2="140"></line><line stroke="#d8cfb8" x1="165" x2="165" y1="30" y2="250"></line>
+<polygon fill="#7c2d12" fill-opacity="0.13" points="165,70 225,140 165,210 105,140" stroke="#7c2d12" stroke-width="2"></polygon>
+<ellipse cx="225" cy="80" fill="none" rx="78" ry="46" stroke="#1d4d4f" stroke-width="1.6" transform="rotate(-22 225 80)"></ellipse>
+<ellipse cx="225" cy="80" fill="none" rx="52" ry="30" stroke="#1d4d4f" stroke-width="1.6" transform="rotate(-22 225 80)"></ellipse>
+<circle cx="165" cy="70" fill="#7c2d12" r="5"></circle>
+<text fill="#7c2d12" x="175" y="64">touches a corner → w₁=0</text>
+<text fill="#4a4438" text-anchor="middle" x="165" y="270">L1 (Lasso) — diamond</text>
+</g>
+<!-- L2 -->
+<g transform="translate(330,0)">
+<line stroke="#d8cfb8" x1="10" x2="270" y1="140" y2="140"></line><line stroke="#d8cfb8" x1="140" x2="140" y1="30" y2="250"></line>
+<circle cx="140" cy="140" fill="#1d4d4f" fill-opacity="0.12" r="62" stroke="#1d4d4f" stroke-width="2"></circle>
+<ellipse cx="210" cy="80" fill="none" rx="78" ry="46" stroke="#7c2d12" stroke-width="1.6" transform="rotate(-22 210 80)"></ellipse>
+<ellipse cx="210" cy="80" fill="none" rx="52" ry="30" stroke="#7c2d12" stroke-width="1.6" transform="rotate(-22 210 80)"></ellipse>
+<circle cx="188" cy="98" fill="#1d4d4f" r="5"></circle>
+<text fill="#1d4d4f" x="196" y="92">touches the curve → both ≠ 0</text>
+<text fill="#4a4438" text-anchor="middle" x="140" y="270">L2 (Ridge) — circle</text>
+</g>
+</g>
+</svg>

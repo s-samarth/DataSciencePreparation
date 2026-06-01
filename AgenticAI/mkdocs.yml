@@ -1,0 +1,129 @@
+site_name: Agentic AI Study Notes
+site_description: Interview-prep knowledge base on Agentic AI, RAG, LangGraph, MCP, evaluation, and serving.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/AgenticAI/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - RAG & Retrieval:
+      - rag/index.md
+      - Foundations: rag/foundations.md
+      - Retrieval Mechanics: rag/retrieval-mechanics.md
+      - ANN Algorithms: rag/ann-algorithms.md
+      - Reranking: rag/reranking.md
+      - Advanced RAG: rag/advanced-rag.md
+      - HNSW From Scratch: rag/hnsw-from-scratch.md
+  - Agents & Orchestration:
+      - agents/index.md
+      - Foundations: agents/foundations.md
+      - Memory, Routing, Planning, HITL: agents/memory-routing-planning.md
+      - Sync, Async & Multi-Turn State: agents/sync-async-state.md
+      - Multi-Agent Topologies: agents/multi-agent-topologies.md
+  - LangGraph:
+      - langgraph/index.md
+      - Graph & Pregel Model: langgraph/graph-pregel.md
+      - State & Reducers: langgraph/state-reducers.md
+      - Control Flow (Edges, Command, Send): langgraph/control-flow.md
+      - ReAct & create_agent: langgraph/react-create-agent.md
+      - Persistence, Interrupts, Streaming: langgraph/persistence-streaming.md
+      - CRAG & Multi-Agent Subgraphs: langgraph/crag-multiagent.md
+  - Protocols & Coding Agents:
+      - protocols/index.md
+      - MCP: protocols/mcp.md
+      - A2A: protocols/a2a.md
+      - Coding Agents: protocols/coding-agents.md
+  - Evaluation & Monitoring:
+      - eval/index.md
+      - RAG Eval: eval/rag-eval.md
+      - Agent Eval: eval/agent-eval.md
+      - Dataset Design: eval/dataset-design.md
+      - LLM-as-Judge: eval/llm-as-judge.md
+  - Serving, Infra & Guardrails:
+      - serving/index.md
+      - Cost & Token Economics: serving/cost.md
+      - Inference Stack: serving/inference-stack.md
+      - Serving Modes: serving/serving-modes.md
+      - Observability: serving/observability.md
+      - Guardrails: serving/guardrails.md
+  - End-to-End System Design:
+      - system-design/index.md
+      - A. Customer Service Agent: system-design/a-customer-service.md
+      - B. LLM Eval Pipeline: system-design/b-llm-eval-pipeline.md
+      - C. Sub-800ms Voice Agent: system-design/c-voice-agent.md
+      - D. Enterprise Knowledge Assistant: system-design/d-enterprise-ka.md
+      - E. Code Review Agent: system-design/e-code-review.md
+
+extra_css:
+  - assets/extra.css

@@ -1,0 +1,148 @@
+site_name: LLM Study Notes
+site_description: Interview-ready deep dives across the modern LLM stack — architecture, training, alignment, PEFT, inference, serving, and the 2026 model landscape.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/LLM/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+extra_javascript:
+  - assets/mathjax-config.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - Foundations:
+      - foundations/index.md
+      - Attention: foundations/attention.md
+      - Multi-Head and Softmax: foundations/multi-head-and-softmax.md
+      - Normalization: foundations/normalization.md
+      - Block and Residual: foundations/block-and-residual.md
+      - Positional Encodings: foundations/positional-encodings.md
+      - Failure Modes: foundations/failure-modes.md
+      - Architecture Families: foundations/architecture-families.md
+  - Build From Scratch:
+      - build-from-scratch/index.md
+      - Pretraining (TinyStories): build-from-scratch/pretraining-tinystories.md
+      - SFT Walkthrough: build-from-scratch/sft-walkthrough.md
+      - Alignment Walkthrough: build-from-scratch/alignment-walkthrough.md
+  - Post-Training (SFT):
+      - sft/index.md
+      - Three-Stage Pipeline: sft/three-stage-pipeline.md
+      - Chat Templates: sft/chat-templates.md
+      - Loss Masking: sft/loss-masking.md
+      - MLE and MAP Backbone: sft/mle-map-backbone.md
+  - PEFT (LoRA, QLoRA):
+      - peft/index.md
+      - LoRA Mechanics: peft/lora-mechanics.md
+      - Why Low-Rank: peft/why-low-rank.md
+      - Initialization and Gradient Flow: peft/initialization-gradient-flow.md
+      - Target Modules: peft/target-modules.md
+      - Quantization and NF4: peft/quantization-nf4.md
+      - QLoRA Assembled: peft/qlora-assembled.md
+      - Memory Tricks: peft/memory-tricks.md
+  - Alignment:
+      - alignment/index.md
+      - Reward Models and Bradley-Terry: alignment/reward-models-bradley-terry.md
+      - RL from Zero and PPO: alignment/rl-from-zero-and-ppo.md
+      - DPO: alignment/dpo.md
+      - GRPO: alignment/grpo.md
+      - RLVR: alignment/rlvr.md
+      - The GRPO Hype, Decoded: alignment/grpo-hype-decoded.md
+  - Inference Architecture:
+      - inference-arch/index.md
+      - Prefill vs Decode: inference-arch/prefill-vs-decode.md
+      - KV-Cache: inference-arch/kv-cache.md
+      - GQA, MQA, MLA: inference-arch/gqa-mqa-mla.md
+      - Flash Attention: inference-arch/flash-attention.md
+      - Mixture of Experts: inference-arch/mixture-of-experts.md
+      - Frontier Techniques: inference-arch/frontier-techniques.md
+  - Serving and Optimization:
+      - serving/index.md
+      - Quantization Formats: serving/quantization-formats.md
+      - Decoding and Speculative: serving/decoding-and-speculative.md
+      - vLLM: serving/vllm.md
+      - SGLang and Alternatives: serving/sglang-and-alternatives.md
+      - Docker and FastAPI Deploy: serving/docker-fastapi-deploy.md
+  - 2026 Landscape:
+      - landscape/index.md
+      - Model Landscape: landscape/model-landscape.md
+      - Distillation: landscape/distillation.md
+      - Constitutional AI and RLAIF: landscape/constitutional-ai-and-rlaif.md
+      - Hallucination Mitigation: landscape/hallucination-mitigation.md
+      - Caching and Routing: landscape/caching-and-routing.md
+      - Multimodal Models: landscape/multimodal-models.md
+      - Voice AI (India): landscape/voice-ai-india.md
+      - Benchmarks 2026: landscape/benchmarks-2026.md

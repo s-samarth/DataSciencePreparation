@@ -1,0 +1,24 @@
+<svg aria-label="Entropy and Gini curves for binary case" role="img" viewBox="0 0 560 300" xmlns="http://www.w3.org/2000/svg">
+<rect fill="none" height="300" width="560" x="0" y="0"></rect>
+<!-- axes -->
+<line stroke="#2a3240" stroke-width="1.5" x1="60" x2="520" y1="250" y2="250"></line>
+<line stroke="#2a3240" stroke-width="1.5" x1="60" x2="60" y1="250" y2="30"></line>
+<!-- gridlines -->
+<line stroke="#1c222e" stroke-dasharray="3 4" stroke-width="1" x1="60" x2="520" y1="60" y2="60"></line>
+<line stroke="#1c222e" stroke-dasharray="3 4" stroke-width="1" x1="60" x2="520" y1="155" y2="155"></line>
+<line stroke="#1c222e" stroke-dasharray="3 4" stroke-width="1" x1="290" x2="290" y1="250" y2="30"></line>
+<!-- Entropy curve: peak 1.0 at p=0.5 -> y=60 ; p axis 60..520 -->
+<path d="M60,250 Q175,60 290,60 Q405,60 520,250" fill="none" stroke="#e8b059" stroke-width="2.5"></path>
+<!-- Gini curve: peak 0.5 at p=0.5 -> y=155 -->
+<path d="M60,250 Q175,155 290,155 Q405,155 520,250" fill="none" stroke="#5fb3a3" stroke-width="2.5"></path>
+<!-- labels -->
+<text fill="#e8b059" font-family="monospace" font-size="13" x="430" y="48">Entropy (peak 1.0)</text>
+<text fill="#5fb3a3" font-family="monospace" font-size="13" x="430" y="140">Gini (peak 0.5)</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="end" x="48" y="64">1.0</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="end" x="48" y="159">0.5</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="end" x="48" y="254">0</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="middle" x="60" y="272">0</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="middle" x="290" y="272">0.5</text>
+<text fill="#9aa6b8" font-family="monospace" font-size="11" text-anchor="middle" x="520" y="272">1.0</text>
+<text fill="#9aa6b8" font-family="Helvetica" font-size="12" text-anchor="middle" x="290" y="292">class proportion p</text>
+</svg>

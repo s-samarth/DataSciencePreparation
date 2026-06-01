@@ -1,0 +1,19 @@
+<svg aria-label="bagging vs RF decorrelation" role="img" viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+<text fill="#94a3b5" font-family="Helvetica" font-size="13" text-anchor="middle" x="140" y="22">Plain bagging: all split on F1 first</text>
+<text fill="#94a3b5" font-family="Helvetica" font-size="13" text-anchor="middle" x="420" y="22">RF: F1 hidden at many nodes</text>
+<!-- left: three identical -->
+<g fill="#e7ebf0" font-family="monospace" font-size="11">
+<rect fill="#1b2330" height="26" rx="6" stroke="#e0918a" width="60" x="40" y="40"></rect><text text-anchor="middle" x="70" y="57">F1</text>
+<rect fill="#1b2330" height="26" rx="6" stroke="#e0918a" width="60" x="120" y="40"></rect><text text-anchor="middle" x="150" y="57">F1</text>
+<rect fill="#1b2330" height="26" rx="6" stroke="#e0918a" width="60" x="200" y="40"></rect><text text-anchor="middle" x="230" y="57">F1</text>
+<text fill="#e0918a" text-anchor="middle" x="150" y="92">high correlation ρ</text>
+</g>
+<!-- right: varied -->
+<g fill="#e7ebf0" font-family="monospace" font-size="11">
+<rect fill="#1b2330" height="26" rx="6" stroke="#7ed3b2" width="60" x="320" y="40"></rect><text text-anchor="middle" x="350" y="57">F3</text>
+<rect fill="#1b2330" height="26" rx="6" stroke="#7ed3b2" width="60" x="400" y="40"></rect><text text-anchor="middle" x="430" y="57">F1</text>
+<rect fill="#1b2330" height="26" rx="6" stroke="#7ed3b2" width="60" x="480" y="40"></rect><text text-anchor="middle" x="510" y="57">F7</text>
+<text fill="#7ed3b2" text-anchor="middle" x="430" y="92">low correlation ρ</text>
+</g>
+<text fill="#94a3b5" font-family="Helvetica" font-size="13" text-anchor="middle" x="280" y="150">Lower ρ ⟹ lower variance floor ρσ² ⟹ averaging works better</text>
+</svg>

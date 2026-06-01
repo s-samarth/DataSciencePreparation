@@ -1,0 +1,25 @@
+<svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+<!-- dense cluster -->
+<circle cx="150" cy="150" fill="rgba(95,182,201,.08)" r="70" stroke="#2a2f3a"></circle>
+<!-- core point eps circle -->
+<circle cx="150" cy="150" fill="none" opacity="0.7" r="38" stroke="#e0b341" stroke-dasharray="4 4"></circle>
+<!-- core points -->
+<g fill="#5fb6c9">
+<circle cx="150" cy="150" r="7"></circle>
+<circle cx="130" cy="125" r="6"></circle><circle cx="170" cy="130" r="6"></circle>
+<circle cx="135" cy="172" r="6"></circle><circle cx="175" cy="168" r="6"></circle>
+<circle cx="118" cy="150" r="6"></circle><circle cx="160" cy="185" r="6"></circle>
+</g>
+<!-- border points -->
+<g fill="#e0b341">
+<circle cx="100" cy="185" r="6"></circle><circle cx="205" cy="120" r="6"></circle>
+</g>
+<!-- noise -->
+<g fill="#eb6f6f">
+<circle cx="470" cy="80" r="6"></circle><circle cx="540" cy="200" r="6"></circle><circle cx="430" cy="230" r="6"></circle>
+</g>
+<text dx="10" dy="-12" fill="#fff" font-family="sans-serif" font-size="11" x="150" y="150">core</text>
+<text dx="8" dy="4" fill="#e0b341" font-family="sans-serif" font-size="11" x="205" y="120">border</text>
+<text dx="10" dy="4" fill="#eb6f6f" font-family="sans-serif" font-size="11" x="470" y="80">noise</text>
+<text fill="#9aa3b2" font-family="sans-serif" font-size="11" text-anchor="middle" x="150" y="240">dashed = ε-radius around a core point (≥ minPts neighbors inside)</text>
+</svg>

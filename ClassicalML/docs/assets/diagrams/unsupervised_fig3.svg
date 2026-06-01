@@ -1,0 +1,13 @@
+<svg viewBox="0 0 560 230" xmlns="http://www.w3.org/2000/svg">
+<!-- K-means: circles -->
+<text fill="#9aa3b2" font-family="sans-serif" font-size="12" text-anchor="middle" x="140" y="28">K-Means: spherical, hard</text>
+<circle cx="100" cy="120" fill="rgba(95,182,201,.10)" r="45" stroke="#5fb6c9"></circle>
+<circle cx="185" cy="140" fill="rgba(224,179,65,.10)" r="45" stroke="#e0b341"></circle>
+<line stroke="#eb6f6f" stroke-dasharray="3 3" x1="142" x2="142" y1="80" y2="190"></line>
+<!-- GMM: ellipses tilted -->
+<text fill="#9aa3b2" font-family="sans-serif" font-size="12" text-anchor="middle" x="420" y="28">GMM: elliptical, soft</text>
+<ellipse cx="380" cy="120" fill="rgba(95,182,201,.12)" rx="60" ry="28" stroke="#5fb6c9" transform="rotate(-25 380,120)"></ellipse>
+<ellipse cx="455" cy="145" fill="rgba(224,179,65,.12)" rx="50" ry="22" stroke="#e0b341" transform="rotate(20 455,145)"></ellipse>
+<text fill="#fff" font-family="sans-serif" font-size="10" x="418" y="135">70/30%</text>
+<circle cx="418" cy="128" fill="#fff" r="3"></circle>
+</svg>

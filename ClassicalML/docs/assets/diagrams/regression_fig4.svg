@@ -1,0 +1,12 @@
+<svg aria-label="The sigmoid function" role="img" viewBox="0 0 560 240" xmlns="http://www.w3.org/2000/svg">
+<g fill="#4a4438" font-family="monospace" font-size="12">
+<line stroke="#d8cfb8" x1="40" x2="520" y1="200" y2="200"></line>
+<line stroke="#d8cfb8" x1="280" x2="280" y1="30" y2="215"></line>
+<line stroke="#d8cfb8" stroke-dasharray="4,4" x1="40" x2="520" y1="115" y2="115"></line>
+<text x="46" y="60">1.0</text><text x="46" y="128">0.5</text><text x="46" y="214">0.0</text>
+<text x="500" y="218">z = θᵀx</text>
+<path d="M40,198 C160,196 220,180 280,115 C340,50 400,34 520,32" fill="none" stroke="#7c2d12" stroke-width="2.6"></path>
+<circle cx="280" cy="115" fill="#1d4d4f" r="4.5"></circle>
+<text fill="#1d4d4f" x="290" y="110">boundary (P=0.5)</text>
+</g>
+</svg>

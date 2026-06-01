@@ -1,0 +1,132 @@
+site_name: Classical ML Study Notes
+site_description: Interview-ready notes on classical machine learning, from linear models and trees to ensembles, unsupervised learning, and evaluation metrics.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/ClassicalML/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+extra_javascript:
+  - assets/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - Foundations & Linear Models:
+      - foundations/index.md
+      - Linear Regression: foundations/linear-regression.md
+      - Gradient Descent & the LMS Rule: foundations/gradient-descent.md
+      - Assumptions & Diagnostics: foundations/assumptions-diagnostics.md
+      - Regularization: foundations/regularization.md
+      - Logistic Regression & Perceptron: foundations/logistic-perceptron.md
+      - GLMs, Softmax & Generative: foundations/glms-generative.md
+  - Core Classical Algorithms:
+      - core-algorithms/index.md
+      - Support Vector Machines: core-algorithms/svm.md
+      - Naive Bayes: core-algorithms/naive-bayes.md
+      - KNN & Curse of Dimensionality: core-algorithms/knn.md
+      - K-Means Clustering: core-algorithms/kmeans.md
+      - Principal Component Analysis: core-algorithms/pca.md
+  - Information Theory & Decision Trees:
+      - info-trees/index.md
+      - Information & Entropy: info-trees/information-entropy.md
+      - Cross-Entropy, KL & Log-Loss: info-trees/cross-entropy-kl.md
+      - Impurity & Splitting Criteria: info-trees/impurity-splitting.md
+      - Building Decision Trees: info-trees/building-trees.md
+      - Tree Algorithms & Categorical Tricks: info-trees/tree-algorithms.md
+  - Tree Ensembles:
+      - ensembles/index.md
+      - Variance, Bagging & OOB: ensembles/bagging-oob.md
+      - Random Forests: ensembles/random-forests.md
+      - Boosting & AdaBoost: ensembles/boosting-adaboost.md
+      - Gradient Boosting: ensembles/gradient-boosting.md
+      - XGBoost & Modern Libraries: ensembles/xgboost-libraries.md
+      - Trees vs Other Models: ensembles/trees-vs-others.md
+  - Unsupervised, Text & Anomaly:
+      - unsupervised/index.md
+      - Density & Hierarchical Clustering: unsupervised/density-hierarchical.md
+      - Gaussian Mixtures & EM: unsupervised/gmm-em.md
+      - t-SNE & UMAP: unsupervised/tsne-umap.md
+      - Text Vectorization: unsupervised/text-vectorization.md
+      - Anomaly Detection: unsupervised/anomaly-detection.md
+      - Choosing a Method: unsupervised/choosing-method.md
+  - Evaluation Metrics:
+      - evaluation/index.md
+      - Classification & Threshold: evaluation/classification.md
+      - Regression Metrics: evaluation/regression.md
+      - Ranking & Recommendation: evaluation/ranking.md
+      - LLM & Generative AI: evaluation/llm-generative.md
+      - Vision & RL Metrics: evaluation/vision-rl.md
+      - Clustering, Drift & Explainability: evaluation/clustering-drift.md

@@ -1,0 +1,49 @@
+site_name: Data Science Interview Prep
+site_description: A unified hub linking four self-contained study sites — Classical ML, LLMs, Agentic AI, and ML System Design case studies.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - def_list
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+nav:
+  - Home: index.md

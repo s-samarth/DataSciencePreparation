@@ -1,0 +1,27 @@
+<svg aria-label="Three residual plot shapes" role="img" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+<g fill="#4a4438" font-family="monospace" font-size="11">
+<!-- panel 1: random (good) -->
+<line stroke="#d8cfb8" x1="30" x2="190" y1="100" y2="100"></line>
+<circle cx="50" cy="92" fill="#1d4d4f" r="2.5"></circle><circle cx="70" cy="108" fill="#1d4d4f" r="2.5"></circle>
+<circle cx="90" cy="95" fill="#1d4d4f" r="2.5"></circle><circle cx="110" cy="106" fill="#1d4d4f" r="2.5"></circle>
+<circle cx="130" cy="90" fill="#1d4d4f" r="2.5"></circle><circle cx="150" cy="110" fill="#1d4d4f" r="2.5"></circle>
+<circle cx="170" cy="97" fill="#1d4d4f" r="2.5"></circle>
+<text text-anchor="middle" x="110" y="150">Random band — good</text>
+<!-- panel 2: funnel -->
+<line stroke="#d8cfb8" x1="240" x2="400" y1="100" y2="100"></line>
+<circle cx="258" cy="98" fill="#7c2d12" r="2.5"></circle><circle cx="278" cy="103" fill="#7c2d12" r="2.5"></circle>
+<circle cx="298" cy="94" fill="#7c2d12" r="2.5"></circle><circle cx="318" cy="112" fill="#7c2d12" r="2.5"></circle>
+<circle cx="338" cy="84" fill="#7c2d12" r="2.5"></circle><circle cx="358" cy="120" fill="#7c2d12" r="2.5"></circle>
+<circle cx="378" cy="75" fill="#7c2d12" r="2.5"></circle>
+<path d="M250,100 L390,72 M250,100 L390,128" fill="none" stroke="#7c2d12" stroke-dasharray="3,3" stroke-width="1"></path>
+<text text-anchor="middle" x="320" y="150">Funnel — heteroscedastic</text>
+<!-- panel 3: smile -->
+<line stroke="#d8cfb8" x1="450" x2="610" y1="100" y2="100"></line>
+<path d="M460,70 Q530,135 600,70" fill="none" stroke="#9a7b2e" stroke-dasharray="3,3" stroke-width="1.4"></path>
+<circle cx="468" cy="74" fill="#9a7b2e" r="2.5"></circle><circle cx="490" cy="100" fill="#9a7b2e" r="2.5"></circle>
+<circle cx="510" cy="118" fill="#9a7b2e" r="2.5"></circle><circle cx="530" cy="124" fill="#9a7b2e" r="2.5"></circle>
+<circle cx="550" cy="118" fill="#9a7b2e" r="2.5"></circle><circle cx="572" cy="100" fill="#9a7b2e" r="2.5"></circle>
+<circle cx="592" cy="74" fill="#9a7b2e" r="2.5"></circle>
+<text text-anchor="middle" x="530" y="150">Smile — nonlinearity</text>
+</g>
+</svg>

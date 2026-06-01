@@ -1,0 +1,15 @@
+<svg aria-label="Newton parabola fit" role="img" viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg">
+<!-- loss curve -->
+<path d="M40,40 C160,260 400,260 520,60" fill="none" stroke="#94a3b5" stroke-width="2"></path>
+<text fill="#94a3b5" font-family="monospace" font-size="12" x="60" y="35">L(θ)</text>
+<!-- current point -->
+<circle cx="180" cy="196" fill="#e0918a" r="5"></circle>
+<text fill="#e0918a" font-family="monospace" font-size="12" x="150" y="190">θₜ</text>
+<!-- fitted parabola (dashed) matching at the point, min near true min -->
+<path d="M120,150 Q250,250 360,150" fill="none" stroke="#6ea8fe" stroke-dasharray="5 4" stroke-width="2"></path>
+<text fill="#6ea8fe" font-family="monospace" font-size="12" x="370" y="150">fitted parabola</text>
+<!-- jump arrow to parabola min -->
+<circle cx="250" cy="232" fill="#7ed3b2" r="5"></circle>
+<line stroke="#7ed3b2" stroke-dasharray="3 3" stroke-width="1.5" x1="180" x2="244" y1="196" y2="228"></line>
+<text fill="#7ed3b2" font-family="monospace" font-size="11" text-anchor="middle" x="250" y="252">jump to its min</text>
+</svg>
