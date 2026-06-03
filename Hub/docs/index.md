@@ -1,10 +1,19 @@
 # Data Science Interview Prep
 
-A single entry point into four self-contained study sites. Each one is a standalone
+A single entry point into six self-contained study sites. Each one is a standalone
 knowledge base built for interview revision — pick a track below and you'll be routed into
 its own site, with a **← Study Hub** link to come back here.
 
 <div class="grid cards" markdown>
+
+-   __Mathematics__
+
+    ---
+
+    Probability, inferential statistics, and linear algebra for machine learning — the
+    mathematical groundwork everything else builds on.
+
+    [Open Mathematics →](Mathematics/)
 
 -   __Classical ML__
 
@@ -14,6 +23,15 @@ its own site, with a **← Study Hub** link to come back here.
     classical machine learning foundation, end to end.
 
     [Open Classical ML →](ClassicalML/)
+
+-   __Deep Learning__
+
+    ---
+
+    Neural network mechanics, gradient flow, optimization, losses, CNNs, vision and
+    generative models, and sequences with attention.
+
+    [Open Deep Learning →](DeepLearning/)
 
 -   __LLM Study Notes__
 

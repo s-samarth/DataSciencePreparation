@@ -1,0 +1,133 @@
+site_name: Mathematics Study Notes
+site_description: Interview-prep study notes for probability, inferential statistics, and linear algebra for machine learning.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/Mathematics/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+extra_javascript:
+  - assets/javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - Probability Foundations:
+      - foundations/index.md
+      - Counting & the Sampling Table: foundations/counting.md
+      - Events, Independence & Conditioning: foundations/events-conditioning.md
+      - Bayes' Theorem: foundations/bayes.md
+      - Paradoxes & Random Walks: foundations/paradoxes-walks.md
+  - Random Variables & Distributions:
+      - distributions/index.md
+      - Random Variables & Discrete Families: distributions/random-variables.md
+      - CDF, Expectation & Variance: distributions/cdf-expectation-variance.md
+      - More Discrete Distributions: distributions/discrete-families.md
+      - Continuous Random Variables: distributions/continuous.md
+  - Advanced Probability:
+      - advanced/index.md
+      - Universality of the Uniform & the Normal: advanced/uniform-normal.md
+      - Moment-Generating Functions: advanced/mgf.md
+      - Joint Distributions & Covariance: advanced/joint-covariance.md
+      - Conditional Expectation & Inequalities: advanced/conditional-inequalities.md
+      - Law of Large Numbers & CLT: advanced/lln-clt.md
+      - Markov Chains: advanced/markov-chains.md
+  - Distribution Cheat Sheet:
+      - cheatsheet/index.md
+      - Discrete Distributions: cheatsheet/discrete.md
+      - Continuous Distributions: cheatsheet/continuous.md
+      - Big Ideas: cheatsheet/big-ideas.md
+  - Estimation & Inference:
+      - estimation/index.md
+      - Population, Samples & Estimators: estimation/population-estimators.md
+      - Likelihood & MLE: estimation/likelihood-mle.md
+      - Bias & Unbiased Estimators: estimation/bias.md
+      - Confidence Intervals: estimation/confidence-intervals.md
+      - OLS as Inference: estimation/ols-inference.md
+  - Hypothesis Testing & Bayesian Inference:
+      - testing/index.md
+      - Hypothesis Testing & p-values: testing/hypothesis-pvalues.md
+      - Errors, FDR & Power: testing/errors-power.md
+      - t, z, Chi-Squared & F Tests: testing/t-z-chi-f.md
+      - Variance Tests, ANOVA & Non-Parametric: testing/variance-anova-nonparam.md
+      - Bayesian Estimation & MAP: testing/bayesian-map.md
+      - Practical Concepts: testing/practical-concepts.md
+  - Linear Algebra for ML:
+      - linear-algebra/index.md
+      - Matrices as Machines: linear-algebra/matrices-machines.md
+      - Eigenvalues, Pivots & Rank: linear-algebra/eigen-rank.md
+      - Special Matrices & Definiteness: linear-algebra/special-definite.md
+      - Decompositions (LU, Eigen, SVD): linear-algebra/decompositions.md
+      - Basis, Inverse & Matrix Calculus: linear-algebra/basis-inverse-calculus.md

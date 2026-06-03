@@ -1,0 +1,132 @@
+site_name: Deep Learning Study Notes
+site_description: Interview-prep study reference for neural network mechanics, optimization, losses, CNNs, sequences, and attention.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/DeepLearning/
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+extra_javascript:
+  - assets/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - assets/mermaid-init.js
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - Foundations:
+      - foundations/index.md
+      - Forward Pass: foundations/forward-pass.md
+      - The Training Loop: foundations/training-loop.md
+      - Backpropagation: foundations/backpropagation.md
+      - Full Backprop Derivation: foundations/backprop-derivation.md
+      - The Training Pipeline: foundations/training-pipeline.md
+  - Gradient Flow:
+      - gradient-flow/index.md
+      - Activation Functions: gradient-flow/activation-functions.md
+      - Vanishing Gradients: gradient-flow/vanishing-gradients.md
+      - Exploding Gradients & Clipping: gradient-flow/exploding-gradients.md
+      - Gradient Highways: gradient-flow/gradient-highways.md
+  - Optimization:
+      - optimization/index.md
+      - SGD & Momentum: optimization/sgd-and-momentum.md
+      - Adaptive Methods: optimization/adaptive-methods.md
+      - Modern Optimizers: optimization/modern-optimizers.md
+  - Normalization & Regularization:
+      - regularization/index.md
+      - Normalization: regularization/normalization.md
+      - Regularization: regularization/regularization.md
+      - Learning Rate Schedules: regularization/lr-schedules.md
+  - Loss Functions:
+      - losses/index.md
+      - Regression Losses: losses/regression-losses.md
+      - Classification Losses: losses/classification-losses.md
+      - Ranking & Metric Learning: losses/ranking-losses.md
+      - LLM & Generation Losses: losses/llm-losses.md
+  - Convolutional Networks:
+      - cnns/index.md
+      - Convolution Mechanics: cnns/convolution-mechanics.md
+      - Output Size, Pooling & Forward Pass: cnns/output-pooling-forward.md
+      - CNN Architectures: cnns/architectures.md
+  - Vision Tasks & Generative Models:
+      - vision-generative/index.md
+      - Segmentation & Detection: vision-generative/segmentation-detection.md
+      - GANs: vision-generative/gans.md
+      - Diffusion Models: vision-generative/diffusion.md
+  - Sequences & Attention:
+      - sequences/index.md
+      - Tokenization & BPE: sequences/tokenization-bpe.md
+      - Embeddings: sequences/embeddings.md
+      - RNNs & Gated Cells: sequences/rnns-and-gates.md
+      - Architectures & Attention: sequences/architectures-attention.md
