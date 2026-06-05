@@ -1,0 +1,137 @@
+site_name: Productionizing ML — Study Notes
+site_description: Interview-prep study notes for production ML system design, data foundations, training, serving, the production loop, infrastructure, and a hands-on implementation masterclass.
+site_author: Samarth Saraswat
+site_url: https://s-samarth.github.io/DataSciencePreparation/ProductionizingML/
+
+docs_dir: docs
+site_dir: site
+use_directory_urls: true
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - def_list
+  - toc:
+      permalink: true
+      toc_depth: 4
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+plugins:
+  - search
+
+extra:
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+extra_javascript:
+  - assets/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - "← Study Hub": https://s-samarth.github.io/DataSciencePreparation/
+  - Home: index.md
+  - System Design Foundations:
+      - sysdesign/index.md
+      - The Standard Request Path: sysdesign/request-path.md
+      - The 12 Building Blocks: sysdesign/building-blocks.md
+      - Latency and Capacity: sysdesign/latency-capacity.md
+      - Worked Case Studies: sysdesign/case-studies.md
+  - ML Data Foundations:
+      - data/index.md
+      - Events to Training Examples: data/events-to-examples.md
+      - Labels and Ground Truth: data/labels.md
+      - Features, Freshness, Leakage: data/features-leakage.md
+      - Formats and Storage: data/formats-storage.md
+      - Pipelines and Lakehouse: data/pipelines-lakehouse.md
+  - Training in Production:
+      - training/index.md
+      - Baselines and Model Choice: training/baselines-models.md
+      - Tracking and Versioning: training/tracking-versioning.md
+      - Distributed Training: training/distributed.md
+      - Evaluation Gates and CI/CD: training/evaluation-cicd.md
+      - Feature Stores and LLMs: training/feature-stores.md
+  - Serving the Model:
+      - serving/index.md
+      - Serving Modes: serving/modes.md
+      - Online Path and Latency: serving/online-path-latency.md
+      - Batching and Caching: serving/batching-caching.md
+      - Model Compression: serving/compression.md
+      - LLM Serving: serving/llm-serving.md
+      - Runtimes and Failures: serving/runtimes-failures.md
+  - The Production Loop:
+      - loop/index.md
+      - Logging and Labels: loop/logging-labels.md
+      - Production Evaluation: loop/production-evaluation.md
+      - Drift and Monitoring: loop/drift.md
+      - Deployment Strategies: loop/deployment-strategies.md
+      - Experiments and Playbooks: loop/experiments-playbooks.md
+  - Infrastructure and Build-vs-Buy:
+      - infra/index.md
+      - Storage and Compute: infra/storage-compute.md
+      - Orchestration: infra/orchestration.md
+      - ML Platform and Kubernetes: infra/platform-k8s.md
+      - Governance and Cost: infra/governance-cost.md
+      - Build vs Buy and Capstone: infra/build-vs-buy.md
+  - Implementation Masterclass:
+      - impl/index.md
+      - Concurrency and the GIL: impl/concurrency.md
+      - Asyncio Deep Dive: impl/asyncio.md
+      - FastAPI and Model Serving: impl/fastapi-serving.md
+      - Serving and Batching: impl/serving-batching.md
+      - Docker and Deployment: impl/docker-deploy.md
+      - Observability: impl/observability.md

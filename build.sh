@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build the hub + all six sub-sites and assemble them into a single ./_site folder.
+# Build the hub + all seven sub-sites and assemble them into a single ./_site folder.
 # Used by CI (.github/workflows/deploy.yml) and runnable locally for a smoke test.
 set -euo pipefail
 
 cd "$(dirname "$0")"
 
 # Hub is built first (lands at the root); the rest each go in their own sub-folder.
-SUBSITES=(Mathematics ClassicalML DeepLearning LLM AgenticAI MLCaseStudies)
+SUBSITES=(Mathematics ClassicalML DeepLearning LLM AgenticAI MLCaseStudies ProductionizingML)
 
 echo "==> Building each MkDocs site"
 for s in Hub "${SUBSITES[@]}"; do

@@ -1,6 +1,6 @@
 # Data Science Interview Prep
 
-A single entry point into six self-contained study sites. Each one is a standalone
+A single entry point into seven self-contained study sites. Each one is a standalone
 knowledge base built for interview revision — pick a track below and you'll be routed into
 its own site, with a **← Study Hub** link to come back here.
 
@@ -59,6 +59,15 @@ its own site, with a **← Study Hub** link to come back here.
     transcript and a one-page whiteboard cheat sheet.
 
     [Open Case Studies →](MLCaseStudies/)
+
+-   __Productionizing ML__
+
+    ---
+
+    Production ML system design, data foundations, training, serving, the production loop,
+    infrastructure, build-vs-buy, and a hands-on implementation masterclass.
+
+    [Open Productionizing ML →](ProductionizingML/)
 
 </div>
 
