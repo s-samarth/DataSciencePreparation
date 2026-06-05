@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Training in Production - Deep Chapter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0e14;--surface:#141a23;--surface-2:#1b2330;--border:#232b38;--text:#e6edf3;--muted:#8b9bb0;--sw:#38bdf8;--ml:#f59e0b;--ok:#34d399;--warn:#f87171}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,#132033,var(--bg) 42%);color:var(--text);font-family:Inter,sans-serif;line-height:1.75}nav{position:sticky;top:0;z-index:10;background:rgba(10,14,20,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 24px;font-size:14px;white-space:nowrap;overflow:auto}nav a{color:var(--muted);text-decoration:none;margin-right:12px}nav a.now{color:var(--sw);font-weight:800}main{max-width:1180px;margin:auto;padding:36px 22px 80px}.hero,.chapter,.panel,.callout,.lab,.toc a,.checkpoint{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:0 12px 32px #0004}.hero{padding:40px;border-radius:18px;background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(245,158,11,.08))}.eyebrow,.mono{font-family:"JetBrains Mono",monospace;color:var(--muted)}h1{font-size:clamp(36px,6vw,72px);line-height:1;margin:10px 0 18px}h2{font-size:34px;margin:48px 0 16px}h3{font-size:25px;margin:28px 0 12px}h4{font-size:19px;margin:22px 0 8px}.toc,.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.toc a{color:var(--text);text-decoration:none}.chapter{margin:20px 0;border-left:4px solid var(--sw)}.chapter.ml,.callout.ml{border-left-color:var(--ml)}.callout{border-left:4px solid var(--sw);margin:16px 0}.callout.warn{border-left-color:var(--warn)}.plain{font-size:19px;color:#dbeafe}.two{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.subnote{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:15px;margin:14px 0}.sw{color:var(--sw)}.ml{color:var(--ml)}.muted{color:var(--muted)}button{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin:4px;cursor:pointer}button.active{border-color:var(--ml);color:var(--ml)}table{width:100%;border-collapse:collapse;margin:12px 0}td,th{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top}svg{max-width:100%;background:#0d131d;border:1px solid var(--border);border-radius:12px}.node{fill:#141a23;stroke:#38bdf8;stroke-width:2}.node.ml{stroke:#f59e0b}.edge{stroke:#415066;stroke-width:3;fill:none}code{font-family:"JetBrains Mono",monospace;color:#dbeafe}@media(max-width:850px){.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav><a href="01_software_system_design.html">1 Software Design</a><a href="02_ml_data_foundations.html">2 Data Foundations</a><a class="now" href="03_training_in_production.html">3 Training</a><a href="04_serving_the_model.html">4 Serving</a><a href="05_production_loop.html">5 Production Loop</a><a href="06_infrastructure.html">6 Infrastructure</a></nav>
+<main>
+  <section class="hero">
+    <div class="eyebrow">PAGE 3 - TRAINING LAYER</div>
+    <h1>Training in Production</h1>
+    <p>Production training is the discipline of turning a data snapshot and code version into a model artifact that can be reproduced, evaluated, approved, deployed, monitored, and rolled back.</p>
+    <p>In a notebook, you can run cells until a metric looks good. In production, that is not enough. The company needs to know which data produced the model, whether the model is better than the current one, whether it is safe on important slices, whether it can serve within latency and cost limits, and how to recover if it fails.</p>
+  </section>
+
+  <section class="callout">
+    <h3>Running Scenario: Fraud Model Candidate</h3>
+    <p>Continue the Page 2 fraud system. You now have point-in-time correct training rows. You want to train a new model that reduces fraud losses without blocking too many good customers. The current production model is a gradient-boosted tree. A new candidate improves global AUC, but it is slower and regresses users from one country. Should it ship? This page teaches how production training answers that question.</p>
+  </section>
+
+  <h2>Table of Contents</h2>
+  <div class="toc">
+    <a href="#pipeline">1. Pipeline Anatomy</a>
+    <a href="#baselines">2. Baselines and Model Choice</a>
+    <a href="#tracking">3. Experiment Tracking</a>
+    <a href="#versioning">4. Versioning and Reproducibility</a>
+    <a href="#distributed">5. Distributed Training</a>
+    <a href="#evaluation">6. Evaluation Gates</a>
+    <a href="#cicd">7. CI/CD for ML</a>
+    <a href="#feature-store">8. Feature Stores</a>
+    <a href="#llm">9. LLM/Post-Training Note</a>
+    <a href="#interview">10. Interview Synthesis</a>
+  </div>
+
+  <section id="pipeline" class="chapter">
+    <h2>1. Training Pipeline Anatomy</h2>
+    <p class="plain">A training pipeline is a controlled assembly line. Its job is not just to produce a model; it is to produce evidence that the model should or should not be trusted.</p>
+    <p>The pipeline usually starts by selecting a data snapshot. This matters because training data changes. New labels arrive, bad rows are corrected, privacy deletions happen, and features are backfilled. If you do not pin the input data, a model trained today may not be comparable to a model trained tomorrow.</p>
+    <p>Next comes validation. Before spending GPU hours or producing a model, the pipeline should ask: are required columns present, are types correct, did null rates explode, did distributions shift unexpectedly, are label windows complete, are point-in-time joins valid, and are duplicates under control?</p>
+    <p>Feature generation turns raw and curated data into model inputs. For fraud, this might include account age, transaction amount, device risk score, payment velocity, failed-login counts, and historical spend. The pipeline must record which feature definitions were used. A model trained with feature definition v7 is not the same as one trained with v8.</p>
+    <p>Training produces one or more candidate artifacts. Evaluation compares them against offline metrics, slices, robustness checks, calibration, fairness constraints, latency, memory footprint, and the current production model. Registration stores the chosen artifact and its metadata. Promotion changes its stage only if gates pass.</p>
+    <div class="two">
+      <div class="lab"><h3>Pipeline timeline</h3><svg id="pipeSvg" viewBox="0 0 900 250"></svg></div>
+      <div class="callout">
+        <b>Notebook vs pipeline:</b> A notebook is good for exploration. A pipeline is for repeatability. If you cannot rerun it, inspect it, and explain its inputs and outputs, it is not production training.
+      </div>
+    </div>
+  </section>
+
+  <section id="baselines" class="chapter">
+    <h2>2. Baselines and Model Choice</h2>
+    <p class="plain">The best production model is not always the most complex model. It is the simplest model that meets quality, latency, cost, and maintainability requirements.</p>
+    <p>A baseline is a deliberately simple solution used as a reference point. For fraud, a baseline might be a rule: block transactions above a threshold from newly created accounts. A stronger baseline might be logistic regression. A common production baseline might be XGBoost or LightGBM. Only after these baselines are understood should you justify deep models or transformers.</p>
+    <p>Baselines catch data bugs. If a simple model gets impossibly high AUC, you may have leakage. If a complex model barely beats a baseline, the extra serving cost may not be worth it. If the baseline performs better on a critical slice, the new model may be learning spurious correlations.</p>
+    <p>Model choice is a system decision. A neural model may improve accuracy but require GPU serving, longer p99 latency, harder explanations, larger artifacts, and more complex monitoring. A tree model may be easier to serve on CPU, easier to explain, and good enough. In interviews, you should show that you understand this tradeoff.</p>
+    <table>
+      <thead><tr><th>Model family</th><th>Why use it</th><th>Production cost</th></tr></thead>
+      <tbody>
+        <tr><td>Rules / heuristics</td><td>Fast, explainable, good fallback</td><td>Low accuracy ceiling, manual maintenance</td></tr>
+        <tr><td>Logistic regression</td><td>Strong baseline, calibrated-ish, simple</td><td>Needs feature engineering, limited nonlinearity</td></tr>
+        <tr><td>GBDT / XGBoost / LightGBM</td><td>Excellent tabular performance</td><td>Can be harder to calibrate and monitor than linear models</td></tr>
+        <tr><td>Deep neural models</td><td>Useful for embeddings, text, images, large interactions</td><td>More serving cost, more tuning, harder debugging</td></tr>
+        <tr><td>Transformers / LLMs</td><td>Language, multimodal, reasoning-like tasks</td><td>High latency/cost, evaluation and safety complexity</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="tracking" class="chapter">
+    <h2>3. Experiment Tracking</h2>
+    <p class="plain">Experiment tracking is the system that answers: "What exactly did we try, and what happened?"</p>
+    <p>A training run should log parameters, metrics, artifacts, data version, code version, feature version, environment, random seed, hardware, start/end time, owner, and notes. Each of these exists because someone will ask a question later.</p>
+    <p>If a metric changed, parameters and code tell you what changed. If a model cannot be loaded, artifacts and environment explain why. If an auditor asks why a model was approved, metrics, evaluation reports, and registry stage history answer. If production regresses, the data and feature versions let you compare the new model with the old one.</p>
+    <p>MLflow and Weights & Biases are not magic. MLflow is often used for tracking, artifacts, model registry, and vendor-neutral lifecycle management. W&B is often used for rich experiment dashboards, sweeps, collaborative analysis, artifacts, and reports. The design principle is more important than the product: centralize run evidence so training decisions are explainable.</p>
+    <div class="two">
+      <div class="lab">
+        <h3>Run comparison</h3>
+        <table><thead><tr><th>Run</th><th>Data</th><th>Model</th><th>AUC</th><th>Country B recall</th><th>p99</th><th>Decision</th></tr></thead><tbody><tr><td>r-101</td><td>v41</td><td>XGBoost</td><td>.879</td><td>.74</td><td>12 ms</td><td>current prod</td></tr><tr><td>r-102</td><td>v42</td><td>XGBoost</td><td>.891</td><td>.76</td><td>14 ms</td><td>candidate</td></tr><tr><td>r-103</td><td>v42</td><td>NN</td><td>.896</td><td>.61</td><td>90 ms</td><td>reject</td></tr></tbody></table>
+        <svg id="metric" viewBox="0 0 560 170"></svg>
+      </div>
+      <div class="callout warn">
+        <b>Why r-103 is rejected:</b> global AUC improved, but a critical slice regressed and p99 latency is too high for checkout. Production decisions are multi-objective.
+      </div>
+    </div>
+  </section>
+
+  <section id="versioning" class="chapter ml">
+    <h2>4. Versioning and Reproducibility</h2>
+    <p class="plain">A model version is a bundle of evidence, not just a file named <code>model.pkl</code>.</p>
+    <p>Code versioning is familiar: Git records source changes. But production ML also needs data versioning. Data is large, mutable, and time-dependent. Labels arrive late. Backfills change history. A bug fix may rewrite a feature table. Privacy deletion may remove rows. Without data versioning, you cannot say what the model learned from.</p>
+    <p>Model versioning stores the trained artifact plus metadata: input schema, output schema, feature definitions, metrics, environment, dependencies, owner, approval status, and lineage back to the run. A model registry gives controlled stages such as development, staging, production, archived. Promotion is a governed transition, not somebody copying a file into a server folder.</p>
+    <p>Reproducibility does not always mean bit-identical weights. GPU kernels, distributed training, and nondeterminism can make exact reproduction hard. The practical goal is controlled reproducibility: same data snapshot, same code, same config, same environment, and metrics within expected tolerance.</p>
+    <p>Tools address different pieces. DVC can version data pointers and artifacts alongside Git. lakeFS can provide Git-like branches and commits over object storage. Delta/Iceberg/Hudi provide table snapshots. MLflow Registry stores model versions and stages. Containers pin runtime dependencies.</p>
+    <p><b class="ml">Compliance angle:</b> privacy laws complicate reproducibility. If a user invokes deletion rights, future training must exclude that data. Some organizations also need lineage to know which derived datasets were affected. Reproducibility and deletion can conflict, so policy must define what is retained, deleted, retrained, or legally held.</p>
+    <div class="lab"><h3>Lineage graph</h3><svg id="lineage" viewBox="0 0 900 270"></svg></div>
+  </section>
+
+  <section id="distributed" class="chapter">
+    <h2>5. Distributed Training</h2>
+    <p class="plain">Distributed training is not "more GPUs is faster." It is a trade between computation, memory, and communication.</p>
+    <p><b>Data parallelism</b> is the easiest starting point. Copy the same model onto multiple GPUs. Split each batch across GPUs. Each GPU computes gradients on its mini-batch shard. Then GPUs average gradients using an operation called all-reduce. After that, every replica applies the same update. The benefit is faster processing of large batches. The cost is communication every step.</p>
+    <p><b>Gradient accumulation</b> is related but simpler: you process several smaller mini-batches before taking an optimizer step. It simulates a larger batch when memory is limited, but it does not reduce total compute.</p>
+    <p><b>Mixed precision</b> uses lower-precision numeric formats such as FP16, BF16, or FP8 where safe. It saves memory and speeds compute, but needs care to avoid numerical instability.</p>
+    <p><b>Model parallelism</b> is used when the model does not fit on one device. Pipeline parallelism splits layers into stages. Tensor parallelism splits large tensor operations across devices. These are common for large transformers, but communication patterns become central. A poor split can spend more time moving activations than computing.</p>
+    <p><b>Checkpointing</b> is survival. Long training jobs fail. A useful checkpoint contains model weights, optimizer state, scheduler state, and enough training progress to resume. If you resume only weights but not optimizer state, the run is no longer the same training process.</p>
+    <div class="lab">
+      <button onclick="par('data')" id="data" class="active">Data parallel</button>
+      <button onclick="par('pipe')" id="pipe">Pipeline parallel</button>
+      <button onclick="par('tensor')" id="tensor">Tensor parallel</button>
+      <svg id="parallel" viewBox="0 0 900 250"></svg>
+      <p id="parText"></p>
+    </div>
+  </section>
+
+  <section id="evaluation" class="chapter ml">
+    <h2>6. Evaluation Gates</h2>
+    <p class="plain">Evaluation decides whether a trained artifact deserves the risk of production traffic.</p>
+    <p>Offline metrics depend on task. Classification uses precision, recall, ROC-AUC, PR-AUC, log loss, calibration, confusion matrices. Ranking uses NDCG, MAP, MRR, recall@k. Regression uses MAE, RMSE, quantile loss. LLM systems use task-specific evals, human preference, judge models, safety metrics, refusal behavior, tool success, factuality checks, and regression test sets.</p>
+    <p>Global metrics are not enough. A fraud model can improve AUC overall while hurting a small country, new users, a payment method, or high-value customers. Slice metrics reveal this. If the system makes consequential decisions, fairness and compliance slices may be mandatory.</p>
+    <p>Evaluation must include serving constraints. A model that is 1% more accurate but 10x slower may be impossible for checkout. A model that uses a feature unavailable online cannot ship. A model that needs a GPU for every request may not fit budget. This is why evaluation gates include latency, memory, cost, and feature availability.</p>
+    <div class="checkpoint">
+      <b>Promotion question:</b>
+      <p>Would you ship a model with better global AUC, worse recall for one protected segment, and p99 latency above the product SLO? A mature answer is no, not directly. You investigate the slice regression, maybe adjust thresholds, retrain, or run a limited shadow/canary, but you do not blindly promote.</p>
+    </div>
+  </section>
+
+  <section id="cicd" class="chapter">
+    <h2>7. CI/CD for ML</h2>
+    <p class="plain">Software CI/CD proves code can be built, tested, and deployed. ML CI/CD also proves data and model behavior are acceptable.</p>
+    <p>The code gate remains: unit tests, integration tests, type checks, packaging, dependency scanning, container build, and API contract tests. But ML adds data gates before training: schema, ranges, null rates, freshness, duplicates, label availability, point-in-time correctness, and leakage checks.</p>
+    <p>After training, model gates decide whether the candidate can proceed. They compare against thresholds and the current production model. They check global metrics, slice metrics, fairness, calibration, robustness, latency, memory, cost, and explainability requirements where relevant.</p>
+    <p>Deployment gates decide how the model reaches users. A candidate might first be registered, then deployed in shadow mode, then canary to 1%, then 5%, then 25%, then full rollout. Page 5 covers this loop deeply.</p>
+    <div class="lab"><h3>Promotion gates</h3><div id="gates"></div></div>
+  </section>
+
+  <section id="feature-store" class="chapter">
+    <h2>8. Feature Stores</h2>
+    <p class="plain">A feature store exists because the same feature must mean the same thing during training and serving.</p>
+    <p>Without a feature store, data scientists may compute <code>failed_logins_last_10_min</code> in a notebook using historical events, while production engineers implement a similar but not identical computation in an API service. One version includes only password failures; the other includes OTP failures. One uses event time; the other uses processing time. The model now sees inconsistent meaning.</p>
+    <p>A feature store organizes feature definitions, offline historical values, and online low-latency values. The <b>offline store</b> is used to build training data over history, usually from warehouse or lakehouse tables. The <b>online store</b> is used at request time, usually a key-value system optimized for p99 latency. Materialization jobs move values from computation pipelines into the online store.</p>
+    <p>Point-in-time correctness is the hardest concept. When training an example at time T, the feature join must use the value that was known at time T. If it joins the latest value today, the training set sees the future. Feature stores such as Feast, Tecton, Databricks Feature Store, Vertex AI Feature Store, and SageMaker Feature Store exist to reduce this risk, though they make different tradeoffs around managed pipelines, cloud integration, and operational burden.</p>
+    <div class="two"><div class="lab"><svg id="featuresSvg" viewBox="0 0 900 315"></svg></div><div class="callout"><b>Interview phrasing:</b> "I would define features once, use the offline store for point-in-time training data, materialize fresh values to an online store for serving, and monitor freshness plus offline/online parity."</div></div>
+  </section>
+
+  <section id="llm" class="chapter ml">
+    <h2>9. LLM and Post-Training Reality</h2>
+    <p class="plain">For LLMs, "training in production" often means post-training and evaluation pipelines rather than pretraining from scratch.</p>
+    <p>Most companies do not pretrain foundation models. They fine-tune, adapt, evaluate, and serve existing models. Supervised fine-tuning teaches a model from curated prompt-response examples. LoRA and QLoRA adapt a model with small trainable adapters instead of updating all weights. Preference tuning uses comparisons or reward signals to make outputs align better with user preferences.</p>
+    <p>The same production principles apply, but the artifacts multiply. You need prompt datasets, conversation logs, safety labels, evaluation suites, judge prompts, adapter versions, base model versions, tokenizer versions, and inference settings. Contamination is a major risk: if evaluation examples leak into training data, the model appears better than it is.</p>
+    <p>LLM evaluation is also less settled than classic tabular ML. You may need unit-style golden tests, human review, LLM-as-judge with calibration, regression suites, tool-call success rates, refusal behavior, hallucination checks, toxicity checks, latency, and cost per task. The training pipeline must capture these evaluations because a lower loss does not guarantee a better product model.</p>
+  </section>
+
+  <section id="interview" class="chapter ml">
+    <h2>10. Interview Synthesis</h2>
+    <p class="plain">A strong answer treats training as a governed production workflow, not a notebook experiment.</p>
+    <div class="checkpoint">
+      <p>"I would build a reproducible training pipeline: pin a data snapshot, validate schema and distributions, generate point-in-time correct features, train baseline and candidate models, log every run with code/data/feature/model versions, evaluate global and slice metrics plus latency and cost, register the artifact, and promote only through controlled gates. For distributed training, I would only introduce it if model size or training time requires it, and I would account for communication and checkpointing."</p>
+    </div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+pipeSvg.innerHTML=["Data snapshot","Validate","Features","Train candidates","Evaluate gates","Register","Promote"].map((n,i)=>`<circle class="node ${i>2?'ml':''}" cx="${70+i*125}" cy="110" r="42"/><text x="${70+i*125}" y="106" fill="#e6edf3" text-anchor="middle" font-size="11">${n.split(" ")[0]}</text><text x="${70+i*125}" y="121" fill="#e6edf3" text-anchor="middle" font-size="11">${n.split(" ").slice(1).join(" ")}</text>${i?`<path class="edge" d="M${28+i*125} 110 L${70+i*125-43} 110"/>`:''}`).join("");
+metric.innerHTML=`<polyline points="35,130 125,105 215,80 305,66 395,58 505,54" fill="none" stroke="#f59e0b" stroke-width="4"/><text x="35" y="28" fill="#8b9bb0">Global metric improves</text><polyline points="35,100 125,92 215,87 305,105 395,122 505,132" fill="none" stroke="#f87171" stroke-width="3"/><text x="35" y="48" fill="#8b9bb0">Critical slice regresses</text>`;
+lineage.innerHTML=`${["Raw data","Feature defs","Code commit","Image","Run","Model","Registry","Production"].map((n,i)=>`<rect class="node ${i>3?'ml':''}" x="${25+i*108}" y="${i<4?45:165}" width="94" height="58" rx="10"/><text x="${72+i*108}" y="${i<4?79:199}" fill="#e6edf3" text-anchor="middle" font-size="11">${n}</text>`).join("")}<path class="edge" d="M72 103 L457 165 M180 103 L457 165 M288 103 L457 165 M396 103 L457 165 M551 194 L673 194 M767 194 L807 194"/>`;
+const parDesc={data:"Data parallelism: every GPU has the full model. Each gets different examples. Gradients are averaged with all-reduce before one shared optimizer step.",pipe:"Pipeline parallelism: different layers live on different GPUs. Micro-batches flow through stages. It helps memory but introduces pipeline bubbles.",tensor:"Tensor parallelism: one large operation is split across GPUs. It enables huge transformer layers, but communication happens inside layers and must be very fast."};
+function par(k){["data","pipe","tensor"].forEach(id=>$("#"+id).classList.toggle("active",id===k));const labels=k==="data"?["GPU1 full model","GPU2 full model","GPU3 full model","All-reduce"]:k==="pipe"?["Layers 1-8","Layers 9-16","Layers 17-24","Micro-batches"]:["Matrix shard A","Matrix shard B","Matrix shard C","Collective"];parallel.innerHTML=labels.map((n,i)=>`<rect class="node ${i===3?'ml':''}" x="${50+i*205}" y="${i===3?145:65}" width="150" height="65" rx="12"/><text x="${125+i*205}" y="${i===3?184:104}" fill="#e6edf3" text-anchor="middle" font-size="12">${n}</text>${i?`<path class="edge" d="M${i*205-5} 98 L${47+i*205} 98"/>`:''}`).join("");parText.textContent=parDesc[k]}par("data");
+gates.innerHTML=["Code tests and package build pass","Training data schema, freshness, nulls, and ranges pass","Point-in-time joins and leakage checks pass","Candidate beats current production on primary metric","Critical slices do not regress beyond threshold","Calibration, fairness, latency, memory, and cost pass","Artifact is registered with lineage and approved for staged rollout"].map((g,i)=>`<p><b class="${i>1?'ml':'sw'}">${i+1}. ${g}</b></p>`).join("");
+featuresSvg.innerHTML=`<rect class="node" x="35" y="50" width="160" height="65" rx="12"/><text x="115" y="88" fill="#e6edf3" text-anchor="middle">Feature definitions</text><rect class="node" x="295" y="35" width="165" height="65" rx="12"/><text x="377" y="73" fill="#e6edf3" text-anchor="middle">Offline history</text><rect class="node ml" x="295" y="205" width="165" height="65" rx="12"/><text x="377" y="243" fill="#e6edf3" text-anchor="middle">Online latest</text><rect class="node" x="660" y="35" width="185" height="65" rx="12"/><text x="752" y="73" fill="#e6edf3" text-anchor="middle">Training join as of T</text><rect class="node ml" x="660" y="205" width="185" height="65" rx="12"/><text x="752" y="243" fill="#e6edf3" text-anchor="middle">Serving lookup now</text><path class="edge" d="M195 82 L295 68 M195 82 L295 238 M460 68 L660 68 M460 238 L660 238"/><text x="463" y="158" fill="#f59e0b">same meaning, different latency needs</text>`;
+</script>
+</body>
+</html>

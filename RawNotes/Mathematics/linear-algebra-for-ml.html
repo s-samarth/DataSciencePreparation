@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra for ML — Study Reference</title>
+<style>
+  :root{
+    --paper:#f7f3ea;
+    --paper-2:#efe9da;
+    --ink:#1f2330;
+    --ink-soft:#444a5c;
+    --accent:#b1542f;      /* terracotta */
+    --accent-2:#1d5b6e;    /* deep teal */
+    --gold:#a8852c;
+    --line:#d9cfba;
+    --panel:#fffdf8;
+    --code-bg:#272b38;
+    --code-ink:#e9e4d6;
+    --good:#2f7d4f;
+    --bad:#a8392b;
+    --serif:"Palatino Linotype","Book Antiqua",Palatino,"Iowan Old Style",Georgia,serif;
+    --sans:"Optima","Segoe UI",Candara,"Gill Sans","Helvetica Neue",sans-serif;
+    --mono:"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:var(--sans);font-size:17px;line-height:1.68;
+    background-image:radial-gradient(circle at 12% 8%, rgba(177,84,47,.045), transparent 40%),
+                     radial-gradient(circle at 88% 92%, rgba(29,91,110,.05), transparent 42%);
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 26px 120px;}
+
+  /* ---------- header ---------- */
+  header.top{
+    padding:64px 0 36px;border-bottom:3px double var(--line);margin-bottom:14px;
+  }
+  .kicker{font-family:var(--mono);letter-spacing:.32em;text-transform:uppercase;
+    font-size:12px;color:var(--accent);margin-bottom:18px;}
+  h1{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1.08;margin:0 0 14px;
+    letter-spacing:-.01em;}
+  h1 .sub{display:block;font-size:21px;color:var(--ink-soft);font-style:italic;margin-top:10px;font-weight:400;}
+  .meta{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);margin-top:22px;}
+
+  /* ---------- table of contents ---------- */
+  nav.toc{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:24px 30px;margin:34px 0 50px;box-shadow:0 8px 30px -18px rgba(31,35,48,.4);}
+  nav.toc h2{font-family:var(--mono);font-size:12px;letter-spacing:.25em;text-transform:uppercase;
+    color:var(--accent-2);margin:0 0 14px;border:none;padding:0;}
+  nav.toc ol{margin:0;padding-left:0;list-style:none;counter-reset:toc;
+    column-count:2;column-gap:40px;}
+  nav.toc li{counter-increment:toc;margin:6px 0;break-inside:avoid;}
+  nav.toc li a{text-decoration:none;color:var(--ink);font-size:15.5px;}
+  nav.toc li a:before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);
+    font-size:12px;color:var(--accent);margin-right:10px;}
+  nav.toc li a:hover{color:var(--accent);}
+
+  /* ---------- sections ---------- */
+  section{margin:0 0 18px;padding-top:30px;}
+  h2{font-family:var(--serif);font-size:31px;font-weight:600;margin:46px 0 6px;
+    padding-bottom:10px;border-bottom:1px solid var(--line);letter-spacing:-.01em;}
+  h2 .n{font-family:var(--mono);font-size:15px;color:var(--accent);margin-right:14px;
+    vertical-align:middle;font-weight:400;}
+  h3{font-family:var(--serif);font-size:22px;font-weight:600;margin:34px 0 4px;color:var(--ink);}
+  h4{font-family:var(--sans);font-size:14px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent-2);margin:24px 0 6px;font-weight:700;}
+  p{margin:12px 0;}
+  strong{font-weight:700;color:#15181f;}
+  .lead{font-size:18.5px;color:var(--ink-soft);}
+  a.permalink{color:var(--accent-2);}
+
+  ul,ol{padding-left:22px;}
+  li{margin:7px 0;}
+
+  /* ---------- math ---------- */
+  .expr{font-family:var(--serif);font-style:italic;font-size:1.02em;white-space:nowrap;}
+  .expr.up{font-style:normal;}
+  .eq{font-family:var(--serif);font-size:20px;background:var(--panel);
+    border-left:4px solid var(--accent);border-radius:0 8px 8px 0;
+    padding:16px 22px;margin:18px 0;overflow-x:auto;line-height:2;}
+  .eq .label{display:block;font-family:var(--sans);font-style:normal;font-size:13px;
+    color:var(--accent-2);margin-bottom:6px;letter-spacing:.04em;}
+  .frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;
+    margin:0 .18em;}
+  .frac .num{border-bottom:1.5px solid currentColor;padding:0 .35em;line-height:1.3;}
+  .frac .den{padding:0 .35em;line-height:1.3;}
+  sup,sub{font-size:.72em;}
+
+  /* matrices as preformatted */
+  .mat{font-family:var(--mono);background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:14px 18px;margin:16px 0;font-size:14.5px;line-height:1.5;
+    color:#2b2f3c;overflow-x:auto;white-space:pre;}
+  .mat .cmt{color:var(--accent);}
+
+  /* code/ascii viz block */
+  pre.ascii{font-family:var(--mono);background:var(--code-bg);color:var(--code-ink);
+    border-radius:10px;padding:20px 22px;font-size:13px;line-height:1.5;overflow-x:auto;
+    box-shadow:0 10px 30px -16px rgba(0,0,0,.55);}
+  pre.ascii .hl{color:#e3a76b;}
+  pre.ascii .gr{color:#8fcf9f;}
+
+  /* ---------- callouts ---------- */
+  .callout{border-radius:10px;padding:16px 20px 16px 22px;margin:20px 0;font-size:15.5px;}
+  .why{background:#fbf4ec;border-left:4px solid var(--accent);}
+  .interview{background:#eef4f5;border-left:4px solid var(--accent-2);}
+  .trap{background:#fbeeec;border-left:4px solid var(--bad);}
+  .ml{background:#f3f1e6;border-left:4px solid var(--gold);}
+  .callout .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    display:block;margin-bottom:6px;font-weight:700;}
+  .why .tag{color:var(--accent);}
+  .interview .tag{color:var(--accent-2);}
+  .trap .tag{color:var(--bad);}
+  .ml .tag{color:var(--gold);}
+
+  /* worked example */
+  .worked{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:6px 24px 18px;margin:22px 0;box-shadow:0 6px 22px -16px rgba(31,35,48,.5);}
+  .worked .wtag{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#fff;background:var(--accent);display:inline-block;padding:4px 12px;border-radius:0 0 8px 8px;
+    margin:0 0 8px;}
+  .step{margin:10px 0;padding-left:16px;border-left:2px solid var(--line);}
+  .check{color:var(--good);font-weight:700;}
+
+  /* figure */
+  figure{margin:26px 0;text-align:center;}
+  figure svg{max-width:100%;height:auto;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:14px;box-shadow:0 8px 28px -18px rgba(31,35,48,.5);}
+  figcaption{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);margin-top:10px;
+    font-style:italic;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin:22px 0;font-size:14.5px;background:var(--panel);
+    border-radius:10px;overflow:hidden;box-shadow:0 6px 22px -16px rgba(31,35,48,.5);}
+  th{background:var(--accent-2);color:#fff;text-align:left;padding:11px 14px;font-family:var(--sans);
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+  td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top;}
+  tr:nth-child(even) td{background:#faf6ee;}
+  td .expr{white-space:normal;}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;background:var(--paper-2);
+    border:1px solid var(--line);border-radius:20px;padding:2px 10px;margin:2px 3px 2px 0;color:var(--ink-soft);}
+
+  hr.soft{border:none;border-top:1px dashed var(--line);margin:40px 0;}
+
+  footer{margin-top:70px;padding-top:26px;border-top:3px double var(--line);
+    font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);}
+
+  ::selection{background:rgba(177,84,47,.22);}
+  @media (max-width:640px){
+    h1{font-size:34px;} nav.toc ol{column-count:1;} .eq{font-size:17px;}
+    body{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Interview Prep · Mathematical Foundations</div>
+  <h1>Linear Algebra for Machine Learning
+    <span class="sub">From matrices-as-machines to SVD, decompositions, and matrix calculus — one complete session.</span>
+  </h1>
+  <div class="meta">A single self-contained reference · intuition first, full math kept · everything renders offline</div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#machines">Matrices as machines</a></li>
+    <li><a href="#multiply">Matrix multiplication (both methods)</a></li>
+    <li><a href="#eigen">Eigenvalues &amp; eigenvectors</a></li>
+    <li><a href="#pivots">Pivots</a></li>
+    <li><a href="#rank">Rank &amp; low rank</a></li>
+    <li><a href="#special">Special matrices</a></li>
+    <li><a href="#pd">Positive (semi)definite</a></li>
+    <li><a href="#why-decomp">Why decompose</a></li>
+    <li><a href="#lu">LU decomposition</a></li>
+    <li><a href="#eigdecomp">Diagonalization / eigendecomposition</a></li>
+    <li><a href="#svd">Singular value decomposition</a></li>
+    <li><a href="#basis">Basis</a></li>
+    <li><a href="#inverse">Inverse &amp; invertibility</a></li>
+    <li><a href="#pseudo">Pseudo-inverse</a></li>
+    <li><a href="#nullspace">Null space</a></li>
+    <li><a href="#calculus">Matrix calculus cheat sheet</a></li>
+    <li><a href="#thread">The single thread</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================= -->
+<section id="machines">
+  <h2><span class="n">01</span>Matrices as machines</h2>
+
+  <p class="lead">A matrix is a machine that takes a vector in, processes it, and hands a vector back — with the one restriction that the processing is <em>linear</em>.</p>
+
+  <p>Start from an ordinary function. <span class="expr">f(x) = 2x</span> takes a number, doubles it, returns a number. Now let the input be a <em>list</em> of numbers (a vector) and the output also a list. A matrix is exactly that machine, restricted to be <strong>linear</strong>, meaning it obeys two rules — "the machine plays no tricks":</p>
+
+  <div class="eq">
+    <span class="label">Additivity &amp; homogeneity (the definition of linear)</span>
+    f(u + v) = f(u) + f(v) &nbsp;&nbsp;and&nbsp;&nbsp; f(c·v) = c·f(v)
+  </div>
+
+  <p>We obsess over linear machines because they are the simplest non-trivial functions, they are everywhere (rotations, scalings, projections, the <span class="expr">Wx</span> inside every neural-net layer), and — the punchline — <strong>any linear machine on finite vectors is fully described by a finite grid of numbers.</strong> That grid is the matrix. We don't invent matrices; they fall out as the minimum data needed to pin down a linear map.</p>
+
+  <h3>Shape = the dimensions it maps between</h3>
+  <p>An <span class="expr up">m × n</span> matrix accepts an <span class="expr">n</span>-dimensional input and returns an <span class="expr">m</span>-dimensional output. It maps <span class="expr up">ℝⁿ → ℝᵐ</span>.</p>
+  <div class="eq"><span class="label">Read the shape this way, always</span>(rows, columns) = (out, in) &nbsp;·&nbsp; columns eat the input, rows build the output</div>
+  <p>That is the "changes dimensions" idea: a <span class="expr up">3072 × 768</span> weight matrix takes a 768-dim token and blows it up to 3072 dims.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matrix as a machine mapping R-n to R-m">
+      <defs><marker id="ar" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#1d5b6e"/></marker></defs>
+      <text x="60" y="40" font-family="monospace" font-size="13" fill="#444a5c">input vector</text>
+      <rect x="40" y="55" width="70" height="110" rx="6" fill="#efe9da" stroke="#d9cfba"/>
+      <text x="75" y="100" font-family="serif" font-size="18" fill="#1f2330" text-anchor="middle">x</text>
+      <text x="75" y="125" font-family="monospace" font-size="11" fill="#444a5c" text-anchor="middle">n numbers</text>
+      <line x1="120" y1="110" x2="245" y2="110" stroke="#1d5b6e" stroke-width="2" marker-end="url(#ar)"/>
+      <rect x="250" y="45" width="150" height="130" rx="10" fill="#b1542f" />
+      <text x="325" y="100" font-family="serif" font-size="26" fill="#fff" text-anchor="middle" font-style="italic">A</text>
+      <text x="325" y="128" font-family="monospace" font-size="11" fill="#f7e6dc" text-anchor="middle">m × n  (out × in)</text>
+      <text x="325" y="35" font-family="monospace" font-size="12" fill="#444a5c" text-anchor="middle">the linear machine</text>
+      <line x1="402" y1="110" x2="525" y2="110" stroke="#1d5b6e" stroke-width="2" marker-end="url(#ar)"/>
+      <rect x="530" y="62" width="70" height="96" rx="6" fill="#efe9da" stroke="#d9cfba"/>
+      <text x="565" y="105" font-family="serif" font-size="18" fill="#1f2330" text-anchor="middle">Ax</text>
+      <text x="565" y="128" font-family="monospace" font-size="11" fill="#444a5c" text-anchor="middle">m numbers</text>
+    </svg>
+    <figcaption>The matrix is an operator: a vector enters, a (possibly different-dimensional) vector leaves.</figcaption>
+  </figure>
+
+  <h3>Why a matrix is "a collection of vectors"</h3>
+  <p>This is the master key. A linear machine is <strong>completely determined by where it sends the basis vectors</strong>, because every vector is a combination of basis vectors and linearity lets you push the machine through the combination:</p>
+  <div class="eq">
+    v = x·e₁ + y·e₂ &nbsp;&nbsp;⟹&nbsp;&nbsp; T(v) = x·T(e₁) + y·T(e₂)
+  </div>
+  <p>So if you know where <span class="expr">e₁</span> and <span class="expr">e₂</span> land, you know where <em>every</em> vector lands. Store <span class="expr">T(e₁)</span> as column 1, <span class="expr">T(e₂)</span> as column 2. That is the whole matrix.</p>
+  <div class="callout why"><span class="tag">The one sentence to memorize</span>The columns of a matrix are the landing spots of the input space's basis vectors. Everything else (eigenvectors, rank, SVD) builds on this.</div>
+
+  <figure>
+    <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Basis vectors transformed into the columns of A">
+      <!-- left grid -->
+      <g transform="translate(20,20)">
+        <text x="120" y="-2" font-family="monospace" font-size="12" fill="#444a5c" text-anchor="middle">input space</text>
+        <line x1="0" y1="200" x2="240" y2="200" stroke="#d9cfba"/>
+        <line x1="0" y1="0" x2="0" y2="200" stroke="#d9cfba"/>
+        <g stroke="#e7ddc8"><line x1="60" y1="0" x2="60" y2="200"/><line x1="120" y1="0" x2="120" y2="200"/><line x1="180" y1="0" x2="180" y2="200"/><line x1="0" y1="60" x2="240" y2="60"/><line x1="0" y1="120" x2="240" y2="120"/><line x1="0" y1="60" x2="240" y2="60"/></g>
+        <line x1="0" y1="200" x2="60" y2="200" stroke="#b1542f" stroke-width="3"/>
+        <line x1="0" y1="200" x2="0" y2="140" stroke="#1d5b6e" stroke-width="3"/>
+        <text x="34" y="218" font-family="serif" font-size="14" fill="#b1542f">e₁</text>
+        <text x="6" y="160" font-family="serif" font-size="14" fill="#1d5b6e">e₂</text>
+      </g>
+      <text x="330" y="135" font-family="serif" font-size="22" fill="#1f2330" text-anchor="middle">A&#160;⟶</text>
+      <!-- right grid -->
+      <g transform="translate(380,20)">
+        <text x="120" y="-2" font-family="monospace" font-size="12" fill="#444a5c" text-anchor="middle">output space</text>
+        <line x1="0" y1="200" x2="240" y2="200" stroke="#d9cfba"/>
+        <line x1="0" y1="0" x2="0" y2="200" stroke="#d9cfba"/>
+        <g stroke="#e7ddc8"><line x1="60" y1="0" x2="60" y2="200"/><line x1="120" y1="0" x2="120" y2="200"/><line x1="180" y1="0" x2="180" y2="200"/><line x1="0" y1="60" x2="240" y2="60"/><line x1="0" y1="120" x2="240" y2="120"/></g>
+        <!-- e1 -> column 1, e2 -> column 2 -->
+        <line x1="0" y1="200" x2="120" y2="140" stroke="#b1542f" stroke-width="3"/>
+        <line x1="0" y1="200" x2="60" y2="80" stroke="#1d5b6e" stroke-width="3"/>
+        <text x="120" y="135" font-family="serif" font-size="13" fill="#b1542f">col&#8201;1 = A&#8201;e₁</text>
+        <text x="64" y="76" font-family="serif" font-size="13" fill="#1d5b6e">col&#8201;2 = A&#8201;e₂</text>
+      </g>
+    </svg>
+    <figcaption>Each axis is dragged to a new spot. Those landing spots, stacked, are the columns of A.</figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================= -->
+<section id="multiply">
+  <h2><span class="n">02</span>Matrix multiplication — both methods</h2>
+
+  <h3>Matrix × vector</h3>
+  <p>Because the columns are landing spots, the multiplication rule is <em>forced</em>, not arbitrary.</p>
+
+  <h4>Method 1 — column picture (linear combination of columns)</h4>
+  <p>The output is the input's entries used as <strong>weights on the columns of A</strong>.</p>
+  <div class="eq">A·v = v₁·(col 1) + v₂·(col 2) + … </div>
+
+  <h4>Method 2 — row picture (dot product per output coordinate)</h4>
+  <p>Each output entry is the dot product of a <strong>row of A</strong> with <span class="expr">v</span>. This is the "system of equations" view: each row is one equation, one measurement.</p>
+
+  <div class="worked">
+    <div class="wtag">Worked example</div>
+    <div class="mat">A = [2  0]      v = [4]
+    [1  3]          [5]</div>
+    <div class="step"><strong>Columns:</strong> A·v = 4·[2,1] + 5·[0,3] = [8,4] + [0,15] = <strong>[8, 19]</strong></div>
+    <div class="step"><strong>Rows:</strong> out₁ = [2,0]·[4,5] = 8 ; out₂ = [1,3]·[4,5] = 4+15 = 19 ⟹ <strong>[8, 19]</strong> <span class="check">✓ same</span></div>
+  </div>
+  <p>Column view tells you what outputs are reachable (the span of the columns). Row view is the lens for solving systems. Both must agree — same operation, two angles.</p>
+
+  <h3>Matrix × matrix</h3>
+  <p>Two distinct reasons you need it:</p>
+  <ul>
+    <li><strong>Composition</strong> — "do B, then A" is itself one machine, and its matrix is <span class="expr">AB</span>: &nbsp;<span class="expr up">(AB)v = A(Bv)</span>.</li>
+    <li><strong>Batching</strong> — stack many input vectors as columns of B; then <span class="expr">AB</span> applies the same transform to all of them at once (this is <span class="expr">XW</span> over a batch).</li>
+  </ul>
+  <div class="eq">
+    <span class="label">Shape rule — inner dimensions must match</span>
+    (m × k)(k × n) = (m × n) &nbsp;·&nbsp; order matters: AB ≠ BA in general
+  </div>
+
+  <div class="worked">
+    <div class="wtag">Worked example — both methods</div>
+    <div class="mat">A = [1  2]    B = [5  6]
+    [3  4]        [7  8]</div>
+    <div class="step"><strong>Method 1 — dot product</strong> &nbsp;(entry i,j = row i of A · col j of B)
+      <div class="mat">(1,1)=[1,2]·[5,7]=19   (1,2)=[1,2]·[6,8]=22
+(2,1)=[3,4]·[5,7]=43   (2,2)=[3,4]·[6,8]=50
+AB = [19  22]
+     [43  50]</div></div>
+    <div class="step"><strong>Method 2 — column method</strong> &nbsp;(each output column = A acting on that column of B)
+      <div class="mat">col1 = A·[5,7] = 5·[1,3]+7·[2,4] = [19,43]
+col2 = A·[6,8] = 6·[1,3]+8·[2,4] = [22,50]   <span class="cmt">✓ same matrix</span></div></div>
+  </div>
+
+  <div class="callout ml"><span class="tag">Bonus view that runs your stack</span>A third reading is <strong>AB as a sum of outer products</strong> (column of A times row of B, summed). This is the entire idea behind low-rank decomposition and <strong>LoRA</strong>: replace a big update with B·A where the inner dimension r is tiny, i.e. a short sum of rank-1 layers.</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="eigen">
+  <h2><span class="n">03</span>Eigenvalues &amp; eigenvectors</h2>
+
+  <p class="lead">Most vectors get rotated <em>and</em> stretched by a matrix. Eigenvectors are the special directions that only get stretched — no turning.</p>
+
+  <p>Picture stretching a rubber sheet diagonally. Most painted arrows swing to point somewhere new. The arrows lying along the pure stretch and squeeze axes just get longer or shorter without turning. Those are the eigenvectors; the stretch factors are the eigenvalues.</p>
+
+  <div class="eq">
+    <span class="label">The defining equation — A only scales v</span>
+    A·v = λ·v &nbsp;&nbsp;(v ≠ 0)
+  </div>
+  <p>An eigenvector is really a <strong>direction</strong>: if <span class="expr">v</span> works, so does any multiple of it, with the same <span class="expr">λ</span>. That is why we find a line (and often normalize it).</p>
+
+  <figure>
+    <svg viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Generic vectors rotate, eigenvector only scales">
+      <g transform="translate(40,20)">
+        <text x="110" y="-2" font-family="monospace" font-size="12" fill="#444a5c" text-anchor="middle">before A</text>
+        <circle cx="110" cy="100" r="3" fill="#1f2330"/>
+        <line x1="110" y1="100" x2="190" y2="60" stroke="#9aa0ad" stroke-width="2.5"/>
+        <line x1="110" y1="100" x2="60" y2="40" stroke="#9aa0ad" stroke-width="2.5"/>
+        <line x1="110" y1="100" x2="185" y2="148" stroke="#b1542f" stroke-width="3"/>
+        <text x="188" y="165" font-family="serif" font-size="13" fill="#b1542f">eigenvector</text>
+      </g>
+      <text x="320" y="110" font-family="serif" font-size="20" fill="#1f2330" text-anchor="middle">A ⟶</text>
+      <g transform="translate(380,20)">
+        <text x="110" y="-2" font-family="monospace" font-size="12" fill="#444a5c" text-anchor="middle">after A</text>
+        <circle cx="110" cy="100" r="3" fill="#1f2330"/>
+        <!-- generic vectors rotated -->
+        <line x1="110" y1="100" x2="205" y2="95" stroke="#9aa0ad" stroke-width="2.5"/>
+        <line x1="110" y1="100" x2="95" y2="30" stroke="#9aa0ad" stroke-width="2.5"/>
+        <text x="150" y="60" font-family="serif" font-size="11" fill="#777" >turned</text>
+        <!-- eigenvector same direction, longer -->
+        <line x1="110" y1="100" x2="215" y2="167" stroke="#b1542f" stroke-width="3"/>
+        <text x="150" y="180" font-family="serif" font-size="13" fill="#b1542f">same line, scaled by λ</text>
+      </g>
+    </svg>
+    <figcaption>Grey vectors change direction; the eigenvector stays on its own line and is only rescaled.</figcaption>
+  </figure>
+
+  <h3>Why we care</h3>
+  <p>Eigenvectors are the matrix's <strong>natural axes</strong> — the coordinate system in which the machine stops mixing and is pure stretching. Concretely:</p>
+  <ul>
+    <li><strong>Repeated application is trivial:</strong> <span class="expr">Aᵏv = λᵏv</span>. Governs Markov chains, PageRank, dynamics — the largest <span class="expr">|λ|</span> dominates (&gt;1 blow-up, &lt;1 decay, =1 steady state).</li>
+    <li><strong>Stability &amp; conditioning:</strong> the Hessian's eigenvalues are curvatures; the ratio largest/smallest is the <strong>condition number</strong> that makes gradient descent zig-zag.</li>
+    <li><strong>PCA</strong> is the eigendecomposition of the covariance matrix — eigenvectors are the directions of maximum variance, eigenvalues are how much.</li>
+  </ul>
+
+  <h3>How to find them, step by step</h3>
+  <div class="eq">
+    A·v = λ·v ⟹ (A − λI)·v = 0
+  </div>
+  <p>We need a <strong>nonzero</strong> <span class="expr">v</span> crushed to zero by <span class="expr up">(A − λI)</span>. A matrix that crushes a nonzero vector is <strong>singular</strong>, which happens exactly when its determinant is zero (the determinant is the volume-scaling factor; zero means a dimension collapsed):</p>
+  <div class="eq">
+    <span class="label">The characteristic equation</span>
+    det(A − λI) = 0
+  </div>
+  <ol>
+    <li>Form <span class="expr up">A − λI</span>.</li>
+    <li>Set its determinant to zero → polynomial in <span class="expr">λ</span>.</li>
+    <li>Solve for <span class="expr">λ</span> (the eigenvalues).</li>
+    <li>For each <span class="expr">λ</span>, solve <span class="expr up">(A − λI)v = 0</span> for the eigenvector(s).</li>
+  </ol>
+
+  <div class="worked">
+    <div class="wtag">Worked example</div>
+    <div class="mat">A = [2  1]
+    [1  2]</div>
+    <div class="step"><strong>det:</strong> (2−λ)² − 1 = 0 ⟹ (2−λ)² = 1 ⟹ 2−λ = ±1 ⟹ <strong>λ = 1 or 3</strong></div>
+    <div class="step"><strong>λ = 3:</strong> (A−3I)=[[−1,1],[1,−1]] ⟹ −v₁+v₂=0 ⟹ eigenvector <strong>[1, 1]</strong></div>
+    <div class="step"><strong>λ = 1:</strong> (A−1I)=[[1,1],[1,1]] ⟹ v₁+v₂=0 ⟹ eigenvector <strong>[1, −1]</strong></div>
+    <div class="step"><strong>Check:</strong> A·[1,1]=[3,3]=3·[1,1] <span class="check">✓</span> &nbsp; A·[1,−1]=[1,−1]=1·[1,−1] <span class="check">✓</span></div>
+    <div class="step">The two eigenvectors are perpendicular — not luck. <strong>Symmetric matrices always have orthogonal eigenvectors and real eigenvalues.</strong></div>
+  </div>
+  <div class="callout trap"><span class="tag">Trap</span>A pure rotation turns every vector, so it has <em>no</em> real eigenvectors; its eigenvalues come out complex. The math is correctly saying "this machine only spins, it has no stretch axes."</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="pivots">
+  <h2><span class="n">04</span>Pivots</h2>
+  <p>A completely separate idea from eigenvalues. When you row-reduce a matrix into staircase (echelon) form, the <strong>pivot</strong> is the leading nonzero entry of each row — the anchor you eliminate with. Columns with a pivot are <strong>pivot columns</strong>; columns without one are <strong>free columns</strong>.</p>
+
+  <div class="worked">
+    <div class="wtag">Worked elimination</div>
+    <div class="mat">A = [1  2  1]      R2 ← R2 − 2R1 : [0 0 3]
+    [2  4  5]      R3 ← R3 −  R1 : [0 0 2]
+    [1  2  3]      R3 ← R3 − ⅔R2 : [0 0 0]
+
+final: [1  2  1]   <span class="cmt">← pivot in column 1</span>
+       [0  0  3]   <span class="cmt">← pivot in column 3</span>
+       [0  0  0]</div>
+    <div class="step">Two pivots (columns 1, 3). Column 2 is free (it was just twice column 1). <strong>Rank = 2, nullity = 1.</strong></div>
+  </div>
+
+  <h4>Where pivots are used</h4>
+  <ul>
+    <li><strong>Number of pivots = rank</strong> — the true working dimension.</li>
+    <li><strong>Pivot columns</strong> form a basis for the column space; <strong>free columns</strong> count the null space.</li>
+    <li><strong>Solvability:</strong> unique / infinite / no solution depending on pivots and free columns.</li>
+    <li><strong>Invertibility:</strong> an n×n matrix is invertible iff it has n pivots.</li>
+    <li><strong>Determinant</strong> = product of pivots (with sign for row swaps); pivots are the diagonal of U in LU.</li>
+  </ul>
+  <div class="callout trap"><span class="tag">Trap — pivots ≠ eigenvalues</span>Both relate to the determinant, so people equate them. They are not equal term by term. They only agree on the product: &nbsp;<span class="expr">∏ pivots = ±det = ∏ eigenvalues</span>.</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="rank">
+  <h2><span class="n">05</span>Rank &amp; low rank</h2>
+
+  <p class="lead">Rank is the number of genuinely independent directions a matrix carries — the dimension of its column space.</p>
+
+  <p>A 3×3 matrix whose three columns all lie in a plane has rank 2: it's a 2D machine wearing a 3D costume. Rank is the matrix's <em>true</em> working dimension. All of these are the same number:</p>
+  <p><span class="pill">independent columns</span><span class="pill">independent rows</span><span class="pill">pivots</span><span class="pill">nonzero singular values</span><span class="pill">dim of column space</span></p>
+
+  <p><strong>Full rank</strong> = the maximum <span class="expr up">min(m, n)</span>. For a square matrix that means invertible, nonzero determinant, no zero eigenvalues. <strong>Low rank (rank deficient)</strong> = some columns are redundant; the matrix collapses dimensions and loses information.</p>
+
+  <h3>How a matrix becomes low rank — the outer product</h3>
+  <div class="worked">
+    <div class="wtag">Rank-1 construction</div>
+    <div class="mat">u = [1,2,3]ᵀ ,  v = [1,0,2]ᵀ
+
+u·vᵀ = [1  0  2]
+       [2  0  4]      every column is a multiple of u
+       [3  0  6]      ⟹ ONE independent direction ⟹ rank 1</div>
+  </div>
+  <p>The key fact: <strong>a sum of r rank-1 outer products has rank at most r.</strong> So "low rank" literally means "buildable from a few underlying factors."</p>
+
+  <figure>
+    <svg viewBox="0 0 640 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Low rank as outer product">
+      <rect x="40" y="35" width="40" height="80" rx="4" fill="#b1542f"/>
+      <text x="60" y="132" font-family="serif" font-size="14" text-anchor="middle" fill="#1f2330">u</text>
+      <text x="98" y="80" font-family="serif" font-size="22" fill="#444a5c">×</text>
+      <rect x="120" y="55" width="120" height="22" rx="4" fill="#1d5b6e"/>
+      <text x="180" y="98" font-family="serif" font-size="14" text-anchor="middle" fill="#1f2330">vᵀ</text>
+      <text x="262" y="80" font-family="serif" font-size="22" fill="#444a5c">=</text>
+      <rect x="295" y="35" width="120" height="80" rx="4" fill="none" stroke="#d9cfba"/>
+      <g fill="#e7c9b8"><rect x="295" y="35" width="120" height="80" opacity="0.5"/></g>
+      <text x="355" y="80" font-family="serif" font-size="13" text-anchor="middle" fill="#1f2330">rank-1 block</text>
+      <text x="470" y="62" font-family="monospace" font-size="12" fill="#444a5c">a full grid…</text>
+      <text x="470" y="84" font-family="monospace" font-size="12" fill="#444a5c">…carrying only</text>
+      <text x="470" y="106" font-family="monospace" font-size="12" fill="#b1542f">one direction</text>
+    </svg>
+    <figcaption>One column times one row fills a whole matrix that still holds just a single direction.</figcaption>
+  </figure>
+
+  <div class="callout ml"><span class="tag">Where rank shows up in ML</span>
+    <strong>LoRA:</strong> learn <span class="expr">ΔW = B·A</span> with tiny inner rank r instead of a full update — fine-tuning is a small low-rank nudge.<br>
+    <strong>Recommendation:</strong> the user×item matrix <span class="expr">R ≈ U·Vᵀ</span> is low rank because ratings come from a few latent factors.<br>
+    <strong>Compression / PCA:</strong> keep the top-r components for the best rank-r approximation (Eckart-Young) — signal lives in the large components, noise in the small.</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="special">
+  <h2><span class="n">06</span>Special matrices</h2>
+
+  <h3>Identity <span class="expr up">I</span></h3>
+  <p>The do-nothing machine: <span class="expr">Iv = v</span>. Multiplicative identity, full rank, every eigenvalue 1, every vector an eigenvector. Shows up as residual connections (<span class="expr">x + f(x)</span>) and the <span class="expr">λI</span> in ridge regression.</p>
+
+  <h3>Singular matrix</h3>
+  <p>Square but <strong>not invertible</strong>: det = 0, rank &lt; n, has 0 as an eigenvalue, nonempty null space. Information is lost. The failure mode behind collinear features wrecking regression.</p>
+
+  <h3>Symmetric matrix <span class="expr up">(A = Aᵀ)</span> — the important one</h3>
+  <p>The matrix of <strong>mutual relationships and second-order structure</strong>: covariances, Gram matrices <span class="expr">XᵀX</span>, kernels, Hessians, undirected-graph adjacencies. Mutuality forces symmetry; symmetry pays back the cleanest eigenstructure:</p>
+  <ul>
+    <li>All eigenvalues are <strong>real</strong>.</li>
+    <li>Eigenvectors are <strong>orthogonal</strong> (a full orthonormal set exists).</li>
+    <li><strong>Spectral theorem:</strong> <span class="expr">A = QΛQᵀ</span> with Q orthogonal, Λ diagonal.</li>
+  </ul>
+  <div class="eq"><span class="label">Read it as a sentence</span>A = Q Λ Qᵀ &nbsp; = &nbsp; rotate into the eigenbasis · scale · rotate back &nbsp;(rigidly, no distortion)</div>
+
+  <h3>Orthogonal matrix <span class="expr up">(QᵀQ = I)</span></h3>
+  <p>Inverse equals transpose; columns orthonormal; preserves all lengths and angles (a rigid motion). Every eigenvalue has magnitude 1. Parent of rotations and reflections.</p>
+
+  <h3>Projection matrix <span class="expr up">(P² = P)</span></h3>
+  <p>Squashes vectors onto a subspace. Projecting twice = once (idempotent). Eigenvalues only 0 (killed) and 1 (kept). Mental image: a shadow on the ground.</p>
+  <div class="eq"><span class="label">Orthogonal projection onto the column space of A — this IS linear regression</span>P = A (AᵀA)⁻¹ Aᵀ &nbsp;(the "hat matrix" that produces ŷ)</div>
+
+  <figure>
+    <svg viewBox="0 0 520 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Projection of a vector onto a line">
+      <line x1="40" y1="170" x2="470" y2="60" stroke="#1d5b6e" stroke-width="2"/>
+      <text x="450" y="55" font-family="serif" font-size="13" fill="#1d5b6e">subspace</text>
+      <line x1="60" y1="170" x2="300" y2="40" stroke="#b1542f" stroke-width="3"/>
+      <text x="305" y="38" font-family="serif" font-size="14" fill="#b1542f">b</text>
+      <!-- projection point: foot of perpendicular approx -->
+      <line x1="60" y1="170" x2="270" y2="116" stroke="#a8852c" stroke-width="3"/>
+      <text x="275" y="132" font-family="serif" font-size="14" fill="#a8852c">Pb = ŷ</text>
+      <line x1="300" y1="40" x2="270" y2="116" stroke="#9aa0ad" stroke-width="1.6" stroke-dasharray="5 4"/>
+      <text x="312" y="92" font-family="serif" font-size="12" fill="#777">residual</text>
+      <circle cx="60" cy="170" r="3" fill="#1f2330"/>
+    </svg>
+    <figcaption>Regression projects the target b onto what the features can reach; the leftover is the residual.</figcaption>
+  </figure>
+
+  <h3>Reflection matrix <span class="expr up">(R² = I)</span></h3>
+  <p>A mirror. Reflect twice → back to start, so <span class="expr">R = R⁻¹</span>. Eigenvalues +1 (on the mirror) and −1 (perpendicular, flipped). Determinant −1 (orientation reversed). Householder reflections power QR decomposition.</p>
+
+  <h3>Markov (stochastic) matrix</h3>
+  <p>Entries ≥ 0, each column sums to 1 (probability conserved). Largest eigenvalue is <strong>exactly 1</strong>, and its eigenvector is the <strong>stationary distribution</strong>; all other <span class="expr">|λ| ≤ 1</span>, so iteration converges. This is Markov chains, HMMs, and PageRank.</p>
+  <div class="worked">
+    <div class="wtag">Steady state</div>
+    <div class="mat">P = [0.9  0.5]   solve P·s = s
+    [0.1  0.5]   ⟹  s = [5/6, 1/6]</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<section id="pd">
+  <h2><span class="n">07</span>Positive definite &amp; positive semidefinite</h2>
+  <p class="lead">These are symmetric matrices with a sign condition. They are the algebraic language of "a bowl," which is why they run convex optimization.</p>
+
+  <div class="eq">
+    <span class="label">For a symmetric A</span>
+    PD: &nbsp; vᵀA v &gt; 0 for all v ≠ 0 &nbsp;&nbsp;|&nbsp;&nbsp; PSD: &nbsp; vᵀA v ≥ 0 for all v
+  </div>
+
+  <p>The quantity <span class="expr">vᵀAv</span> is a bowl-shaped function of <span class="expr">v</span>. PD = the bowl curves strictly up in every direction (single lowest point). PSD = up or flat. Indefinite = a saddle. Rotate into the eigenbasis and the reason is obvious:</p>
+  <div class="eq">
+    vᵀA v = λ₁y₁² + λ₂y₂² + … + λₙyₙ²
+  </div>
+  <ul>
+    <li>all <span class="expr">λ &gt; 0</span> → always positive → <strong>PD</strong></li>
+    <li>some <span class="expr">λ = 0</span> → flat along that axis → <strong>PSD</strong></li>
+    <li>some <span class="expr">λ &lt; 0</span> → curves down → <strong>indefinite / saddle</strong></li>
+  </ul>
+
+  <figure>
+    <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PD bowl versus saddle">
+      <g transform="translate(20,10)">
+        <path d="M20,140 Q110,-10 200,140" fill="none" stroke="#2f7d4f" stroke-width="3"/>
+        <path d="M40,150 Q110,30 180,150" fill="none" stroke="#9fc9ad" stroke-width="2"/>
+        <text x="110" y="178" font-family="serif" font-size="14" fill="#2f7d4f" text-anchor="middle">PD — true bowl (min)</text>
+      </g>
+      <g transform="translate(320,10)">
+        <path d="M20,40 Q110,150 200,40" fill="none" stroke="#a8392b" stroke-width="2" opacity="0.6"/>
+        <path d="M20,140 Q110,30 200,140" fill="none" stroke="#a8392b" stroke-width="3"/>
+        <text x="110" y="178" font-family="serif" font-size="14" fill="#a8392b" text-anchor="middle">indefinite — saddle</text>
+      </g>
+    </svg>
+    <figcaption>Up in every direction (PD) versus up one way and down another (indefinite).</figcaption>
+  </figure>
+
+  <div class="callout ml"><span class="tag">Why this is everywhere in ML</span>
+    The <strong>Hessian</strong> is curvature: PD ⟹ strict local minimum, PSD everywhere ⟹ the function is <strong>convex</strong> (single global min), indefinite ⟹ a saddle point.<br>
+    Covariance and Gram matrices are always PSD by a one-liner: &nbsp;<span class="expr">vᵀ(XᵀX)v = (Xv)ᵀ(Xv) = ‖Xv‖² ≥ 0</span>. It is PD when X has independent columns (full column rank). Collinear features ⟹ only PSD &amp; singular ⟹ add <span class="expr">λI</span> (ridge), which bumps every eigenvalue up and restores PD + invertibility.</div>
+
+  <h4>How to test PD / PSD</h4>
+  <p><span class="pill">all eigenvalues &gt; 0 / ≥ 0</span><span class="pill">all pivots positive</span><span class="pill">leading minors &gt; 0 (Sylvester)</span><span class="pill">writable as BᵀB</span></p>
+</section>
+
+<!-- ============================================================= -->
+<section id="why-decomp">
+  <h2><span class="n">08</span>Why decompose a matrix at all</h2>
+  <p>A matrix tangles rotation, stretch, shear and collapse together. A decomposition factors that one machine into a product of simpler machines, each doing one clean thing. The analogy is number factoring: <span class="expr">60 = 2²·3·5</span> instantly reveals structure. Factoring a matrix gives <strong>easy solving</strong> (triangular/diagonal), <strong>easy powers</strong>, <strong>transparency</strong> of what it does, <strong>compression</strong>, and <strong>numerical stability</strong>.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="lu">
+  <h2><span class="n">09</span>LU decomposition</h2>
+  <p><span class="expr">A = LU</span>: L lower-triangular (1s on the diagonal), U upper-triangular. It is just <strong>Gaussian elimination recorded as a product</strong> — U is the staircase, L stores the multipliers used to clear each column. The diagonal of U is the pivots; their product is the determinant.</p>
+  <p>Payoff: solving <span class="expr">Ax = b</span> becomes two trivial triangular solves — set <span class="expr">Ux = y</span>, solve <span class="expr">Ly = b</span> top-down (forward substitution), then <span class="expr">Ux = y</span> bottom-up (back substitution). Each is <span class="expr up">O(n²)</span> and reusable for any new b. With row swaps it becomes <span class="expr">PA = LU</span>.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="eigdecomp">
+  <h2><span class="n">10</span>Diagonalization = eigenvalue decomposition</h2>
+  <div class="eq"><span class="label">P = eigenvectors as columns, D = eigenvalues on the diagonal</span>A = P D P⁻¹</div>
+
+  <h4>Why this form is forced (derivation)</h4>
+  <div class="eq" style="font-size:18px">
+    AP = A[v₁|…|vₙ] = [Av₁|…|Avₙ] = [λ₁v₁|…|λₙvₙ] = P D &nbsp;⟹&nbsp; A = P D P⁻¹
+  </div>
+
+  <h4>Read it right-to-left as a three-step machine</h4>
+  <ol>
+    <li><span class="expr up">P⁻¹</span> — change coordinates <em>into</em> the eigenbasis (express input as amounts of each eigenvector).</li>
+    <li><span class="expr up">D</span> — scale each eigen-coordinate by its eigenvalue (pure, independent stretching).</li>
+    <li><span class="expr up">P</span> — change back to the standard basis.</li>
+  </ol>
+  <p>The complexity of A was an illusion of the coordinate system; in the eigenbasis it is just scaling.</p>
+
+  <div class="eq"><span class="label">The payoff — powers collapse</span>Aᵏ = P Dᵏ P⁻¹ &nbsp;(all the inner P⁻¹P cancel; Dᵏ just powers each diagonal entry)</div>
+
+  <div class="worked">
+    <div class="wtag">Worked example</div>
+    <div class="mat">A = [2 1]   P = [1  1]   D = [3 0]
+    [1 2]       [1 −1]      [0 1]
+
+AP = [3  1]    PD = [3  1]   <span class="cmt">✓ AP = PD</span>
+     [3 −1]         [3 −1]</div>
+  </div>
+
+  <div class="callout trap"><span class="tag">Limitations (the motivation for SVD)</span>Not every matrix is diagonalizable — you need n independent eigenvectors (e.g. [[1,1],[0,1]] fails), and rectangular matrices have none. For non-symmetric A, P is <em>not</em> orthogonal, so the change of basis is skewed and numerically fragile. The clean case: symmetric A gives <span class="expr">A = QΛQᵀ</span> with rigid orthogonal Q.</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="svd">
+  <h2><span class="n">11</span>Singular value decomposition</h2>
+  <p class="lead">SVD does for <em>every</em> matrix what the spectral theorem does for symmetric ones — rectangular, singular, non-diagonalizable, anything.</p>
+
+  <div class="eq"><span class="label">U, V orthogonal · Σ holds the singular values σ₁ ≥ σ₂ ≥ … ≥ 0</span>A = U Σ Vᵀ</div>
+
+  <h4>The geometry — circle becomes ellipse</h4>
+  <p>Every linear map, however ugly, does exactly three things (right to left): <strong>Vᵀ</strong> a rigid rotation of the input, <strong>Σ</strong> an axis-aligned stretch, <strong>U</strong> a rigid rotation of the output. Rotate, stretch, rotate.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SVD maps a unit circle to an ellipse">
+      <g transform="translate(90,110)">
+        <circle cx="0" cy="0" r="60" fill="none" stroke="#1d5b6e" stroke-width="2.5"/>
+        <line x1="0" y1="0" x2="42" y2="-42" stroke="#b1542f" stroke-width="2.5"/>
+        <line x1="0" y1="0" x2="-42" y2="-42" stroke="#a8852c" stroke-width="2.5"/>
+        <text x="-60" y="92" font-family="monospace" font-size="12" fill="#444a5c">unit circle</text>
+        <text x="20" y="-50" font-family="serif" font-size="12" fill="#b1542f">v₁</text>
+        <text x="-58" y="-50" font-family="serif" font-size="12" fill="#a8852c">v₂</text>
+      </g>
+      <text x="300" y="115" font-family="serif" font-size="16" fill="#1f2330" text-anchor="middle">A = UΣVᵀ ⟶</text>
+      <g transform="translate(500,110)">
+        <ellipse cx="0" cy="0" rx="95" ry="40" transform="rotate(-22)" fill="none" stroke="#1d5b6e" stroke-width="2.5"/>
+        <line x1="0" y1="0" x2="88" y2="-36" stroke="#b1542f" stroke-width="3"/>
+        <line x1="0" y1="0" x2="-15" y2="-37" stroke="#a8852c" stroke-width="3"/>
+        <text x="60" y="-44" font-family="serif" font-size="12" fill="#b1542f">σ₁u₁</text>
+        <text x="-44" y="-40" font-family="serif" font-size="12" fill="#a8852c">σ₂u₂</text>
+        <text x="-50" y="78" font-family="monospace" font-size="12" fill="#444a5c">ellipse</text>
+      </g>
+    </svg>
+    <figcaption>V picks the circle directions; σ are the ellipse semi-axis lengths; U gives the ellipse axes in output space.</figcaption>
+  </figure>
+
+  <h4>How it is built on eigendecomposition</h4>
+  <div class="eq" style="font-size:18px">
+    AᵀA = (UΣVᵀ)ᵀ(UΣVᵀ) = V Σᵀ(UᵀU)Σ Vᵀ = V (Σ²) Vᵀ
+  </div>
+  <p>That is exactly the eigendecomposition of the symmetric PSD matrix <span class="expr">AᵀA</span>: the right singular vectors <strong>V are its eigenvectors</strong>, and <strong>σᵢ = √λᵢ</strong> (real and ≥ 0 because AᵀA is PSD). Similarly <span class="expr">AAᵀ = U(Σ²)Uᵀ</span> gives U.</p>
+  <ol>
+    <li>Form <span class="expr">AᵀA</span>; eigendecompose → V and λᵢ.</li>
+    <li><span class="expr">σᵢ = √λᵢ</span>, sorted descending → Σ.</li>
+    <li><span class="expr">uᵢ = A vᵢ / σᵢ</span> → U.</li>
+  </ol>
+
+  <div class="worked">
+    <div class="wtag">Worked example — and it shows low rank</div>
+    <div class="mat">A = [1 1]    AᵀA = [2 2]   eigenvalues 4, 0
+    [1 1]          [2 2]   ⟹ σ₁ = 2, σ₂ = 0  ⟹ rank 1
+
+v₁ = [1,1]/√2 ,  u₁ = A v₁/σ₁ = [1,1]/√2
+A = σ₁·u₁v₁ᵀ = 2·½[[1,1],[1,1]] = [[1,1],[1,1]]   <span class="cmt">✓ rebuilt from ONE rank-1 layer</span></div>
+  </div>
+
+  <div class="eq"><span class="label">The general form — a sum of rank-1 layers, biggest first</span>
+    A = σ₁u₁v₁ᵀ + σ₂u₂v₂ᵀ + … + σᵣuᵣvᵣᵀ</div>
+  <p>Truncating after r terms gives the provably <strong>best rank-r approximation</strong> (Eckart-Young). Big σ = signal, small σ = detail/noise. This is the engine of PCA, image compression, LSA, recommendation, and denoising. (LoRA assumes the update is one of these short sums from the start.)</p>
+
+  <h4>SVD vs eigendecomposition</h4>
+  <table>
+    <tr><th>&nbsp;</th><th>Eigendecomposition A = PDP⁻¹</th><th>SVD A = UΣVᵀ</th></tr>
+    <tr><td>Exists for</td><td>square &amp; diagonalizable only</td><td><strong>every</strong> matrix, any shape</td></tr>
+    <tr><td>Bases</td><td>P generally skewed</td><td>U, V both orthonormal (rigid)</td></tr>
+    <tr><td>Frames</td><td>one shared basis (P, P⁻¹)</td><td>two bases — V in, U out</td></tr>
+    <tr><td>Values</td><td>eigenvalues, can be ±/complex</td><td>singular values, always real ≥ 0</td></tr>
+    <tr><td>Stability</td><td>can be unstable</td><td>numerically very stable</td></tr>
+    <tr><td>Geometry</td><td>rotate · scale · un-rotate</td><td>rotate · stretch · rotate (circle→ellipse)</td></tr>
+  </table>
+  <p>They coincide for a symmetric PSD matrix (<span class="expr">U = V = Q, Σ = Λ</span>). SVD is the spectral theorem extended to all matrices.</p>
+
+  <div class="callout ml"><span class="tag">Why SVD is the workhorse</span>Always exists · best low-rank approximation (PCA = SVD of centered data) · numerically stable (how libraries compute rank, condition number, least squares) · gives the pseudo-inverse · reveals rank and the four subspaces · condition number = <span class="expr">σ_max / σ_min</span>.</div>
+</section>
+
+<!-- ============================================================= -->
+<section id="basis">
+  <h2><span class="n">12</span>Basis</h2>
+  <p>A basis is the smallest set of building-block directions from which every vector is built in <strong>exactly one way</strong>. Two conditions produce that uniqueness:</p>
+  <ul>
+    <li><strong>Spanning</strong> — they reach everything.</li>
+    <li><strong>Independence</strong> — no redundancy.</li>
+  </ul>
+  <p>Too few ⟹ unreachable vectors; too many (dependent) ⟹ non-unique recipes. The count of basis vectors is the <strong>dimension</strong>, and it is fixed for a space. Any n independent vectors in <span class="expr up">ℝⁿ</span> form a basis. A basis is a <strong>language</strong> for describing vectors, and coordinates are basis-dependent — changing basis is translation (exactly what <span class="expr">P⁻¹</span> and <span class="expr">Vᵀ</span> did). The pivot columns of a matrix form a basis for its column space, so basis, span, independence, rank, and dimension are five views of one structure. PCA is literally the act of choosing a better basis — the one aligned with variance.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="inverse">
+  <h2><span class="n">13</span>Inverse &amp; invertibility</h2>
+  <p>The inverse <span class="expr">A⁻¹</span> is the machine that <strong>undoes</strong> A: <span class="expr">A⁻¹A = I</span>. You can run a machine backwards only if it is a perfect one-to-one correspondence — every output came from exactly one input.</p>
+
+  <div class="callout why"><span class="tag">The logical heart of non-invertibility</span>If A is not invertible there is a nonzero v with <span class="expr">Av = 0</span>. Then for any x: &nbsp;<span class="expr">A(x + v) = Ax + Av = Ax</span>. Two different inputs give the <em>same</em> output, so the machine cannot be reversed. <strong>A nonzero null space = inputs colliding = no inverse.</strong></div>
+
+  <p>For a square n×n matrix these are all the <em>same</em> fact ("nothing collapsed"):</p>
+  <p><span class="pill">full rank n</span><span class="pill">columns independent (a basis)</span><span class="pill">columns span ℝⁿ</span><span class="pill">null space = {0}</span><span class="pill">unique solution for every b</span><span class="pill">det ≠ 0</span><span class="pill">no zero eigenvalues</span><span class="pill">no zero singular values</span><span class="pill">n pivots</span></p>
+
+  <p><strong>Why the determinant test works:</strong> det is the signed volume-scaling factor. <span class="expr">det ≠ 0</span> ⟹ volume survived, no dimension flattened, reversible. <span class="expr">det = 0</span> ⟹ volume collapsed, a dimension was crushed, not reversible.</p>
+
+  <div class="worked">
+    <div class="wtag">2×2 inverse</div>
+    <div class="mat">A = [a b]   A⁻¹ = (1/det)[ d −b]   det = ad − bc
+    [c d]               [−c  a]
+
+A = [2 1] , det = 3 :  A⁻¹ = ⅓[ 2 −1]
+    [1 2]                       [−1  2]
+
+check: A·A⁻¹ = ⅓[[3,0],[0,3]] = I   <span class="cmt">✓</span></div>
+  </div>
+  <p>A rectangular matrix has no true two-sided inverse (it changes the dimension of the space) — which is why we need the pseudo-inverse.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="pseudo">
+  <h2><span class="n">14</span>Pseudo-inverse</h2>
+  <p>The best-effort inverse for matrices that aren't invertible (rectangular or singular). Two cases:</p>
+  <ul>
+    <li><strong>Overdetermined</strong> (tall, more equations than unknowns): usually no exact solution — the pseudo-inverse returns the <strong>least-squares</strong> solution, the x minimizing <span class="expr">‖Ax − b‖²</span>. This is linear regression; <span class="expr">AA⁺</span> projects b onto the column space.</li>
+    <li><strong>Underdetermined</strong> (wide, infinitely many solutions): it picks the <strong>minimum-norm</strong> solution.</li>
+  </ul>
+
+  <div class="eq"><span class="label">Computed cleanly through SVD</span>A⁺ = V Σ⁺ Uᵀ &nbsp; — invert each nonzero σ (σ → 1/σ), leave zeros as zeros</div>
+  <p>Intuition straight from the rotate-stretch-rotate picture: to undo A, reverse-rotate (<span class="expr">Uᵀ</span>), un-stretch the directions that <em>were</em> stretched (<span class="expr">Σ⁺</span>), reverse-rotate (<span class="expr">V</span>). A direction with <span class="expr">σ = 0</span> was crushed flat and cannot be un-crushed (no <span class="expr">1/0</span>), so you zero it — that dropped term is the source of "best effort."</p>
+
+  <div class="worked">
+    <div class="wtag">Worked example</div>
+    <div class="mat">A = [1 1]  (σ₁=2, σ₂=0, u₁=v₁=[1,1]/√2)
+    [1 1]
+
+A⁺ = (1/σ₁)·v₁u₁ᵀ = ¼[[1,1],[1,1]]
+AA⁺ = [[.5,.5],[.5,.5]]  <span class="cmt">= projection onto the line [1,1] (the column space) ✓</span></div>
+  </div>
+  <p>If A is invertible, <span class="expr">A⁺ = A⁻¹</span> — the pseudo-inverse strictly generalizes the inverse. The regression normal equations <span class="expr">XᵀX β = Xᵀy</span> are just <span class="expr">(XᵀX)⁻¹Xᵀ</span> written out.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="nullspace">
+  <h2><span class="n">15</span>Null space</h2>
+  <p>The null space of A is the set of all vectors v with <span class="expr">Av = 0</span> — the inputs the matrix crushes to zero.</p>
+  <p><strong>How to get it:</strong> solve <span class="expr">Av = 0</span> by elimination; non-pivot columns become free variables; solve the pivot variables in terms of them; each free variable yields one basis vector of the null space.</p>
+  <div class="eq"><span class="label">Rank–nullity theorem</span>rank + nullity = number of columns</div>
+  <p><strong>Why it matters:</strong> a nonzero null space means lost information and no inverse (two inputs collide); it is the set of directions your features cannot distinguish (collinearity), the directions a pseudo-inverse discards, and the source of non-unique solutions that regularization resolves.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="calculus">
+  <h2><span class="n">16</span>Matrix calculus cheat sheet</h2>
+  <p>Convention: the gradient has the same shape as the variable (ML / denominator layout). <span class="expr">x, a</span> are vectors, <span class="expr">A</span> a matrix; scalar output unless noted.</p>
+  <table>
+    <tr><th>Expression</th><th>Derivative / result</th><th>Used in</th><th>Caveat</th></tr>
+    <tr><td><span class="expr">aᵀx</span> or <span class="expr">xᵀa</span></td><td><span class="expr">a</span></td><td>linear layers, dot-product scores</td><td>the simplest building block</td></tr>
+    <tr><td><span class="expr">xᵀx = ‖x‖²</span></td><td><span class="expr">2x</span></td><td>L2 penalties, squared distance</td><td>this is the <em>squared</em> norm</td></tr>
+    <tr><td><span class="expr">‖x‖₂</span></td><td><span class="frac"><span class="num">x</span><span class="den">‖x‖</span></span></td><td>normalization, cosine sim</td><td>undefined at x = 0</td></tr>
+    <tr><td><span class="expr">‖x‖₁</span></td><td><span class="expr">sign(x)</span></td><td>Lasso / L1</td><td>subgradient; non-diff at 0</td></tr>
+    <tr><td><span class="expr">xᵀA x</span></td><td><span class="expr">(A + Aᵀ)x</span> → <span class="expr">2Ax</span> if symmetric</td><td>Mahalanobis, energy, SVM/GP</td><td>2Ax only when symmetric</td></tr>
+    <tr><td><span class="expr">A x</span> (vector out)</td><td>Jacobian = <span class="expr">A</span></td><td>backprop through linear layers</td><td>a Jacobian, not a gradient</td></tr>
+    <tr><td><strong><span class="expr">‖Ax − b‖²</span></strong></td><td><strong><span class="expr">2Aᵀ(Ax − b)</span></strong></td><td>least squares → normal eqns</td><td>set to 0 to solve; the workhorse</td></tr>
+    <tr><td><span class="expr">aᵀX b</span></td><td><span class="expr">a bᵀ</span></td><td>bilinear forms, attention scores</td><td>outer-product result</td></tr>
+    <tr><td><span class="expr">tr(AX)</span></td><td><span class="expr">Aᵀ</span></td><td>trace objectives</td><td>tr makes a scalar</td></tr>
+    <tr><td><span class="expr">tr(XᵀA X)</span></td><td><span class="expr">(A + Aᵀ)X</span></td><td>covariance / quadratic losses</td><td>2AX if symmetric</td></tr>
+    <tr><td><span class="expr">log det X</span></td><td><span class="expr">X⁻ᵀ</span></td><td>Gaussian log-lik, covariance MLE, flows</td><td>needs X invertible (PD)</td></tr>
+    <tr><td><span class="expr">det X</span></td><td><span class="expr">det(X)·X⁻ᵀ</span></td><td>Jacobian-determinant terms</td><td>prefer log det in practice</td></tr>
+    <tr><td>softmax + cross-entropy (out p, target y)</td><td><span class="expr">∂L/∂z = p − y</span></td><td>every classifier's backward pass</td><td>holds for softmax+CE paired</td></tr>
+    <tr><td>sigmoid <span class="expr">σ(z)</span></td><td><span class="expr">σ(z)(1 − σ(z))</span></td><td>logistic regression, gates</td><td>saturates → vanishing gradient</td></tr>
+    <tr><td><span class="expr">tanh(z)</span></td><td><span class="expr">1 − tanh²(z)</span></td><td>RNN / legacy activations</td><td>also saturates</td></tr>
+    <tr><td>ReLU <span class="expr">max(0,z)</span></td><td>1 if z &gt; 0 else 0</td><td>default hidden activation</td><td>subgradient at 0; dead units</td></tr>
+    <tr><td>Hessian of <span class="expr">xᵀA x</span></td><td><span class="expr">A + Aᵀ</span> → <span class="expr">2A</span> if symmetric</td><td>2nd-order opt, convexity check</td><td>PD Hessian ⟹ local min</td></tr>
+    <tr><td>chain rule (vectors)</td><td><span class="expr">∂z/∂x = (∂z/∂y)(∂y/∂x)</span></td><td>all of backprop</td><td>mind Jacobian shapes/order</td></tr>
+  </table>
+  <p>The one that earns its keep most: <span class="expr">∂‖Ax−b‖²/∂x = 2Aᵀ(Ax−b)</span> — set it to zero and out fall the normal equations and the whole least-squares machinery.</p>
+</section>
+
+<!-- ============================================================= -->
+<section id="thread">
+  <h2><span class="n">17</span>The single thread</h2>
+  <p class="lead">Matrices are machines whose columns are basis landing spots. Matrix multiplication chains machines or runs one over a batch. Eigenvectors are a matrix's natural stretch axes; rank counts its real independent directions. Symmetric matrices factor into a rigid rotate-scale-rotate, and "symmetric with non-negative eigenvalues" (PSD) is the algebraic signature of a bowl — the language of convex optimization. SVD unifies all of it: every matrix is a rotation, a stretch, and a rotation, with the stretches ordered so you can keep the big ones and throw the rest away. Invertibility is the single statement that a machine collapses nothing; the pseudo-inverse is what you reach for when it does.</p>
+</section>
+
+<footer>
+  Linear Algebra for Machine Learning · self-contained study reference · keep, reread, drill.
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluation Metrics — Deep Study Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
+<style>
+:root{
+  --bg:#f4f1ea; --paper:#fbf9f4; --ink:#23201b; --ink-soft:#564f44;
+  --rule:#d8d1c2; --rule-soft:#e7e1d4;
+  --accent:#7c3a1d; --accent2:#1f5d4c; --accent3:#3b3170;
+  --pos:#1d6e56; --neg:#a32d2d; --gold:#9a6a18;
+  --code-bg:#2c2a26; --code-ink:#e9e3d6;
+  --max:880px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Newsreader',Georgia,serif; font-size:19px; line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--max); margin:0 auto; padding:0 26px;}
+
+/* ---- masthead ---- */
+header.top{
+  border-bottom:2px solid var(--ink); margin-top:34px; padding-bottom:22px;
+}
+.kicker{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--accent); margin:0 0 14px;}
+h1.title{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(38px,7vw,66px);
+  line-height:1.02; margin:0 0 16px; letter-spacing:-.01em;}
+.dek{font-size:21px; color:var(--ink-soft); font-style:italic; max-width:620px; margin:0;}
+.meta{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+  margin-top:18px; letter-spacing:.04em;}
+
+/* ---- table of contents ---- */
+nav.toc{margin:40px 0; padding:26px 30px; background:var(--paper);
+  border:1px solid var(--rule); border-radius:4px;}
+nav.toc h2{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--accent); margin:0 0 16px;}
+nav.toc ol{margin:0; padding:0; list-style:none; counter-reset:toc;
+  column-count:2; column-gap:40px;}
+nav.toc li{counter-increment:toc; margin-bottom:9px; font-size:17px; break-inside:avoid;}
+nav.toc li::before{content:counter(toc,decimal-leading-zero); font-family:'JetBrains Mono',monospace;
+  font-size:12px; color:var(--accent); margin-right:11px;}
+nav.toc a{color:var(--ink); text-decoration:none; border-bottom:1px solid transparent;}
+nav.toc a:hover{border-bottom-color:var(--accent);}
+
+/* ---- sections ---- */
+section{margin:64px 0; scroll-margin-top:20px;}
+.sec-num{font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.2em;
+  color:var(--accent); display:block; margin-bottom:8px;}
+h2.sec{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(28px,5vw,42px);
+  line-height:1.08; margin:0 0 8px; letter-spacing:-.01em; padding-bottom:14px;
+  border-bottom:1px solid var(--rule);}
+h3{font-family:'Fraunces',serif; font-weight:600; font-size:25px; margin:38px 0 10px; color:var(--ink);}
+h4{font-family:'JetBrains Mono',monospace; font-weight:500; font-size:14px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--accent2); margin:28px 0 6px;}
+p{margin:0 0 17px;}
+strong{font-weight:600;}
+em{font-style:italic;}
+a{color:var(--accent);}
+
+ul,ol{margin:0 0 18px; padding-left:24px;}
+li{margin-bottom:9px;}
+
+/* ---- callouts ---- */
+.note{border-left:3px solid var(--accent2); background:var(--paper);
+  padding:16px 22px; margin:24px 0; border-radius:0 4px 4px 0; font-size:18px;}
+.note .lab{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent2); display:block; margin-bottom:6px;}
+.trap{border-left-color:var(--neg);}
+.trap .lab{color:var(--neg);}
+.key{border-left-color:var(--gold);}
+.key .lab{color:var(--gold);}
+
+/* ---- interview answer box ---- */
+.iv{background:var(--ink); color:#ece6d8; padding:22px 26px; border-radius:6px; margin:26px 0;}
+.iv .lab{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em;
+  text-transform:uppercase; color:#d99a6a; display:block; margin-bottom:10px;}
+.iv p{margin:0; font-style:italic; font-size:18px; line-height:1.7; color:#ece6d8;}
+
+/* ---- code ---- */
+pre{background:var(--code-bg); color:var(--code-ink); padding:20px 22px; border-radius:6px;
+  overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:13.5px; line-height:1.6;
+  margin:22px 0;}
+code{font-family:'JetBrains Mono',monospace; font-size:.86em; background:rgba(124,58,29,.09);
+  padding:2px 6px; border-radius:3px; color:var(--accent);}
+pre code{background:none; padding:0; color:inherit; font-size:inherit;}
+
+/* ---- tables ---- */
+.tbl{overflow-x:auto; margin:24px 0;}
+table{border-collapse:collapse; width:100%; font-size:16px; font-family:'Newsreader',serif;}
+th{font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.06em;
+  text-transform:uppercase; text-align:left; padding:10px 13px; border-bottom:2px solid var(--ink);
+  color:var(--ink-soft); vertical-align:bottom;}
+td{padding:10px 13px; border-bottom:1px solid var(--rule-soft); vertical-align:top;}
+tr:hover td{background:rgba(124,58,29,.03);}
+
+/* ---- Q&A ---- */
+.qa{margin:18px 0; border:1px solid var(--rule); border-radius:5px; overflow:hidden; background:var(--paper);}
+.qa .q{padding:14px 20px; font-weight:500; cursor:pointer; display:flex; gap:12px;
+  align-items:baseline; font-family:'Fraunces',serif; font-size:18px;}
+.qa .q::-webkit-details-marker{display:none;}
+.qa .q .qmark{font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:14px; flex-shrink:0;}
+.qa[open] .q{border-bottom:1px solid var(--rule); background:rgba(124,58,29,.04);}
+.qa .a{padding:16px 20px 4px 46px; font-size:17.5px;}
+.qa .q .tw{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ink-soft); flex-shrink:0;}
+
+/* ---- viz figure ---- */
+figure{margin:30px 0; padding:0;}
+figure .frame{background:var(--paper); border:1px solid var(--rule); border-radius:6px; padding:18px;}
+figcaption{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);
+  margin-top:10px; letter-spacing:.02em; text-align:center;}
+.controls{display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft);}
+.controls input[type=range]{flex:1; min-width:140px; accent-color:var(--accent);}
+.controls .val{font-weight:500; color:var(--ink); min-width:42px; text-align:right;}
+.statgrid{display:grid; gap:10px; margin-top:14px;}
+.stat{background:var(--bg); border-radius:5px; padding:9px 12px; text-align:center;}
+.stat .l{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.04em;
+  text-transform:uppercase; color:var(--ink-soft);}
+.stat .v{font-family:'Fraunces',serif; font-size:22px; font-weight:600; color:var(--ink);}
+
+.eqlabel{font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--accent); text-align:center; margin:6px 0 -8px;}
+
+/* ---- divider ---- */
+.rule-orn{text-align:center; color:var(--accent); font-size:20px; margin:50px 0; letter-spacing:1em;}
+
+footer{border-top:2px solid var(--ink); margin:70px 0 50px; padding-top:20px;
+  font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:.03em;}
+
+@media(max-width:640px){
+  body{font-size:18px;}
+  nav.toc ol{column-count:1;}
+  .qa .a{padding-left:20px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">Machine Learning · Interview Reference</p>
+  <h1 class="title">Evaluation Metrics, From the Inside Out</h1>
+  <p class="dek">A deep session on the metrics that decide whether a model is any good — built from confusion matrices, ranking theory, information theory, and cooperative game theory.</p>
+  <p class="meta">Session notes · curves, R², ranking, perplexity, SHAP · math + intuition + Q&amp;A</p>
+</header>
+
+<nav class="toc">
+  <h2>What we covered</h2>
+  <ol>
+    <li><a href="#foundation">The confusion-matrix foundation</a></li>
+    <li><a href="#aucroc">AUC-ROC: the threshold sweep</a></li>
+    <li><a href="#aucpr">AUC-PR: telling the truth under imbalance</a></li>
+    <li><a href="#code">Pure-Python: plotting both curves</a></li>
+    <li><a href="#r2">R² and Adjusted R²</a></li>
+    <li><a href="#ndcg">NDCG: position-aware ranking</a></li>
+    <li><a href="#map">Precision@k, AP, and MAP</a></li>
+    <li><a href="#perplexity">Perplexity as effective branching</a></li>
+    <li><a href="#shap">SHAP &amp; Shapley values</a></li>
+    <li><a href="#cheatsheet">Master cheat-sheet</a></li>
+  </ol>
+</nav>
+<!-- ============ 1. FOUNDATION ============ -->
+<section id="foundation">
+  <span class="sec-num">Section 01</span>
+  <h2 class="sec">The confusion-matrix foundation</h2>
+
+  <p>Every classification metric is a single ratio pulled from one 2×2 table. The metrics split into two camps based on <em>which direction</em> they read that table. Internalize this and precision/recall confusion ends permanently.</p>
+
+  <figure>
+    <div class="frame">
+      <svg viewBox="0 0 680 430" width="100%" role="img" aria-label="Confusion matrix showing recall reads across the row, precision reads down the column">
+        <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <text x="240" y="52" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#564f44">Predicted positive</text>
+        <text x="400" y="52" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#564f44">Predicted negative</text>
+        <rect x="160" y="70" width="160" height="96" rx="6" fill="#dcefe6" stroke="#1d6e56" stroke-width="1"/>
+        <text x="240" y="108" text-anchor="middle" font-family="Fraunces,serif" font-size="20" font-weight="600" fill="#0f5840">TP</text>
+        <text x="240" y="132" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">true positive</text>
+        <rect x="320" y="70" width="160" height="96" rx="6" fill="#f7dede" stroke="#a32d2d" stroke-width="1"/>
+        <text x="400" y="108" text-anchor="middle" font-family="Fraunces,serif" font-size="20" font-weight="600" fill="#7a1f1f">FN</text>
+        <text x="400" y="132" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#7a1f1f">type II error</text>
+        <rect x="160" y="166" width="160" height="96" rx="6" fill="#f7dede" stroke="#a32d2d" stroke-width="1"/>
+        <text x="240" y="204" text-anchor="middle" font-family="Fraunces,serif" font-size="20" font-weight="600" fill="#7a1f1f">FP</text>
+        <text x="240" y="228" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#7a1f1f">type I error</text>
+        <rect x="320" y="166" width="160" height="96" rx="6" fill="#dcefe6" stroke="#1d6e56" stroke-width="1"/>
+        <text x="400" y="204" text-anchor="middle" font-family="Fraunces,serif" font-size="20" font-weight="600" fill="#0f5840">TN</text>
+        <text x="400" y="228" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">true negative</text>
+        <text x="105" y="114" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#564f44">Actual</text>
+        <text x="105" y="130" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#564f44">positive</text>
+        <text x="105" y="210" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#564f44">Actual</text>
+        <text x="105" y="226" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#564f44">negative</text>
+        <line x1="160" y1="300" x2="480" y2="300" stroke="#1d6e56" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="320" y="324" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#0f5840">RECALL reads ACROSS the actual-positive row</text>
+        <text x="320" y="344" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#564f44">TP / (TP + FN) — of the real positives, how many caught?</text>
+        <line x1="240" y1="70" x2="240" y2="290" stroke="#3b3170" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="320" y="384" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#3b3170">PRECISION reads DOWN the predicted-positive column</text>
+        <text x="320" y="404" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11.5" fill="#564f44">TP / (TP + FP) — of my alarms, how many were right?</text>
+      </svg>
+    </div>
+    <figcaption>The same TP cell feeds both metrics; only the denominator differs.</figcaption>
+  </figure>
+
+  <h3>The two reading directions</h3>
+  <p>The same TP cell is shared, but the denominator is the whole point:</p>
+  <div class="eqlabel">Recall — fix the truth, ask how much you found</div>
+  $$\text{Recall} = \frac{TP}{TP + FN} \qquad (\text{the actual-positive row})$$
+  <div class="eqlabel">Precision — fix your alarms, ask how many were right</div>
+  $$\text{Precision} = \frac{TP}{TP + FP} \qquad (\text{the predicted-positive column})$$
+
+  <div class="note key">
+    <span class="lab">The mnemonic that ends the confusion</span>
+    Recall lives in the <strong>row</strong>, precision lives in the <strong>column</strong>. Recall = "of the <strong>R</strong>eal positives" (R-R). Precision = "of my <strong>P</strong>redictions" (P-P). You can only hurt recall by missing real positives (FN); you can only hurt precision by raising false alarms (FP).
+  </div>
+
+  <h3>Why they trade off</h3>
+  <p>There is one knob: the decision threshold on the score. Slide it down → predict positive more aggressively → catch more real positives (recall ↑) but fire more false alarms (precision ↓). They move in opposition <em>by construction</em>. That is why a single balancing number (F1) exists and why threshold-free summaries (AUC) exist.</p>
+
+  <h3>The split that organizes the whole family</h3>
+  <div class="tbl">
+  <table>
+    <tr><th>Species</th><th>Metrics</th><th>What it judges</th></tr>
+    <tr><td><strong>Threshold-dependent</strong><br>(one frozen cutoff)</td><td>accuracy, precision, recall, F1, specificity, MCC</td><td>Point estimates from one frozen confusion matrix</td></tr>
+    <tr><td><strong>Threshold-independent</strong><br>(sweep &amp; summarize)</td><td>AUC-ROC, AUC-PR, log loss</td><td>Ranking quality / calibration of the raw scores, before any threshold</td></tr>
+  </table>
+  </div>
+
+  <div class="note trap">
+    <span class="lab">The "95% accuracy" trap</span>
+    Accuracy is a single frozen point that hides both the threshold choice and the class balance. If 99% of emails are not spam, predicting "not spam" for everything scores 99% and catches zero spam. The correct interview reflex: "it depends on the class distribution."
+  </div>
+
+  <div class="note">
+    <span class="lab">The asymmetry to remember</span>
+    Precision, recall, and F1 <strong>never touch TN</strong>. That is their blind spot under imbalance. MCC is the only basic metric using all four cells, which is why it is the most honest single number when classes are skewed.
+  </div>
+</section>
+
+<!-- ============ 2. AUC-ROC ============ -->
+<section id="aucroc">
+  <span class="sec-num">Section 02</span>
+  <h2 class="sec">AUC-ROC: the threshold sweep</h2>
+
+  <p>A classifier outputs a <em>score</em>, not a decision. Turning a score into a label needs a threshold, and every threshold gives a different confusion matrix. ROC sidesteps "which threshold?" by asking: across <em>all</em> thresholds, how well do my scores separate positives from negatives? It judges the ranking, not any one cutoff.</p>
+
+  <h4>The two axes</h4>
+  $$\text{TPR} = \text{Recall} = \frac{TP}{TP+FN} \quad (y\text{-axis})$$
+  $$\text{FPR} = \frac{FP}{FP+TN} = 1 - \text{Specificity} \quad (x\text{-axis})$$
+  <p>The symmetry: TPR reads across the positive row, FPR across the negative row. Both are "of the actual class, how much did I flag positive" — you want one high, the other low.</p>
+
+  <h3>How the curve is actually plotted</h3>
+  <p>This is the mechanical procedure people skip. Forget the integral:</p>
+  <ol>
+    <li>Score every example → list of <code>(score, label)</code> pairs.</li>
+    <li>Sort by score, highest first.</li>
+    <li>Start threshold at +∞: nothing predicted positive → point <strong>(0,0)</strong>.</li>
+    <li>Lower the threshold one example at a time. Each crossed example flips to "predicted positive":
+      <ul>
+        <li>actually positive → TP up → step <strong>UP</strong> (TPR increases)</li>
+        <li>actually negative → FP up → step <strong>RIGHT</strong> (FPR increases)</li>
+      </ul>
+    </li>
+    <li>Threshold below every score: everything positive → <strong>(1,1)</strong>.</li>
+  </ol>
+  <p>So ROC is a <strong>staircase</strong>: up for every positive, right for every negative. A perfect model scores all positives above all negatives → straight up to (0,1), then right — hugging the top-left corner.</p>
+
+  <figure>
+    <div class="frame">
+      <div class="controls">
+        <span>Threshold</span>
+        <input type="range" id="rocThr" min="0" max="100" value="100" step="1">
+        <span class="val" id="rocThrV">1.00</span>
+      </div>
+      <div style="position:relative;height:300px;"><canvas id="rocCanvas" role="img" aria-label="ROC staircase being built as threshold lowers"></canvas></div>
+      <div class="statgrid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="stat"><div class="l">TPR (recall)</div><div class="v" id="rocTpr">0.00</div></div>
+        <div class="stat"><div class="l">FPR</div><div class="v" id="rocFpr">0.00</div></div>
+        <div class="stat"><div class="l">AUC</div><div class="v" id="rocAuc">–</div></div>
+      </div>
+    </div>
+    <figcaption>Drag the threshold from 1.00 → 0.00. Up for each positive, right for each negative.</figcaption>
+  </figure>
+
+  <h3>The math — what AUC actually equals</h3>
+  <p>The integral form \( \text{AUC} = \int_0^1 \text{TPR}\,d(\text{FPR}) \) is correct but least useful. The interpretation that wins interviews:</p>
+  <div class="eqlabel">AUC = probability a random positive outranks a random negative</div>
+  $$\text{AUC} = P(s^+ > s^-) = \frac{1}{P \cdot N}\sum_{i \in \text{pos}}\sum_{j \in \text{neg}} \mathbb{1}[s_i > s_j]$$
+  <p>The double sum counts every (positive, negative) pair where the positive outscored the negative, divided by the total number of pairs \(P\cdot N\). The area under the staircase <em>is</em> this count — each up-step (a positive) sweeps across the fraction of negatives already ranked below it. Area is just the geometric shadow of "how often positives beat negatives."</p>
+
+  <div class="note">
+    <span class="lab">Depth signal</span>
+    AUC is a normalized <strong>Mann-Whitney U statistic</strong> (equivalently the Wilcoxon rank-sum). Dropping this connection signals real understanding.
+  </div>
+
+  <h4>Reading the key values</h4>
+  <ul>
+    <li><strong>AUC = 1.0</strong> — every positive outscores every negative; perfect ranking.</li>
+    <li><strong>AUC = 0.5</strong> — coin flip; the diagonal. Means <em>random</em>, not "wrong."</li>
+    <li><strong>AUC = 0.3</strong> — not bad, it's informative with flipped labels; invert predictions → 0.7.</li>
+    <li><strong>Threshold-free</strong> — measures whether scores <em>rank</em> correctly, independent of cutoff. Its superpower, and (under imbalance) its weakness.</li>
+  </ul>
+
+  <div class="iv">
+    <span class="lab">60-second interview answer</span>
+    <p>"ROC plots true positive rate against false positive rate as you sweep the threshold across every value. AUC is the area under it, and the cleanest interpretation is probabilistic: the chance a random positive is scored higher than a random negative. So 1.0 is perfect ranking, 0.5 is random. It's threshold-independent, great for comparing models before committing to a cutoff, but misleadingly optimistic under heavy class imbalance because FPR's denominator is dominated by true negatives — there I'd switch to AUC-PR."</p>
+  </div>
+</section>
+<!-- ============ 3. AUC-PR ============ -->
+<section id="aucpr">
+  <span class="sec-num">Section 03</span>
+  <h2 class="sec">AUC-PR: telling the truth under imbalance</h2>
+
+  <p>Same machinery as ROC — sweep the threshold, plot two quantities — but one axis is swapped, and that single swap changes everything when positives are rare.</p>
+
+  <h4>Same sweep, different axes</h4>
+  $$\text{Precision} = \frac{TP}{TP+FP} \quad (y\text{-axis}) \qquad \text{Recall} = \frac{TP}{TP+FN} \quad (x\text{-axis})$$
+
+  <h3>Why the curve behaves so differently</h3>
+  <p>Look at the denominators — this is the entire story:</p>
+  <ul>
+    <li>ROC's x-axis (FPR) has denominator <strong>FP + TN</strong> — both negative-class cells. TN is enormous when negatives dominate.</li>
+    <li>PR's y-axis (precision) has denominator <strong>TP + FP</strong> — it <strong>never touches TN</strong>.</li>
+  </ul>
+  <p>In a fraud problem with 99.9% legitimate transactions, the giant pile of correctly-ignored legit transactions (TN) inflates ROC but is invisible to PR. PR only looks at the positive class and your alarms about it — it can't hide behind a mountain of easy negatives.</p>
+
+  <div class="note key">
+    <span class="lab">Structural difference</span>
+    ROC always runs (0,0)→(1,1) monotonically — a clean staircase. The PR curve is <strong>not monotonic</strong>: as the threshold drops, recall only increases, but precision <em>jiggles</em> — up when you cross a real positive, down when you cross a false positive. PR sawtooths downward.
+  </div>
+
+  <figure>
+    <div class="frame">
+      <div class="controls">
+        <span>Threshold</span>
+        <input type="range" id="prThr" min="0" max="100" value="100" step="1">
+        <span class="val" id="prThrV">1.00</span>
+        <span style="width:100%;color:#564f44;">imbalanced data: 4 positives / 16 negatives (20% positive)</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><div style="position:relative;height:230px;"><canvas id="prCanvas" role="img" aria-label="PR curve under construction"></canvas></div><div style="text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;margin-top:4px;">PR curve</div></div>
+        <div><div style="position:relative;height:230px;"><canvas id="rocCanvas2" role="img" aria-label="ROC curve under construction on same data"></canvas></div><div style="text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;margin-top:4px;">ROC curve (same data)</div></div>
+      </div>
+      <div class="statgrid" style="grid-template-columns:repeat(4,1fr);margin-top:12px;">
+        <div class="stat"><div class="l">Precision</div><div class="v" id="prPrec">–</div></div>
+        <div class="stat"><div class="l">Recall</div><div class="v" id="prRec">0.00</div></div>
+        <div class="stat"><div class="l">FPR</div><div class="v" id="prFpr">0.00</div></div>
+        <div class="stat"><div class="l">AUC PR / ROC</div><div class="v" id="prAuc" style="font-size:15px;">–</div></div>
+      </div>
+    </div>
+    <figcaption>Same model, two stories: ROC sails to the top-left while PR stays sober.</figcaption>
+  </figure>
+
+  <h3>The baseline — the most testable contrast</h3>
+  <ul>
+    <li><strong>ROC random baseline</strong> = the diagonal, AUC = 0.5, <em>always</em>, regardless of class balance.</li>
+    <li><strong>PR random baseline</strong> = a horizontal line at precision = positive prevalence. If positives are 0.1% of data, random AUC-PR ≈ 0.001.</li>
+  </ul>
+  <p>Consequence: AUC-PR is <strong>not comparable across datasets with different prevalence</strong>. An AUC-PR of 0.4 is fantastic against a 0.001 baseline, garbage against 0.5. ROC's fixed 0.5 baseline is comparable across datasets but blind to imbalance. Pick your poison.</p>
+
+  <h3>Why ROC lies under imbalance — concretely</h3>
+  <p>1,000,000 transactions, 1,000 fraud (0.1%). Model flags 2,000, catches 900 real ones.</p>
+  <ul>
+    <li>Recall = 900/1000 = <strong>0.90</strong> — looks great</li>
+    <li>FPR = 1100/999000 ≈ <strong>0.0011</strong> — looks incredible; ROC sits top-left, AUC superb</li>
+    <li>Precision = 900/2000 = <strong>0.45</strong> — fewer than half your fraud alarms are real</li>
+  </ul>
+  <p>ROC's FPR was diluted to near-zero by the 999,000-strong TN denominator. Precision, ignoring TN, exposed the truth. That is the whole reason AUC-PR exists.</p>
+
+  <h3>The math behind AUC-PR</h3>
+  <p>Unlike AUC-ROC, there is <strong>no clean probabilistic interpretation</strong>. It is the area under precision-as-a-function-of-recall:</p>
+  $$\text{AUC-PR} = \int_0^1 \text{Precision}(r)\,dr$$
+  <p>Computed two ways — and the distinction is a trap:</p>
+  <ol>
+    <li><strong>Trapezoidal</strong> (<code>auc(recall, precision)</code>) — connects points with straight lines. Known to be <em>optimistic</em>: linear interpolation in PR space is not achievable by any real classifier.</li>
+    <li><strong>Average Precision (AP)</strong> — the right way, what <code>average_precision_score</code> computes:</li>
+  </ol>
+  $$\text{AP} = \sum_n (R_n - R_{n-1})\cdot P_n$$
+  <p>A weighted mean of precisions, weighted by the increase in recall at each threshold. Avoids the optimistic interpolation. "I use <code>average_precision_score</code>, not trapezoidal AUC, because trapezoidal interpolation in PR space is optimistic" is a strong signal.</p>
+
+  <div class="note">
+    <span class="lab">Sharper decision rule than "&lt;5% positive"</span>
+    The test isn't just "is it imbalanced," it's <strong>do I care about true negatives at all?</strong> If the negatives are a vast uninteresting background (fraud, rare disease, retrieval, anomaly detection) and all your value is in the positive class — use PR. If you genuinely care about correctly clearing negatives — ROC is meaningful.
+  </div>
+
+  <div class="iv">
+    <span class="lab">60-second interview answer</span>
+    <p>"The PR curve plots precision against recall as you sweep the threshold — same sweep as ROC, but precision replaces FPR. The key difference is precision's denominator is TP + FP, so it never touches true negatives, while ROC's FPR is dominated by the true-negative count under imbalance. That's why ROC looks optimistically great on rare-positive problems while PR stays honest. The PR random baseline is the positive prevalence, not 0.5, so AUC-PR isn't comparable across datasets with different base rates. In practice I use average precision rather than trapezoidal AUC because linear interpolation in PR space is optimistic. Rule of thumb: if I don't care about true negatives — fraud, anomaly, retrieval — I report PR."</p>
+  </div>
+</section>
+
+<!-- ============ 4. CODE ============ -->
+<section id="code">
+  <span class="sec-num">Section 04</span>
+  <h2 class="sec">Pure-Python: plotting both curves</h2>
+
+  <p>Everything built from the confusion matrix up, no sklearn, threshold swept in 0.01 steps with an explicit <code>for</code> loop. On the demo data this prints AUC-ROC ≈ 0.84 (looks strong) but AUC-PR ≈ 0.58 against a 0.19 baseline (sober) — the imbalance optimism, right there in the numbers.</p>
+
+  <div class="note">
+    <span class="lab">Interview point about the 0.01 grid</span>
+    The 0.01-step sweep is the practical approximation. Libraries instead use every <strong>unique predicted score</strong> as a threshold, so the curve passes exactly through every real operating point. The fixed grid can skip or smear points when scores cluster tightly. Knowing <em>why</em> the grid is an approximation is the depth signal.
+  </div>
+
+<pre><code>import matplotlib.pyplot as plt
+import random
+
+# 0. Fake data: probabilities + true binary labels (~20% positive).
+def make_data(n=400, pos_rate=0.2, seed=42):
+    random.seed(seed)
+    probs, labels = [], []
+    for _ in range(n):
+        y = 1 if random.random() &lt; pos_rate else 0
+        if y == 1:
+            p = min(1.0, max(0.0, random.gauss(0.65, 0.18)))  # positives score higher
+        else:
+            p = min(1.0, max(0.0, random.gauss(0.35, 0.18)))  # with overlap (realistic)
+        probs.append(p); labels.append(y)
+    return probs, labels
+
+# 1. Confusion matrix at a threshold. Predict positive if prob &gt;= threshold.
+def confusion_matrix(probs, labels, threshold):
+    tp = fp = tn = fn = 0
+    for p, y in zip(probs, labels):
+        pred = 1 if p &gt;= threshold else 0
+        if   pred == 1 and y == 1: tp += 1
+        elif pred == 1 and y == 0: fp += 1
+        elif pred == 0 and y == 0: tn += 1
+        else:                      fn += 1
+    return tp, fp, tn, fn
+
+# 2. Rates. Guard every division by zero explicitly.
+def tpr(tp, fn):  return tp / (tp + fn) if (tp + fn) else 0.0   # recall (ROC y, PR x)
+def fpr(fp, tn):  return fp / (fp + tn) if (fp + tn) else 0.0   # fall-out (ROC x)
+def precision(tp, fp): return tp / (tp + fp) if (tp + fp) else 1.0  # no preds =&gt; 1.0
+
+# 3. Sweep threshold 1.01 -&gt; -0.01 in 0.01 steps so curve spans (0,0)-&gt;(1,1).
+#    NOTE: production keys on sorted(set(probs), reverse=True) instead of a grid.
+def sweep(probs, labels, step=0.01):
+    roc_pts, pr_pts = [], []
+    t = 1.01
+    while t &gt;= -0.001:
+        tp, fp, tn, fn = confusion_matrix(probs, labels, t)
+        roc_pts.append((fpr(fp, tn), tpr(tp, fn)))       # (x=FPR,    y=TPR)
+        pr_pts.append((tpr(tp, fn), precision(tp, fp)))  # (x=Recall, y=Precision)
+        t -= step
+    return roc_pts, pr_pts
+
+# 4. Trapezoidal area. Sort by x first (PR is non-monotonic).
+def auc_trapezoid(points):
+    pts = sorted(points, key=lambda p: p[0])
+    area = 0.0
+    for i in range(1, len(pts)):
+        x0, y0 = pts[i-1]; x1, y1 = pts[i]
+        area += (x1 - x0) * (y0 + y1) / 2.0   # width * average height
+    return area
+
+# 5. Run + plot.
+probs, labels = make_data()
+P = sum(labels); baseline = P / len(labels)   # PR baseline = positive prevalence
+roc_pts, pr_pts = sweep(probs, labels, step=0.01)
+auc_roc = auc_trapezoid(roc_pts)
+auc_pr  = auc_trapezoid(pr_pts)
+print(f"AUC-ROC = {auc_roc:.4f}")
+print(f"AUC-PR  = {auc_pr:.4f}  (random baseline = {baseline:.3f})")
+
+fig, (axL, axR) = plt.subplots(1, 2, figsize=(12, 5))
+rx, ry = zip(*roc_pts)
+axL.plot(rx, ry, lw=2, label=f"ROC (AUC={auc_roc:.3f})")
+axL.plot([0,1],[0,1],"--",label="random (0.5)")
+axL.set_xlabel("FPR"); axL.set_ylabel("TPR"); axL.set_title("ROC"); axL.legend()
+px, py = zip(*pr_pts)
+axR.plot(px, py, lw=2, label=f"PR (AUC={auc_pr:.3f})")
+axR.axhline(baseline, ls="--", label=f"random ({baseline:.2f})")
+axR.set_xlabel("Recall"); axR.set_ylabel("Precision"); axR.set_title("PR"); axR.legend()
+plt.tight_layout(); plt.show()</code></pre>
+
+  <h4>Three things an interviewer probes — all visible here</h4>
+  <ul>
+    <li><strong>The precision 0/0 edge case.</strong> At the top of the sweep nothing is predicted positive, so precision is undefined. Convention here: 1.0, which creates the precision spike at the left edge. sklearn sets the first point to precision=1, recall=0.</li>
+    <li><strong>The sort before trapezoid.</strong> ROC points come out sorted by FPR; PR points need sorting by recall. And even sorted, trapezoidal PR area is the optimistic estimate — the honest metric is Average Precision.</li>
+    <li><strong>Grid vs unique scores.</strong> The 0.01 grid is fine for evenly-spread scores; it skips or revisits operating points when scores pile up in a narrow band. Production keys on unique scores.</li>
+  </ul>
+</section>
+<!-- ============ 5. R-SQUARED ============ -->
+<section id="r2">
+  <span class="sec-num">Section 05</span>
+  <h2 class="sec">R² and Adjusted R²</h2>
+
+  <p>Core intuition: R² measures how much better your model is than just predicting the mean. The dumbest model ignores all features and always predicts \(\bar{y}\).</p>
+
+  <div class="eqlabel">TSS — error of the mean-model (the variance you're stuck with)</div>
+  $$\text{TSS} = \sum_i (y_i - \bar{y})^2$$
+  <div class="eqlabel">RSS — error of your actual model</div>
+  $$\text{RSS} = \sum_i (y_i - \hat{y}_i)^2$$
+  <div class="eqlabel">R² — fraction of the mean-model's error you eliminated</div>
+  $$R^2 = 1 - \frac{\text{RSS}}{\text{TSS}} = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}$$
+
+  <p>Read it plainly: <em>of the variance the mean-model left on the table, what fraction did my model remove?</em> RSS/TSS is the error you failed to remove; 1 minus that is the error you did remove.</p>
+
+  <ul>
+    <li><strong>R² = 1</strong> — RSS = 0, perfect.</li>
+    <li><strong>R² = 0</strong> — exactly as good as predicting the mean.</li>
+    <li><strong>R² &lt; 0</strong> — <em>worse</em> than the mean. R² is <strong>not</strong> bounded in [0,1]; on test data or a mis-specified model, RSS can exceed TSS.</li>
+  </ul>
+
+  <figure>
+    <div class="frame">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div><div style="position:relative;height:230px;"><canvas id="meanC" role="img" aria-label="Errors to the mean line"></canvas></div><div style="text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;margin-top:4px;">predict mean → TSS</div></div>
+        <div><div style="position:relative;height:230px;"><canvas id="fitC" role="img" aria-label="Errors to the fitted line"></canvas></div><div style="text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;margin-top:4px;">fitted line → RSS</div></div>
+      </div>
+      <div class="statgrid" style="grid-template-columns:repeat(3,1fr);margin-top:12px;">
+        <div class="stat"><div class="l">TSS</div><div class="v" id="tssV">–</div></div>
+        <div class="stat"><div class="l">RSS</div><div class="v" id="rssV">–</div></div>
+        <div class="stat"><div class="l">R² = 1−RSS/TSS</div><div class="v" id="r2V">–</div></div>
+      </div>
+    </div>
+    <figcaption>The red error segments shrink from left to right — that shrinkage is R².</figcaption>
+  </figure>
+
+  <h3>Is R² like accuracy? Half right.</h3>
+  <p><strong>Valid parallel:</strong> both are normalized, unitless, higher-is-better scores with an interpretable ceiling, so both compare across problems without worrying about units. RMSE of "2.3" means nothing without scale; R² of 0.92 is interpretable alone. R² is the <em>scale-free</em> regression metric the way accuracy is the scale-free classification metric.</p>
+  <p><strong>Where it breaks:</strong> accuracy has a fixed floor (base rate) and ceiling (1.0). R²'s baseline is <em>your own dataset's variance</em>, so R² is relative to how hard your specific problem is:</p>
+  <ul>
+    <li>High R² can be trivial — tiny target variance, or autocorrelated time-series data.</li>
+    <li>Low R² can be excellent — in noisy domains (individual stock returns), R² = 0.05 may be genuinely valuable.</li>
+  </ul>
+
+  <h3>R² vs the other regression metrics</h3>
+  <div class="tbl">
+  <table>
+    <tr><th>Metric</th><th>Units</th><th>Scale-free?</th><th>Best at</th><th>Fails when</th></tr>
+    <tr><td>MSE / RMSE</td><td>y² / y</td><td>No</td><td>Training (smooth gradient), penalizing big errors</td><td>Not comparable across datasets</td></tr>
+    <tr><td>MAE</td><td>y</td><td>No</td><td>Robust to outliers, interpretable miss</td><td>Non-smooth gradient; not scale-free</td></tr>
+    <tr><td>MAPE</td><td>%</td><td>Yes</td><td>Stakeholder comms ("off by 12%")</td><td>Blows up at y=0; asymmetric</td></tr>
+    <tr><td><strong>R²</strong></td><td>none</td><td><strong>Yes</strong></td><td>Quality vs baseline, comparing across problems</td><td>Inflated by features; misleads on low-variance / time-series</td></tr>
+  </table>
+  </div>
+  <p>Honest summary: <strong>R² is the best communication/comparison metric; RMSE/MAE are the better optimization/error-magnitude metrics.</strong> Report both: "RMSE is ₹2.3L and the model explains 88% of price variance."</p>
+
+  <h3>Adjusted R² — and the real reason it exists</h3>
+  <div class="note trap">
+    <span class="lab">The core problem</span>
+    <strong>R² can never decrease when you add a feature, even pure noise.</strong> OLS finds some tiny coefficient that fits the residuals, RSS drops slightly, R² ticks up. So raw R² rewards complexity for free and is useless for comparing models with different feature counts.
+  </div>
+
+  <div class="eqlabel">Adjusted R² — penalize per degree of freedom</div>
+  $$R^2_{\text{adj}} = 1 - \frac{\text{RSS}/(n-p-1)}{\text{TSS}/(n-1)} = 1 - (1-R^2)\,\frac{n-1}{n-p-1}$$
+
+  <p>The mechanism: compare sums of squares <em>per degree of freedom</em>. Add a feature → \(p\) rises → \((n-p-1)\) shrinks → the penalized RSS term inflates. A new feature only raises adjusted R² if it cuts RSS <em>more than enough</em> to overcome that shrinking-degrees-of-freedom penalty. A noise feature can't pay for itself, so adjusted R² <em>drops</em>.</p>
+
+  <ul>
+    <li>Adjusted R² <strong>can decrease and go negative</strong>, unlike how people imagine R².</li>
+    <li>The \((n-1)/(n-p-1)\) factor is a poor-man's out-of-sample correction — the grain of truth behind the "sampling/generalization" instinct.</li>
+    <li>It's a <strong>model-selection tool</strong>, not a reporting metric. Use it to pick features; still report plain R² (or RMSE) for final quality. Using R² to pick features would always select the most complex model.</li>
+  </ul>
+
+  <div class="iv">
+    <span class="lab">60-second interview answer</span>
+    <p>"R² is one minus RSS over TSS — the fraction of the target's variance the model explains relative to predicting the mean. R² = 1 is perfect, 0 is no better than the mean, and it can go negative when the model is worse than the mean. Its strength is being scale-free, so unlike RMSE it's comparable across problems. Its weakness is that the baseline is the dataset's own variance, so high R² can be trivial on low-variance or time-series data and low R² can still be great in noisy domains. The big gotcha: R² never decreases when you add features, even useless ones, so for comparing models of different complexity you use adjusted R², which penalizes the feature count by dividing sums of squares per degree of freedom. In practice I report RMSE for error magnitude and R² for explained variance."</p>
+  </div>
+</section>
+<!-- ============ 6. NDCG ============ -->
+<section id="ndcg">
+  <span class="sec-num">Section 06</span>
+  <h2 class="sec">NDCG: position-aware ranking</h2>
+
+  <p>The name is the recipe read backwards: <strong>Gain → Cumulative Gain → Discounted Cumulative Gain → Normalized DCG.</strong> Each word adds one idea.</p>
+
+  <h4>Layer 1 — Gain</h4>
+  <p>Gain is the relevance of one item. The key shift from classification: relevance is <strong>graded</strong> (a 5-star result has more gain than a 3-star), not binary. That's the first thing distinguishing NDCG from MAP.</p>
+
+  <h4>Layer 2 — Cumulative Gain (CG)</h4>
+  $$\text{CG@K} = \sum_{i=1}^{K} rel_i$$
+  <p>Fatal flaw: <strong>CG is position-blind.</strong> [3,2,0] and [0,2,3] have identical CG, yet the first is far better. We need to punish good items for sitting low.</p>
+
+  <h4>Layer 3 — Discounted Cumulative Gain (DCG) — the position-aware part</h4>
+  $$\text{DCG@K} = \sum_{i=1}^{K} \frac{rel_i}{\log_2(i+1)}$$
+  <p>Why \(\log_2(i+1)\)? Walk the discounts: position 1 → 1/log₂2 = <strong>1.00</strong>; position 2 → <strong>0.63</strong>; position 3 → <strong>0.50</strong>; position 10 → <strong>0.29</strong>. The <strong>log</strong> makes the decay <em>gentle</em>: the 1→2 drop is big, the 9→10 drop is tiny — matching how user attention actually falls off. A linear 1/i discount would punish lower ranks too harshly.</p>
+  <p>Common alternative (used by most libraries and the original web-search papers), weighting high relevance exponentially:</p>
+  $$\text{DCG@K} = \sum_{i=1}^{K}\frac{2^{rel_i}-1}{\log_2(i+1)}$$
+
+  <h4>Layer 4 — Normalize → NDCG</h4>
+  <p>DCG is unbounded and incomparable across queries (a query with more relevant docs racks up more gain regardless of ranking quality). Divide by the best possible DCG for that query:</p>
+  $$\text{NDCG@K} = \frac{\text{DCG@K}}{\text{IDCG@K}}$$
+  <p><strong>IDCG</strong> = the DCG of the ideal ordering (all items sorted by relevance, best first) — the ceiling for that query. Now bounded in [0,1], and comparable across queries because each is normalized against its own ideal.</p>
+
+  <figure>
+    <div class="frame">
+      <div class="controls"><span style="width:100%;">click to set each position's relevance (0–3); DCG, IDCG, NDCG recompute live</span></div>
+      <div id="ndcgRows"></div>
+      <div class="statgrid" style="grid-template-columns:repeat(3,1fr);margin-top:14px;">
+        <div class="stat"><div class="l">DCG (your order)</div><div class="v" id="ndcgDcg">–</div></div>
+        <div class="stat"><div class="l">IDCG (ideal)</div><div class="v" id="ndcgIdcg">–</div></div>
+        <div class="stat"><div class="l">NDCG</div><div class="v" id="ndcgN">–</div></div>
+      </div>
+      <div id="ndcgIdeal" style="font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;margin-top:10px;"></div>
+    </div>
+    <figcaption>NDCG hits 1.0 only when your order already matches the ideal order shown below.</figcaption>
+  </figure>
+
+  <div class="iv">
+    <span class="lab">60-second interview answer</span>
+    <p>"DCG sums each item's relevance discounted by a log of its position, so relevant items ranked higher count more — the log makes the decay gentle, matching how user attention falls off. NDCG normalizes DCG by the ideal DCG, the score of a perfect relevance-sorted ranking, putting it in [0,1] and making it comparable across queries of different difficulty. I use it when relevance is graded."</p>
+  </div>
+</section>
+
+<!-- ============ 7. MAP ============ -->
+<section id="map">
+  <span class="sec-num">Section 07</span>
+  <h2 class="sec">Precision@k, AP, and MAP</h2>
+
+  <p>These form a ladder, and the confusion comes from collapsing its rungs. The word "average" appears twice in "mean average precision" for a reason.</p>
+
+  <h3>Rung 1 — Precision@k (one cutoff, one query)</h3>
+  $$\text{Precision@k} = \frac{\text{relevant items in top } k}{k}$$
+  <p>For list [✓, ✗, ✓, ✗, ✓]: P@1 = 1.0, P@3 = 2/3 = 0.67, P@5 = 0.60. One list, one cutoff, one number.</p>
+  <div class="note trap">
+    <span class="lab">The limitation that the next rung fixes</span>
+    Precision@k is <strong>position-blind within the top k</strong>. [✓,✓,✗] and [✗,✓,✓] both score P@3 = 0.67 — it can't see that the first front-loaded the relevant items.
+  </div>
+
+  <h3>Rung 2 — Average Precision (AP) (one full ranked list)</h3>
+  <p>AP is <strong>not</strong> precision at one k. It is the average of precision@k values, computed <em>only at the positions where a relevant item appears</em>, for a single query:</p>
+  $$\text{AP} = \frac{1}{R}\sum_{k=1}^{n} \text{Precision@k}\cdot rel(k)$$
+  <p>where \(R\) = total relevant items and \(rel(k)=1\) only if position \(k\) holds a relevant item (so you "sample" precision only at the hit positions).</p>
+
+  <h4>Walk-through on [✓, ✗, ✓, ✗, ✓], R = 3</h4>
+  <ul>
+    <li>pos 1 ✓ → P@1 = 1/1 = 1.00</li>
+    <li>pos 2 ✗ → skip</li>
+    <li>pos 3 ✓ → P@3 = 2/3 = 0.67</li>
+    <li>pos 4 ✗ → skip</li>
+    <li>pos 5 ✓ → P@5 = 3/5 = 0.60</li>
+  </ul>
+  $$\text{AP} = \frac{1.00 + 0.67 + 0.60}{3} = 0.756$$
+
+  <div class="note key">
+    <span class="lab">The sentence that resolves the confusion</span>
+    Each time you hit a relevant item, AP takes a snapshot of how clean the list has been up to that point. A relevant item near the top is measured while precision is still high → big contribution. One buried at the bottom is measured after junk piles up → small contribution. So AP <strong>rewards putting relevant items early</strong> — exactly the position-awareness precision@k lacks. Precision@k is a snapshot at one position; AP is the average of those snapshots taken at every relevant hit.
+  </div>
+
+  <h3>Rung 3 — Mean Average Precision (MAP) (across queries)</h3>
+  $$\text{MAP} = \frac{1}{|Q|}\sum_{q \in Q} \text{AP}_q$$
+  <p>The full ladder by name:</p>
+  <div class="tbl">
+  <table>
+    <tr><th>Metric</th><th>Scope</th><th>Position-aware?</th></tr>
+    <tr><td>Precision@k</td><td>one cutoff, one query</td><td>No — blind inside top k</td></tr>
+    <tr><td>AP (or AP@k)</td><td>one query, all relevant hits</td><td>Yes — via precision at hits</td></tr>
+    <tr><td>MAP</td><td>averaged across all queries</td><td>Yes</td></tr>
+  </table>
+  </div>
+  <div class="note">
+    <span class="lab">Why "average" twice</span>
+    MAP = <strong>mean</strong> (over queries) of <strong>average</strong> (over relevant positions) precision. Two stacked averages. Confusing MAP with precision@k means collapsing those two averaging steps.
+  </div>
+
+  <h3>NDCG vs MAP — when to use which</h3>
+  <p>Deciding question: <strong>is your relevance binary or graded?</strong></p>
+  <div class="tbl">
+  <table>
+    <tr><th></th><th>MAP</th><th>NDCG</th></tr>
+    <tr><td>Relevance</td><td>Binary (relevant / not)</td><td>Graded (0–5, stars)</td></tr>
+    <tr><td>Position handling</td><td>Implicit, via precision@k at hits</td><td>Explicit, via log discount</td></tr>
+    <tr><td>Normalization</td><td>Divide by R</td><td>Divide by IDCG</td></tr>
+    <tr><td>Natural home</td><td>Document retrieval, yes/no relevance</td><td>Recommendations, learning-to-rank with quality grades</td></tr>
+  </table>
+  </div>
+  <p>Third sibling — <strong>MRR (Mean Reciprocal Rank)</strong>: when only the rank of the <em>first</em> relevant hit matters (Q&amp;A, "I'm feeling lucky"), \( \text{MRR}=\frac{1}{|Q|}\sum \frac{1}{\text{rank}_i} \). It ignores everything after the first success.</p>
+
+  <div class="iv">
+    <span class="lab">60-second interview answer</span>
+    <p>"Precision@k is the fraction of the top k that's relevant — one number, blind to ordering inside the top k. Average precision averages the precision@k values taken only at the ranks where a relevant item appears, so it rewards putting relevant items early; that's the position-awareness precision@k lacks. MAP is the mean of average precision across all queries — so it's two averages, over relevant positions within a query, then over queries. I use MAP for binary relevance and NDCG when relevance is graded."</p>
+  </div>
+</section>
+<!-- ============ 8. PERPLEXITY ============ -->
+<section id="perplexity">
+  <span class="sec-num">Section 08</span>
+  <h2 class="sec">Perplexity as effective branching</h2>
+
+  <p>Beyond "exponentiated average negative log-likelihood." Perplexity is a quantity living in the space of probability distributions, measured in <em>effective vocabulary size</em>, that happens to equal the exponential of a cross-entropy you're already minimizing.</p>
+
+  <div class="note key">
+    <span class="lab">The one-sentence reframe</span>
+    Perplexity is the <strong>effective branching factor</strong> of the model's predictive distribution. Perplexity 20 means that, averaged over every position, the model is as uncertain as if choosing uniformly among 20 equally-likely next tokens. The word "effective" is the whole concept: not literally 20 choices, but the uniform distribution that would leave you <em>equally</em> confused.
+  </div>
+
+  <h3>Building it from entropy</h3>
+  <p>Entropy is average surprise; for a <strong>uniform</strong> distribution over \(k\) outcomes, \(H = \log k\). Invert it: a distribution with entropy \(H\) (in bits) is as uncertain as a uniform distribution over</p>
+  $$k = 2^{H}$$
+  <p>This \(k\) is the perplexity of the distribution. Perplexity is just entropy exponentiated — back into "number of outcomes" units instead of "bits." Entropy lives in log-space (additive, abstract); perplexity in count-space (multiplicative, intuitive). Same information, two coordinate systems.</p>
+
+  <h3>Subtlety 1 — it's a cross-entropy, not an entropy</h3>
+  <p>You don't know the true distribution \(p\); you have samples (the test text) and your model \(q\). What you compute is the <strong>cross-entropy</strong>:</p>
+  $$H(p, q) = -\sum_x p(x)\log q(x) \approx -\frac{1}{N}\sum_{i=1}^{N} \log q(w_i \mid w_{&lt;i})$$
+  <p>The average NLL is not the <em>definition</em> of perplexity — it's an empirical estimator of the cross-entropy \(H(p,q)\). Perplexity is \(b\) raised to it.</p>
+
+  <div class="note">
+    <span class="lab">The floor you can never beat</span>
+    By Gibbs' inequality, \(H(p,q) \ge H(p)\), equality iff \(q=p\). Cross-entropy is bounded below by the true entropy of language, so perplexity has a floor: \(2^{H(\text{language})}\). The excess decomposes exactly as KL divergence:
+    $$H(p,q) - H(p) = D_{\text{KL}}(p \,\|\, q)$$
+    So perplexity measures an <strong>irreducible floor set by language itself</strong> plus your model's <strong>avoidable KL divergence from the truth</strong>. Minimizing perplexity drives \(q \to p\).
+  </div>
+
+  <h3>Subtlety 2 — the geometric-mean structure</h3>
+  <p>By the chain rule \(q(w_1,\dots,w_N) = \prod_i q(w_i \mid w_{&lt;i})\). Perplexity is the <strong>inverse geometric mean</strong> of per-token probabilities:</p>
+  $$\text{PPL} = \left(\prod_{i=1}^{N}\frac{1}{q(w_i \mid w_{&lt;i})}\right)^{1/N} = \left(\prod_{i=1}^{N} q(w_i \mid w_{&lt;i})\right)^{-1/N}$$
+  <p>Each token contributes \(1/q\) — its local branching factor. Geometric (not arithmetic) because probabilities multiply along the sequence, so the natural average is additive in log-space.</p>
+
+  <div class="note trap">
+    <span class="lab">The brutal asymmetry</span>
+    Geometric mean is dominated by its smallest terms. One token assigned probability 0.0001 contributes local perplexity 10,000 and drags the whole geometric mean up violently. <strong>One confidently-wrong token poisons the perplexity of an entire document.</strong> This is why perplexity is so sensitive to tail behavior.
+  </div>
+
+  <figure>
+    <div class="frame">
+      <div class="controls">
+        <span>"sat" prob</span>
+        <input type="range" id="pplP" min="1" max="900" value="400" step="1">
+        <span class="val" id="pplPV">0.40</span>
+        <span style="width:100%;color:#564f44;">drag the last token's probability and watch perplexity explode while the others are unchanged</span>
+      </div>
+      <div id="pplToks"></div>
+      <div class="statgrid" style="grid-template-columns:repeat(3,1fr);margin-top:14px;">
+        <div class="stat"><div class="l">cross-entropy (bits)</div><div class="v" id="pplCe">–</div></div>
+        <div class="stat"><div class="l">perplexity = 2^H</div><div class="v" id="pplPpl">–</div></div>
+        <div class="stat"><div class="l">worst local factor</div><div class="v" id="pplWorst">–</div></div>
+      </div>
+    </div>
+    <figcaption>Push "sat" toward 0.02 — its local factor 1/p jumps to 50 and hauls the geometric mean up.</figcaption>
+  </figure>
+
+  <h3>The four caveats that separate a real answer from a recited one</h3>
+  <ul>
+    <li><strong>Only comparable under identical tokenization.</strong> Perplexity is per-token normalized. A 256K-vocab model chops text into fewer tokens than a 32K-vocab one, spreading the joint probability over fewer factors, mechanically lowering per-token perplexity without being "better." Comparable only with identical test set <em>and</em> tokenizer. (Bits-per-byte normalizes by raw bytes to escape this.)</li>
+    <li><strong>Measures distributional fit, not generation.</strong> Computed teacher-forced (every position conditions on the true history). It never watches the model generate. A model can have great perplexity yet produce repetitive or degenerate text under sampling.</li>
+    <li><strong>Blind to what you care about in a chat model.</strong> Factuality, helpfulness, safety, instruction-following — none captured. Confidently predicting the next token of a factually wrong test sentence gets <em>rewarded</em>. Central for pretraining; near-useless for an aligned assistant.</li>
+    <li><strong>The KL-floor explains diminishing returns.</strong> Since perplexity bottoms out at \(2^{H(\text{language})}\), early training crushes huge KL cheaply; late training fights for the last fraction of a bit. The information-theoretic shadow of the scaling-law plateau.</li>
+  </ul>
+
+  <div class="iv">
+    <span class="lab">Interview answer, at depth</span>
+    <p>"Perplexity is the exponential of the cross-entropy between data and model, making it the effective branching factor of the next-token distribution — the size of the uniform distribution that would leave you equally uncertain. Because cross-entropy splits into the entropy of language plus the KL divergence from model to truth, perplexity measures an irreducible floor plus the model's avoidable divergence, so minimizing it drives the distribution toward the true one. Structurally it's the inverse geometric mean of per-token probabilities, so it's dominated by the worst-predicted tokens — one near-zero probability blows it up. The critical caveat: it's per-token normalized, so only comparable under identical tokenization and test set; a bigger vocabulary mechanically lowers it. And it scores teacher-forced fit, not generation, so it says nothing about factuality or sampling quality — central for pretraining, replaced by downstream and human evals for aligned models."</p>
+  </div>
+</section>
+<!-- ============ 9. SHAP ============ -->
+<section id="shap">
+  <span class="sec-num">Section 09</span>
+  <h2 class="sec">SHAP &amp; Shapley values</h2>
+
+  <p>The rare ML tool with a real theorem behind it. Everything rests on one idea from cooperative game theory.</p>
+
+  <h3>The fundamental reframe — a prediction is a payout to divide</h3>
+  <p>Shapley (1950s) answered: a team cooperates to produce some value; how do you fairly split it, given players contribute differently and interact? He proved there's exactly <strong>one</strong> split satisfying a set of fairness axioms. Not "a good way" — the <em>unique</em> way. That uniqueness is why SHAP has weight LIME and permutation importance lack.</p>
+  <div class="tbl">
+  <table>
+    <tr><th>Game theory</th><th>SHAP translation</th></tr>
+    <tr><td>The game</td><td>Making one prediction for one specific example</td></tr>
+    <tr><td>The players</td><td>The feature values of that example</td></tr>
+    <tr><td>The payout</td><td>\(f(x) - \mathbb{E}[f(x)]\): how far this prediction lands from average</td></tr>
+    <tr><td>A player's Shapley value</td><td>Its fair share of that gap</td></tr>
+  </table>
+  </div>
+  <div class="note key">
+    <span class="lab">Why SHAP is natively per-feature, per-example</span>
+    The game is defined for <em>one example</em> (its feature values are the players); the solution splits the payout <em>across features</em>. The math is local by construction. A global explanation is just an aggregate of many local ones.
+  </div>
+
+  <h3>Contribution is marginal — but order matters</h3>
+  $$\text{marginal contribution of } i \text{ to coalition } S = f(S \cup \{i\}) - f(S)$$
+  <p>The problem: a feature's marginal contribution depends on who's already in the room (features interact). So there's no single "contribution of income" — it depends on the order features joined. Shapley's fix: <strong>average the marginal contribution over every possible order.</strong></p>
+
+  <figure>
+    <div class="frame">
+      <svg viewBox="0 0 680 250" width="100%" role="img" aria-label="Income contributes differently depending on join order; Shapley averages over orders">
+        <defs><marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+        <text x="20" y="24" font-family="Fraunces,serif" font-size="16" font-weight="600" fill="#23201b">Order A: income first, then debt</text>
+        <rect x="20" y="34" width="100" height="44" rx="6" fill="#eceae4" stroke="#888780" stroke-width="1"/><text x="70" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#444">baseline</text><text x="70" y="69" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#444">0.30</text>
+        <line x1="120" y1="56" x2="160" y2="56" stroke="#564f44" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <rect x="162" y="34" width="116" height="44" rx="6" fill="#dcefe6" stroke="#1d6e56"/><text x="220" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">+income</text><text x="220" y="69" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">→0.55 (+.25)</text>
+        <line x1="278" y1="56" x2="318" y2="56" stroke="#564f44" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <rect x="320" y="34" width="116" height="44" rx="6" fill="#e6e3f2" stroke="#3b3170"/><text x="378" y="54" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b3170">+debt</text><text x="378" y="69" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b3170">→0.80 (+.25)</text>
+        <text x="20" y="118" font-family="Fraunces,serif" font-size="16" font-weight="600" fill="#23201b">Order B: debt first, then income</text>
+        <rect x="20" y="128" width="100" height="44" rx="6" fill="#eceae4" stroke="#888780"/><text x="70" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#444">baseline</text><text x="70" y="163" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#444">0.30</text>
+        <line x1="120" y1="150" x2="160" y2="150" stroke="#564f44" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <rect x="162" y="128" width="116" height="44" rx="6" fill="#e6e3f2" stroke="#3b3170"/><text x="220" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b3170">+debt</text><text x="220" y="163" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b3170">→0.40 (+.10)</text>
+        <line x1="278" y1="150" x2="318" y2="150" stroke="#564f44" stroke-width="1.5" marker-end="url(#ar2)"/>
+        <rect x="320" y="128" width="116" height="44" rx="6" fill="#dcefe6" stroke="#1d6e56"/><text x="378" y="148" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">+income</text><text x="378" y="163" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">→0.80 (+.40)</text>
+        <rect x="470" y="40" width="190" height="60" rx="6" fill="#dcefe6" stroke="#1d6e56"/><text x="565" y="64" text-anchor="middle" font-family="Fraunces,serif" font-size="14" font-weight="600" fill="#0f5840">income φ</text><text x="565" y="84" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#0f5840">avg(.25,.40)=.325</text>
+        <rect x="470" y="120" width="190" height="60" rx="6" fill="#e6e3f2" stroke="#3b3170"/><text x="565" y="144" text-anchor="middle" font-family="Fraunces,serif" font-size="14" font-weight="600" fill="#3b3170">debt φ</text><text x="565" y="164" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#3b3170">avg(.25,.10)=.175</text>
+        <rect x="20" y="200" width="640" height="38" rx="6" fill="#faf3df" stroke="#9a6a18"/><text x="340" y="224" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" fill="#7a5212">additivity: .325 + .175 = .50 = prediction 0.80 − baseline 0.30 ✓</text>
+      </svg>
+    </div>
+    <figcaption>Income adds +0.25 joining first, +0.40 joining after debt. Shapley averages over orders.</figcaption>
+  </figure>
+
+  <h3>The formula, now readable</h3>
+  $$\phi_i = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!\,(|N|-|S|-1)!}{|N|!}\,\big[f(S \cup \{i\}) - f(S)\big]$$
+  <ul>
+    <li>\(f(S\cup\{i\}) - f(S)\) — the marginal contribution (the arrows above).</li>
+    <li>\(\sum_{S \subseteq N\setminus\{i\}}\) — over every coalition not already containing \(i\) (every room \(i\) could enter).</li>
+    <li>\(\frac{|S|!\,(|N|-|S|-1)!}{|N|!}\) — combinatorial weight = fraction of the \(n!\) orderings producing this "join \(S\), then add \(i\)" situation. Exactly the "average over orderings," written compactly.</li>
+  </ul>
+
+  <h3>The four axioms — why this is <em>the</em> answer</h3>
+  <ul>
+    <li><strong>Efficiency (→ additivity).</strong> Contributions sum exactly to \(f(x) - \mathbb{E}[f(x)]\). A complete, exact decomposition with nothing left over — the killer property for explainability and compliance.</li>
+    <li><strong>Symmetry.</strong> Features contributing identically to every coalition get equal values. No privilege by name or position.</li>
+    <li><strong>Dummy / Null.</strong> A feature contributing 0 to every coalition gets exactly 0.</li>
+    <li><strong>Linearity.</strong> Shapley values of an ensemble = sum of per-model values. This makes TreeSHAP work for boosted forests.</li>
+  </ul>
+  <p>The "consistency" property follows: make a feature matter more and its SHAP value can't go down. No competing method satisfies the whole set — SHAP is the <em>provably fair</em> decomposition.</p>
+
+  <h3>How "present vs absent" actually works</h3>
+  <p>A trained model needs all inputs — you can't literally remove a feature. SHAP defines \(f(S)\) as the expected prediction, marginalizing absent features over a background distribution:</p>
+  $$f(S) = \mathbb{E}_{x_{\bar{S}}}\big[f(x_S, x_{\bar{S}})\big]$$
+  <p>Hold present features at this example's values; for absent ones, average the output over plausible values from a <strong>background/reference dataset</strong>. "Absent" = "replaced by random realistic values and averaged out." This is why SHAP needs a background set, and why the baseline \(\mathbb{E}[f(x)]\) is the prediction when all features are absent.</p>
+  <div class="note">
+    <span class="lab">The deepest honest critique</span>
+    Marginalize using the <strong>marginal</strong> distribution of absent features (interventional SHAP — breaks correlations) or the <strong>conditional</strong> distribution given present ones (conditional SHAP — respects correlations but can leak attribution to correlated-but-unused features)? Naming this interventional-vs-observational tension signals real depth.
+  </div>
+
+  <h3>The cost, and why TreeSHAP matters</h3>
+  <p>Exact computation sums over all \(2^n\) subsets — exponential. Intractable past a handful of features. In practice:</p>
+  <ul>
+    <li><strong>KernelSHAP</strong> — model-agnostic; samples coalitions, solves a weighted linear regression whose coefficients are the Shapley values. Any model, but slow.</li>
+    <li><strong>TreeSHAP</strong> — for tree ensembles, exploits tree structure for <em>exact</em> Shapley values in \(O(TLD^2)\) (trees × leaves × depth²) instead of \(O(2^n)\). Why SHAP exploded in tabular ML.</li>
+    <li><strong>DeepSHAP / GradientSHAP</strong> — backprop-style approximations for neural nets.</li>
+  </ul>
+
+  <h3>Local → global</h3>
+  <p>Everything above is local — one example, one set of values. Global views are aggregations:</p>
+  <ul>
+    <li><strong>Global importance</strong> = mean of \(|\phi_i|\) across examples.</li>
+    <li><strong>Beeswarm/summary plot</strong> = every example's \(\phi_i\) per feature — magnitude and direction.</li>
+    <li><strong>Dependence plot</strong> = \(\phi_i\) vs the feature's value — nonlinear effects and interactions.</li>
+  </ul>
+  <p>"Per-feature, per-example" isn't a usage choice — it's the native granularity. Global exists only because you can average a fundamentally local quantity.</p>
+
+  <div class="iv">
+    <span class="lab">Interview answer</span>
+    <p>"SHAP attributes a single prediction to its features using Shapley values from cooperative game theory. The prediction is a payout, the feature values are players, and we fairly divide the gap between this prediction and the average. A feature's contribution is its marginal effect, but that depends on which other features are already considered because features interact, so the Shapley value averages the marginal contribution over all orderings. It's the unique attribution satisfying efficiency, symmetry, dummy, and linearity — efficiency being key, since contributions sum exactly to prediction minus baseline, a complete decomposition. Absent features are marginalized over a background dataset, which is why SHAP needs a reference distribution. Exact computation is exponential, so TreeSHAP computes it exactly in polynomial time for tree ensembles, KernelSHAP approximates for any model. It's natively local — one set of values per example — and global importance is the mean absolute SHAP value across examples."</p>
+  </div>
+</section>
+
+<div class="rule-orn">· · ·</div>
+
+<!-- ============ 10. CHEAT SHEET ============ -->
+<section id="cheatsheet">
+  <span class="sec-num">Section 10</span>
+  <h2 class="sec">Master cheat-sheet</h2>
+
+  <h4>Pick the metric</h4>
+  <div class="tbl">
+  <table>
+    <tr><th>Situation</th><th>Reach for</th><th>Because</th></tr>
+    <tr><td>Balanced binary, equal error costs</td><td>Accuracy</td><td>Simple, honest only when balanced</td></tr>
+    <tr><td>False positives expensive</td><td>Precision (or F0.5)</td><td>"When I alarm, trust me"</td></tr>
+    <tr><td>False negatives expensive</td><td>Recall (or F2)</td><td>"Don't miss what matters"</td></tr>
+    <tr><td>Compare models, care about both classes</td><td>AUC-ROC</td><td>Threshold-free ranking; 0.5 baseline comparable across data</td></tr>
+    <tr><td>Rare positives, ignore true negatives</td><td>AUC-PR / Average Precision</td><td>Precision never touches TN; honest under imbalance</td></tr>
+    <tr><td>Most robust single number, imbalanced</td><td>MCC</td><td>Uses all four confusion cells</td></tr>
+    <tr><td>Probability calibration matters</td><td>Log loss</td><td>Punishes confident-and-wrong</td></tr>
+    <tr><td>Regression error magnitude</td><td>RMSE / MAE</td><td>Original units; MAE robust to outliers</td></tr>
+    <tr><td>Regression quality vs baseline</td><td>R²</td><td>Scale-free, comparable across problems</td></tr>
+    <tr><td>Compare regressions, different feature counts</td><td>Adjusted R²</td><td>Penalizes complexity per degree of freedom</td></tr>
+    <tr><td>Ranking, graded relevance</td><td>NDCG</td><td>Log-discounted position + uses grades</td></tr>
+    <tr><td>Ranking, binary relevance</td><td>MAP</td><td>Averages precision at relevant hits</td></tr>
+    <tr><td>Only first hit matters</td><td>MRR</td><td>Reciprocal rank of first relevant</td></tr>
+    <tr><td>Language-model fit (pretraining)</td><td>Perplexity</td><td>Effective branching = exp(cross-entropy)</td></tr>
+    <tr><td>Per-prediction explanation</td><td>SHAP</td><td>Provably fair, complete decomposition</td></tr>
+  </table>
+  </div>
+
+  <h4>The reflexes</h4>
+  <ul>
+    <li><strong>"95% accuracy, good?"</strong> → "Depends on class distribution."</li>
+    <li><strong>"Which metric?"</strong> → "What's more expensive, a false positive or a false negative?"</li>
+    <li><strong>ROC vs PR</strong> → "PR when positives are rare and I don't care about true negatives."</li>
+    <li><strong>AUC meaning</strong> → "Probability a random positive outranks a random negative — a Mann-Whitney U."</li>
+    <li><strong>RMSE vs MAE</strong> → "MSE targets the mean, MAE the median of the target distribution."</li>
+    <li><strong>R² gotcha</strong> → "Never decreases when adding features; use adjusted R² to compare complexity."</li>
+    <li><strong>NDCG vs MAP</strong> → "Graded relevance → NDCG; binary → MAP."</li>
+    <li><strong>Perplexity caveat</strong> → "Only comparable under identical tokenizer and test set."</li>
+    <li><strong>SHAP key property</strong> → "Efficiency: contributions sum exactly to prediction minus baseline."</li>
+  </ul>
+</section>
+
+<footer>
+  Session study notes · evaluation metrics · math + intuition + interactive visualizations<br>
+  Topics: confusion matrix · AUC-ROC · AUC-PR · pure-Python curves · R² &amp; adjusted R² · NDCG · precision@k/AP/MAP · perplexity · SHAP
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const ACC="#7c3a1d", ACC2="#1f5d4c", ACC3="#3b3170", GRID="rgba(35,32,27,.10)", TXT="#564f44";
+
+/* ---------- ROC (section 2) ---------- */
+(function(){
+  const data=[{s:.95,y:1},{s:.88,y:1},{s:.81,y:0},{s:.74,y:1},{s:.66,y:1},{s:.60,y:0},{s:.52,y:1},{s:.45,y:0},{s:.39,y:0},{s:.21,y:0}];
+  const P=data.filter(d=>d.y===1).length,N=data.length-P;
+  const full=[{x:0,y:0}]; let tp=0,fp=0;
+  for(const d of data){if(d.y===1)tp++;else fp++;full.push({x:fp/N,y:tp/P});}
+  let auc=0;for(let i=1;i<full.length;i++)auc+=(full[i].x-full[i-1].x)*(full[i].y+full[i-1].y)/2;
+  document.getElementById('rocAuc').textContent=auc.toFixed(2);
+  const ch=new Chart(document.getElementById('rocCanvas'),{type:'line',
+    data:{datasets:[{data:[{x:0,y:0}],borderColor:ACC3,backgroundColor:'rgba(59,49,112,.12)',borderWidth:2,stepped:true,fill:true,pointRadius:3,pointBackgroundColor:ACC3},
+      {data:[{x:0,y:0},{x:1,y:1}],borderColor:'#b4b2a9',borderWidth:1,borderDash:[5,5],pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'FPR',color:TXT},grid:{color:GRID},ticks:{color:TXT}},
+        y:{type:'linear',min:0,max:1,title:{display:true,text:'TPR',color:TXT},grid:{color:GRID},ticks:{color:TXT}}},
+      plugins:{legend:{display:false}}}});
+  function render(k){let tp=0,fp=0;for(let i=0;i<k;i++){if(data[i].y===1)tp++;else fp++;}
+    document.getElementById('rocTpr').textContent=(tp/P).toFixed(2);
+    document.getElementById('rocFpr').textContent=(fp/N).toFixed(2);
+    ch.data.datasets[0].data=full.slice(0,k+1);ch.update();}
+  const t=document.getElementById('rocThr');
+  t.addEventListener('input',()=>{const v=t.value/100;document.getElementById('rocThrV').textContent=v.toFixed(2);
+    let k=0;while(k<data.length&&data[k].s>=v)k++;render(k);});
+  render(0);
+})();
+
+/* ---------- PR + ROC (section 3) ---------- */
+(function(){
+  const data=[{s:.97,y:1},{s:.93,y:0},{s:.89,y:1},{s:.84,y:0},{s:.80,y:0},{s:.75,y:1},{s:.70,y:0},{s:.66,y:0},{s:.61,y:0},{s:.57,y:0},{s:.52,y:1},{s:.48,y:0},{s:.43,y:0},{s:.39,y:0},{s:.34,y:0},{s:.30,y:0},{s:.25,y:0},{s:.20,y:0},{s:.15,y:0},{s:.10,y:0}];
+  const P=data.filter(d=>d.y===1).length,N=data.length-P,base=P/data.length;
+  const fpr=[],roc=[{x:0,y:0}];let tp=0,fp=0;
+  for(const d of data){if(d.y===1)tp++;else fp++;fpr.push({x:tp/P,y:tp/(tp+fp)});roc.push({x:fp/N,y:tp/P});}
+  let apr=0;for(let i=1;i<fpr.length;i++)apr+=(fpr[i].x-fpr[i-1].x)*(fpr[i].y+fpr[i-1].y)/2;
+  let aroc=0;for(let i=1;i<roc.length;i++)aroc+=(roc[i].x-roc[i-1].x)*(roc[i].y+roc[i-1].y)/2;
+  const prCh=new Chart(document.getElementById('prCanvas'),{type:'line',
+    data:{datasets:[{data:[],borderColor:ACC,backgroundColor:'rgba(124,58,29,.12)',borderWidth:2,fill:true,pointRadius:2.5,pointBackgroundColor:ACC},
+      {data:[{x:0,y:base},{x:1,y:base}],borderColor:'#b4b2a9',borderWidth:1,borderDash:[5,5],pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'Recall',color:TXT},grid:{color:GRID},ticks:{color:TXT}},
+        y:{type:'linear',min:0,max:1.02,title:{display:true,text:'Precision',color:TXT},grid:{color:GRID},ticks:{color:TXT}}},
+      plugins:{legend:{display:false}}}});
+  const rocCh=new Chart(document.getElementById('rocCanvas2'),{type:'line',
+    data:{datasets:[{data:[{x:0,y:0}],borderColor:ACC3,backgroundColor:'rgba(59,49,112,.12)',borderWidth:2,stepped:true,fill:true,pointRadius:2.5,pointBackgroundColor:ACC3},
+      {data:[{x:0,y:0},{x:1,y:1}],borderColor:'#b4b2a9',borderWidth:1,borderDash:[5,5],pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      scales:{x:{type:'linear',min:0,max:1,title:{display:true,text:'FPR',color:TXT},grid:{color:GRID},ticks:{color:TXT}},
+        y:{type:'linear',min:0,max:1,title:{display:true,text:'TPR',color:TXT},grid:{color:GRID},ticks:{color:TXT}}},
+      plugins:{legend:{display:false}}}});
+  function render(k){let tp=0,fp=0;for(let i=0;i<k;i++){if(data[i].y===1)tp++;else fp++;}
+    const rec=tp/P,prec=(tp+fp)>0?tp/(tp+fp):null;
+    document.getElementById('prPrec').textContent=prec===null?'–':prec.toFixed(2);
+    document.getElementById('prRec').textContent=rec.toFixed(2);
+    document.getElementById('prFpr').textContent=(fp/N).toFixed(2);
+    document.getElementById('prAuc').textContent=apr.toFixed(2)+' / '+aroc.toFixed(2);
+    prCh.data.datasets[0].data=fpr.slice(0,k);rocCh.data.datasets[0].data=roc.slice(0,k+1);
+    prCh.update();rocCh.update();}
+  const t=document.getElementById('prThr');
+  t.addEventListener('input',()=>{const v=t.value/100;document.getElementById('prThrV').textContent=v.toFixed(2);
+    let k=0;while(k<data.length&&data[k].s>=v)k++;render(k);});
+  render(0);
+})();
+
+/* ---------- R² (section 5) ---------- */
+(function(){
+  const xs=[1,2,3,4,5,6,7,8],ys=[2.1,3.9,3.2,5.8,5.1,7.4,7.0,8.9],n=xs.length;
+  const mx=xs.reduce((a,b)=>a+b)/n,my=ys.reduce((a,b)=>a+b)/n;
+  let sxy=0,sxx=0;for(let i=0;i<n;i++){sxy+=(xs[i]-mx)*(ys[i]-my);sxx+=(xs[i]-mx)**2;}
+  const slope=sxy/sxx,intc=my-slope*mx,yhat=xs.map(x=>slope*x+intc);
+  let tss=0,rss=0;for(let i=0;i<n;i++){tss+=(ys[i]-my)**2;rss+=(ys[i]-yhat[i])**2;}
+  document.getElementById('tssV').textContent=tss.toFixed(1);
+  document.getElementById('rssV').textContent=rss.toFixed(1);
+  document.getElementById('r2V').textContent=(1-rss/tss).toFixed(3);
+  const pts=xs.map((x,i)=>({x,y:ys[i]}));
+  function segs(fn){const s=[];for(let i=0;i<n;i++)s.push({data:[{x:xs[i],y:ys[i]},{x:xs[i],y:fn(xs[i])}],borderColor:'#e24b4a',borderWidth:1.5,pointRadius:0,showLine:true});return s;}
+  const base={responsive:true,maintainAspectRatio:false,animation:false,
+    scales:{x:{type:'linear',min:0,max:9,grid:{color:GRID},ticks:{color:TXT}},y:{type:'linear',min:0,max:10,grid:{color:GRID},ticks:{color:TXT}}},plugins:{legend:{display:false}}};
+  new Chart(document.getElementById('meanC'),{type:'scatter',data:{datasets:[{data:pts,backgroundColor:ACC3,pointRadius:4},{data:[{x:0,y:my},{x:9,y:my}],type:'line',borderColor:'#888780',borderWidth:1.5,borderDash:[6,4],pointRadius:0,showLine:true},...segs(()=>my)]},options:base});
+  new Chart(document.getElementById('fitC'),{type:'scatter',data:{datasets:[{data:pts,backgroundColor:ACC3,pointRadius:4},{data:[{x:0,y:intc},{x:9,y:slope*9+intc}],type:'line',borderColor:ACC2,borderWidth:2,pointRadius:0,showLine:true},...segs(x=>slope*x+intc)]},options:base});
+})();
+
+/* ---------- NDCG (section 6) ---------- */
+(function(){
+  let rels=[3,2,3,0,1];const N=rels.length;
+  const disc=i=>1/Math.log2(i+2);
+  window.__setRel=(idx,v)=>{rels[idx]=v;render();};
+  function render(){
+    document.getElementById('ndcgRows').innerHTML='<table style="width:100%"><thead><tr><th>pos i</th><th>relevance</th><th>discount</th><th>contribution</th></tr></thead><tbody>'+
+      rels.map((r,idx)=>{const d=disc(idx);const btns=[0,1,2,3].map(v=>`<button onclick="__setRel(${idx},${v})" style="width:26px;height:26px;margin:0 2px;border-radius:5px;border:1px solid ${v===r?ACC:'#d8d1c2'};background:${v===r?'rgba(124,58,29,.12)':'transparent'};color:${v===r?ACC:'#564f44'};font-family:JetBrains Mono,monospace;cursor:pointer;">${v}</button>`).join('');
+        return `<tr><td>${idx+1}</td><td>${btns}</td><td>${d.toFixed(3)}</td><td>${(r*d).toFixed(3)}</td></tr>`;}).join('')+'</tbody></table>';
+    let dcg=0;for(let i=0;i<N;i++)dcg+=rels[i]*disc(i);
+    const ideal=[...rels].sort((a,b)=>b-a);let idcg=0;for(let i=0;i<N;i++)idcg+=ideal[i]*disc(i);
+    document.getElementById('ndcgDcg').textContent=dcg.toFixed(3);
+    document.getElementById('ndcgIdcg').textContent=idcg.toFixed(3);
+    document.getElementById('ndcgN').textContent=(idcg>0?dcg/idcg:0).toFixed(3);
+    document.getElementById('ndcgIdeal').textContent='ideal order (sorted high→low): ['+ideal.join(', ')+']';
+  }
+  render();
+})();
+
+/* ---------- Perplexity (section 8) ---------- */
+(function(){
+  const names=['the','cat','the','dog','ran','sat'];let probs=[.62,.18,.71,.33,.21,.40];
+  const color=p=>p>=.5?ACC2:p>=.2?'#9a6a18':'#a32d2d';
+  function render(){
+    document.getElementById('pplToks').innerHTML=names.map((n,i)=>{const p=probs[i];
+      return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;"><span style="width:54px;font-family:JetBrains Mono,monospace;font-size:13px;">${n}</span><div style="flex:1;height:20px;background:var(--bg);border-radius:5px;overflow:hidden;"><div style="height:100%;width:${(p*100).toFixed(0)}%;background:${color(p)};border-radius:5px;"></div></div><span style="width:140px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#564f44;">p=${p.toFixed(2)} → 1/p=${(1/p).toFixed(1)}</span></div>`;
+    }).join('');
+    const N=probs.length;let s=0;for(const p of probs)s+=-Math.log2(p);const H=s/N;
+    document.getElementById('pplCe').textContent=H.toFixed(3);
+    document.getElementById('pplPpl').textContent=Math.pow(2,H).toFixed(2);
+    document.getElementById('pplWorst').textContent=Math.max(...probs.map(p=>1/p)).toFixed(1);
+  }
+  const sl=document.getElementById('pplP');
+  sl.addEventListener('input',()=>{const p=sl.value/1000;probs[5]=p;document.getElementById('pplPV').textContent=p.toFixed(2);render();});
+  render();
+})();
+</script>
+</body>
+</html>

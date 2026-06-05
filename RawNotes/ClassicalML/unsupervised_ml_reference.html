@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsupervised ML & Anomaly Detection — Study Reference</title>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1d212b; --ink:#e7e9ee; --muted:#9aa3b2;
+    --accent:#e0b341; --accent2:#5fb6c9; --line:#2a2f3a; --good:#6fcf97; --bad:#eb6f6f;
+    --code:#11141a; --pill:#232834;
+    --serif:Georgia,'Times New Roman',serif;
+    --sans:'Trebuchet MS','Segoe UI',Verdana,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); line-height:1.65; font-size:16.5px;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:0 24px 120px;}
+  header.hero{
+    padding:64px 24px 40px; max-width:980px; margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  header.hero .kicker{
+    color:var(--accent); letter-spacing:.28em; text-transform:uppercase;
+    font-size:.72rem; font-weight:bold;
+  }
+  header.hero h1{
+    font-family:var(--serif); font-weight:normal; font-size:2.7rem; line-height:1.12;
+    margin:.3em 0 .25em;
+  }
+  header.hero p{color:var(--muted); max-width:680px; margin:.4em 0;}
+  .meta{color:var(--muted); font-size:.85rem; margin-top:18px;}
+
+  nav.toc{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:22px 26px; margin:34px 0 10px;
+  }
+  nav.toc h2{font-family:var(--serif); font-size:1.05rem; margin:0 0 12px; color:var(--accent2);}
+  nav.toc ol{margin:0; padding-left:1.4em; columns:2; column-gap:34px;}
+  nav.toc li{margin:5px 0;}
+  nav.toc a{color:var(--ink); text-decoration:none; border-bottom:1px dotted var(--line);}
+  nav.toc a:hover{color:var(--accent);}
+
+  section{margin:54px 0 0; scroll-margin-top:20px;}
+  section > h2{
+    font-family:var(--serif); font-size:1.9rem; font-weight:normal;
+    border-bottom:2px solid var(--accent); display:inline-block; padding-bottom:4px; margin:0 0 6px;
+  }
+  .secnum{color:var(--accent); font-size:1.1rem; font-family:var(--sans); font-weight:bold; margin-right:8px;}
+  h3{font-family:var(--sans); font-size:1.18rem; color:var(--accent2); margin:30px 0 6px;}
+  h4{font-size:1.02rem; margin:20px 0 4px; color:var(--ink);}
+  p{margin:.6em 0;}
+  strong{color:#fff;}
+  em{color:#f0e3c0; font-style:italic;}
+  ul,ol{margin:.5em 0; padding-left:1.4em;}
+  li{margin:5px 0;}
+  code{background:var(--code); padding:1px 6px; border-radius:5px; font-size:.86em; color:var(--accent2); border:1px solid var(--line);}
+
+  .story{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border-left:4px solid var(--accent); border-radius:0 12px 12px 0;
+    padding:16px 22px; margin:18px 0;
+  }
+  .story .lbl{color:var(--accent); font-weight:bold; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase;}
+
+  .keytake{
+    background:rgba(95,182,201,.08); border:1px solid var(--accent2); border-radius:12px;
+    padding:14px 20px; margin:20px 0;
+  }
+  .keytake .lbl{color:var(--accent2); font-weight:bold; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase;}
+
+  .trap{
+    background:rgba(235,111,111,.07); border:1px solid var(--bad); border-radius:12px;
+    padding:14px 20px; margin:20px 0;
+  }
+  .trap .lbl{color:var(--bad); font-weight:bold; font-size:.74rem; letter-spacing:.16em; text-transform:uppercase;}
+
+  .math{
+    background:var(--code); border:1px solid var(--line); border-radius:10px;
+    padding:6px 18px; margin:16px 0; overflow-x:auto;
+  }
+  .mathlead{color:var(--muted); font-size:.92rem; margin:14px 0 2px; font-style:italic;}
+
+  table{border-collapse:collapse; width:100%; margin:18px 0; font-size:.92rem;}
+  th,td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  th{background:var(--pill); color:var(--accent); font-size:.85rem;}
+  tr:nth-child(even) td{background:rgba(255,255,255,.018);}
+
+  .qa{margin:14px 0; border-left:3px solid var(--accent2); padding-left:16px;}
+  .qa .q{font-weight:bold; color:#fff;}
+  .qa .a{color:var(--ink); margin-top:3px;}
+
+  .pill{display:inline-block; background:var(--pill); border:1px solid var(--line);
+    border-radius:20px; padding:3px 12px; font-size:.8rem; margin:3px 4px 3px 0; color:var(--muted);}
+  .pill.good{color:var(--good); border-color:var(--good);}
+  .pill.bad{color:var(--bad); border-color:var(--bad);}
+
+  figure{margin:22px 0; text-align:center;}
+  figure svg{max-width:100%; height:auto; background:var(--code); border:1px solid var(--line); border-radius:12px;}
+  figcaption{color:var(--muted); font-size:.85rem; margin-top:8px; font-style:italic;}
+
+  .twocol{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:16px 0;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 18px;}
+  .card h4{margin-top:0; color:var(--accent2);}
+  @media(max-width:720px){ .twocol{grid-template-columns:1fr;} nav.toc ol{columns:1;} header.hero h1{font-size:2rem;} }
+
+  .backtop{display:block; text-align:right; font-size:.8rem; margin-top:10px;}
+  .backtop a{color:var(--muted); text-decoration:none;}
+  .backtop a:hover{color:var(--accent);}
+  hr.soft{border:none; border-top:1px solid var(--line); margin:40px 0;}
+  .legend{font-size:.82rem; color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header class="hero" id="top">
+  <div class="kicker">Study Reference · Unsupervised Learning</div>
+  <h1>Clustering, Dimensionality Reduction &amp; Anomaly Detection</h1>
+  <p>A complete, math-inclusive walkthrough of DBSCAN, Hierarchical Clustering, Gaussian Mixture Models, Expectation-Maximization, t-SNE, UMAP, TF-IDF, Truncated SVD / LSA, and Isolation Forest — with intuitions, derivations, decision frameworks, and interview Q&amp;A.</p>
+  <div class="meta">Built for interview-readiness and depth-of-recall · Math rendered with MathJax</div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#dbscan">DBSCAN</a></li>
+    <li><a href="#hier">Hierarchical Clustering</a></li>
+    <li><a href="#gmm">Gaussian Mixture Models</a></li>
+    <li><a href="#em">Expectation-Maximization (general)</a></li>
+    <li><a href="#tsne">t-SNE</a></li>
+    <li><a href="#umap">UMAP</a></li>
+    <li><a href="#cluster-decide">Clustering: which one when</a></li>
+    <li><a href="#tfidf">TF-IDF</a></li>
+    <li><a href="#svd">Truncated SVD &amp; LSA</a></li>
+    <li><a href="#iforest">Isolation Forest</a></li>
+    <li><a href="#dimred-decide">Dim-reduction: PCA vs t-SNE vs UMAP</a></li>
+    <li><a href="#cheatsheet">Master cheat-sheet</a></li>
+  </ol>
+</nav>
+
+<!-- ================= DBSCAN ================= -->
+<section id="dbscan">
+  <h2><span class="secnum">01</span>DBSCAN</h2>
+  <p class="legend">Density-Based Spatial Clustering of Applications with Noise</p>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>K-Means asks "which centroid is closest?" DBSCAN asks a fundamentally different question: <strong>"is this point in a crowded neighborhood?"</strong> A cluster is a dense region of points separated from other clusters by sparse regions. A cluster is a crowd; the empty space between crowds is the boundary. This single shift lets DBSCAN find arbitrarily-shaped clusters and label outliers as <em>noise</em> instead of forcing every point into a group.</p>
+  </div>
+
+  <h3>The two knobs</h3>
+  <ul>
+    <li><strong>eps (\(\varepsilon\))</strong> — a radius. How far out you look to define a point's neighborhood.</li>
+    <li><strong>minPts</strong> — a count. How many points must lie within \(\varepsilon\) (including the point itself) for the neighborhood to count as "dense."</li>
+  </ul>
+  <p>No <code>k</code>. You don't specify the number of clusters — DBSCAN discovers it from the density structure.</p>
+
+  <h3>Three kinds of points</h3>
+  <ul>
+    <li><strong>Core point</strong> — has \(\geq\) minPts neighbors within \(\varepsilon\). Sits in the interior of a dense region.</li>
+    <li><strong>Border point</strong> — fewer than minPts neighbors, but lies within \(\varepsilon\) of a core point. On the edge of a crowd.</li>
+    <li><strong>Noise point</strong> — neither core nor border. Out in the sparse wilderness. This is the outlier.</li>
+  </ul>
+
+  <figure>
+  <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+    <!-- dense cluster -->
+    <circle cx="150" cy="150" r="70" fill="rgba(95,182,201,.08)" stroke="#2a2f3a"/>
+    <!-- core point eps circle -->
+    <circle cx="150" cy="150" r="38" fill="none" stroke="#e0b341" stroke-dasharray="4 4" opacity="0.7"/>
+    <!-- core points -->
+    <g fill="#5fb6c9">
+      <circle cx="150" cy="150" r="7"/>
+      <circle cx="130" cy="125" r="6"/><circle cx="170" cy="130" r="6"/>
+      <circle cx="135" cy="172" r="6"/><circle cx="175" cy="168" r="6"/>
+      <circle cx="118" cy="150" r="6"/><circle cx="160" cy="185" r="6"/>
+    </g>
+    <!-- border points -->
+    <g fill="#e0b341">
+      <circle cx="100" cy="185" r="6"/><circle cx="205" cy="120" r="6"/>
+    </g>
+    <!-- noise -->
+    <g fill="#eb6f6f">
+      <circle cx="470" cy="80" r="6"/><circle cx="540" cy="200" r="6"/><circle cx="430" cy="230" r="6"/>
+    </g>
+    <text x="150" y="150" dx="10" dy="-12" fill="#fff" font-size="11" font-family="sans-serif">core</text>
+    <text x="205" y="120" dx="8" dy="4" fill="#e0b341" font-size="11" font-family="sans-serif">border</text>
+    <text x="470" y="80" dx="10" dy="4" fill="#eb6f6f" font-size="11" font-family="sans-serif">noise</text>
+    <text x="150" y="240" text-anchor="middle" fill="#9aa3b2" font-size="11" font-family="sans-serif">dashed = ε-radius around a core point (≥ minPts neighbors inside)</text>
+  </svg>
+  <figcaption>Core points (blue) chain together into a cluster; border points (gold) attach but don't expand; noise (red) is isolated.</figcaption>
+  </figure>
+
+  <h3>How it runs</h3>
+  <ol>
+    <li>Pick an unvisited point; count neighbors within \(\varepsilon\).</li>
+    <li>If it's a <strong>core point</strong>, start a new cluster and <strong>expand</strong>: pull in all neighbors. For each neighbor that is <em>itself</em> core, pull in <em>its</em> neighbors too — flood-fill outward through chained core points until you hit the boundary.</li>
+    <li>If not core, tentatively mark noise (it may later be reclaimed as a border point).</li>
+    <li>Repeat until all points are visited.</li>
+  </ol>
+  <div class="keytake">
+    <span class="lbl">Why it can trace snakes</span>
+    <p>Density-reachability is <strong>transitive through core points</strong>: core A reaches core B reaches core C, so all join one cluster even if A and C are far apart. This chaining is exactly what lets DBSCAN trace long, curvy, non-convex clusters. K-Means cannot — it's anchored to a single center and assumes spherical, equal-size blobs.</p>
+  </div>
+
+  <h3>Choosing the knobs</h3>
+  <ul>
+    <li><strong>minPts</strong>: rule of thumb \(\geq D+1\) (\(D\) = dimensions), commonly \(2D\). Higher → more conservative, more noise.</li>
+    <li><strong>eps</strong>: the <strong>k-distance plot</strong>. For each point compute the distance to its \(k\)-th nearest neighbor (\(k\) = minPts), sort descending, plot. The <em>elbow / knee</em> — where the curve bends sharply upward — is a principled \(\varepsilon\): it marks the transition from "inside a cluster" to "in the sparse gap."</li>
+  </ul>
+
+  <h3>Complexity</h3>
+  <p>With a spatial index (KD-tree / ball-tree): <strong>\(O(n \log n)\)</strong> average. Naïve pairwise: <strong>\(O(n^2)\)</strong>. In high dimensions the index stops helping and you slide back toward \(O(n^2)\).</p>
+
+  <h3>Where to use it &amp; why</h3>
+  <p><span class="pill good">non-globular clusters</span><span class="pill good">unknown # clusters</span><span class="pill good">built-in outlier flagging</span><span class="pill good">spatial / GPS hotspots</span></p>
+  <p><span class="pill bad">varying density</span><span class="pill bad">high dimensions</span></p>
+  <div class="trap">
+    <span class="lbl">Biggest failure mode</span>
+    <p>A single global \(\varepsilon\) <strong>cannot</strong> be simultaneously tight enough for a dense cluster and loose enough for a sparse one — so DBSCAN breaks on <strong>varying-density</strong> data. This is precisely why <strong>HDBSCAN</strong> exists (it varies the density threshold) and is the 2026 practical default. In high dimensions, <em>distance concentration</em> makes all pairwise distances converge, so "dense vs sparse" loses meaning — reduce dimensions first (PCA/UMAP).</p>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= HIERARCHICAL ================= -->
+<section id="hier">
+  <h2><span class="secnum">02</span>Hierarchical Clustering</h2>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>Instead of one flat partition, hierarchical clustering builds a <strong>tree of nested groupings</strong> — a family tree for your data. At the bottom, every point is its own singleton; at the top, everything is one cluster; in between is every intermediate grouping stacked by similarity. You build the whole hierarchy <em>once</em>, then cut it wherever you want however many clusters you need. No \(k\) up front, and you see <em>structure</em> (which groups are sub-groups of which), not just flat labels.</p>
+  </div>
+
+  <h3>Two directions</h3>
+  <ul>
+    <li><strong>Agglomerative (bottom-up)</strong> — used ~95% of the time. Start with \(n\) singletons; repeatedly merge the two closest clusters; stop at one cluster.</li>
+    <li><strong>Divisive (top-down)</strong> — start with one cluster, recursively split the most heterogeneous. Rarely used: splitting considers exponentially many partitions and is computationally brutal.</li>
+  </ul>
+
+  <h3>The crux: linkage — distance between <em>clusters</em></h3>
+  <p>For points, distance is obvious. Once points become clusters, you need a rule for the distance <em>between two clusters</em> — the <strong>linkage criterion</strong>, the single most important choice.</p>
+  <table>
+    <tr><th>Linkage</th><th>Distance defined as</th><th>Behavior</th></tr>
+    <tr><td><strong>Single</strong></td><td>Closest pair across clusters (nearest neighbors)</td><td>Long, stringy, "chaining" clusters; traces non-globular shapes like DBSCAN but fragile — one bridge of noise merges two real clusters. Sensitive to noise.</td></tr>
+    <tr><td><strong>Complete</strong></td><td>Farthest pair across clusters</td><td>Compact, roughly spherical, similar-diameter clusters; over-eager to split; sensitive to outliers (one far point dominates the max).</td></tr>
+    <tr><td><strong>Average</strong></td><td>Average over all cross-cluster pairs</td><td>Compromise between single and complete; more robust.</td></tr>
+    <tr><td><strong>Ward</strong></td><td>Merge that yields smallest increase in total within-cluster variance</td><td>The usual default. Balanced, compact clusters; most K-Means-like in spirit. Requires Euclidean distance.</td></tr>
+  </table>
+
+  <div class="mathlead">Ward minimizes the increase in within-cluster sum of squares (SSE) at each merge:</div>
+  <div class="math">\[ \Delta \text{SSE}(A,B) = \frac{|A|\,|B|}{|A|+|B|}\;\lVert \mu_A - \mu_B \rVert^2 \]</div>
+  <p class="legend">where \(|A|,|B|\) are cluster sizes and \(\mu_A,\mu_B\) their centroids. The merge with the smallest \(\Delta\text{SSE}\) wins.</p>
+
+  <h3>The dendrogram — the actual output</h3>
+  <p>The output isn't labels, it's a <strong>dendrogram</strong>: leaves are points, each internal node is a merge, and the <strong>height</strong> of a merge = the dissimilarity at which the two clusters joined. To get flat clusters, <strong>cut horizontally</strong>: each vertical line your cut crosses becomes one cluster. Cut low → many tiny clusters; cut high → few big ones.</p>
+
+  <figure>
+  <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg">
+    <!-- axis -->
+    <line x1="60" y1="20" x2="60" y2="220" stroke="#2a2f3a"/>
+    <text x="20" y="120" fill="#9aa3b2" font-size="11" font-family="sans-serif" transform="rotate(-90 28,120)">merge height</text>
+    <!-- leaves at y=220 -->
+    <g stroke="#5fb6c9" stroke-width="2" fill="none">
+      <!-- A,B merge low -->
+      <path d="M100,220 L100,180 L150,180 L150,220"/>
+      <!-- C,D merge low -->
+      <path d="M210,220 L210,165 L260,165 L260,220"/>
+      <!-- (AB),(CD) merge mid -->
+      <path d="M125,180 L125,120 L235,120 L235,165"/>
+      <!-- E,F merge low -->
+      <path d="M360,220 L360,175 L410,175 L410,220"/>
+      <!-- top merge high -->
+      <path d="M180,120 L180,55 L385,55 L385,175"/>
+    </g>
+    <!-- cut line -->
+    <line x1="60" y1="88" x2="520" y2="88" stroke="#eb6f6f" stroke-dasharray="5 4"/>
+    <text x="470" y="82" fill="#eb6f6f" font-size="11" font-family="sans-serif">cut → 3 clusters</text>
+    <!-- labels -->
+    <g fill="#e7e9ee" font-size="12" font-family="sans-serif" text-anchor="middle">
+      <text x="100" y="238">A</text><text x="150" y="238">B</text>
+      <text x="210" y="238">C</text><text x="260" y="238">D</text>
+      <text x="360" y="238">E</text><text x="410" y="238">F</text>
+    </g>
+    <text x="290" y="252" text-anchor="middle" fill="#9aa3b2" font-size="10.5" font-family="sans-serif">cut in the largest vertical gap → respects natural separation</text>
+  </svg>
+  <figcaption>Cutting the dendrogram at the largest vertical gap (longest stretch with no merges) yields clusters that were genuinely distinct.</figcaption>
+  </figure>
+
+  <h3>How it runs</h3>
+  <ol>
+    <li>Compute the full pairwise distance matrix (\(O(n^2)\) space).</li>
+    <li>Find the two closest clusters; merge.</li>
+    <li>Update the distance matrix via the linkage rule — the <strong>Lance–Williams formula</strong> updates merged-cluster distances algebraically from old distances, without recomputing from raw points.</li>
+    <li>Repeat until one cluster remains, recording each merge height.</li>
+  </ol>
+
+  <h3>Complexity — the real limitation</h3>
+  <p>Time: <strong>\(O(n^3)\)</strong> naïve, <strong>\(O(n^2 \log n)\)</strong> with a priority queue, <strong>\(O(n^2)\)</strong> for single linkage (SLINK). Space: <strong>\(O(n^2)\)</strong> for the distance matrix.</p>
+  <div class="trap">
+    <span class="lbl">Dealbreaker</span>
+    <p>That \(O(n^2)\) memory kills you on large data — at ~50k points you're already at ~2.5 billion matrix entries. Hierarchical clustering does <strong>not</strong> scale. Also: merges are <strong>greedy and irreversible</strong> — an early bad merge propagates up the whole tree. And there is <strong>no model to apply to new points</strong>; you'd have to rebuild.</p>
+  </div>
+
+  <h3>Where to use it &amp; why</h3>
+  <p><span class="pill good">unknown k, explore multiple granularities</span><span class="pill good">hierarchy itself is meaningful (taxonomy, phylogenetics, gene expression)</span><span class="pill good">small-to-medium data</span><span class="pill good">deterministic (no random init)</span></p>
+  <p><span class="pill bad">large data</span><span class="pill bad">need out-of-sample assignment</span></p>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= GMM ================= -->
+<section id="gmm">
+  <h2><span class="secnum">03</span>Gaussian Mixture Models</h2>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>K-Means assumes every cluster is a round blob of the same size and every point belongs <em>entirely</em> to one cluster. GMM relaxes both. It says your data was generated by a <strong>mixture of Gaussians</strong>; each cluster <em>is</em> a Gaussian with its own center, its own shape (stretched, tilted — not just round), and its own weight. Every point gets a <strong>soft assignment</strong>: a probability of belonging to each cluster. A boundary point can be "70% A, 30% B" instead of being snapped to one. Soft membership + elliptical clusters are what GMM buys over K-Means.</p>
+  </div>
+
+  <h3>The generative model</h3>
+  <ol>
+    <li>Pick a cluster \(k\) with probability \(\pi_k\) (the <strong>mixing coefficient</strong>; \(\sum_k \pi_k = 1\)).</li>
+    <li>Draw a point from that cluster's Gaussian \(\mathcal{N}(\mu_k, \Sigma_k)\) — mean \(\mu_k\) (center), covariance \(\Sigma_k\) (shape + orientation + spread).</li>
+  </ol>
+  <div class="mathlead">The overall density is a weighted sum of Gaussians:</div>
+  <div class="math">\[ p(\mathbf{x}) = \sum_{k=1}^{K} \pi_k \, \mathcal{N}(\mathbf{x} \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k) \]</div>
+  <p>In words: the probability of a point is the sum, over clusters, of "how likely that cluster is" times "how likely that cluster would produce this point." Fitting finds the \(\pi_k, \mu_k, \Sigma_k\) that make the observed data most likely.</p>
+  <div class="keytake">
+    <span class="lbl">The K-Means connection</span>
+    <p>The covariance \(\Sigma_k\) is where the power lives — it lets a cluster be a tilted ellipse. Constrain \(\Sigma_k\) to a scaled identity (spherical, equal size) and a <strong>GMM collapses into K-Means</strong>. That is the precise relationship.</p>
+  </div>
+
+  <figure>
+  <svg viewBox="0 0 560 230" xmlns="http://www.w3.org/2000/svg">
+    <!-- K-means: circles -->
+    <text x="140" y="28" text-anchor="middle" fill="#9aa3b2" font-size="12" font-family="sans-serif">K-Means: spherical, hard</text>
+    <circle cx="100" cy="120" r="45" fill="rgba(95,182,201,.10)" stroke="#5fb6c9"/>
+    <circle cx="185" cy="140" r="45" fill="rgba(224,179,65,.10)" stroke="#e0b341"/>
+    <line x1="142" y1="80" x2="142" y2="190" stroke="#eb6f6f" stroke-dasharray="3 3"/>
+    <!-- GMM: ellipses tilted -->
+    <text x="420" y="28" text-anchor="middle" fill="#9aa3b2" font-size="12" font-family="sans-serif">GMM: elliptical, soft</text>
+    <ellipse cx="380" cy="120" rx="60" ry="28" transform="rotate(-25 380,120)" fill="rgba(95,182,201,.12)" stroke="#5fb6c9"/>
+    <ellipse cx="455" cy="145" rx="50" ry="22" transform="rotate(20 455,145)" fill="rgba(224,179,65,.12)" stroke="#e0b341"/>
+    <text x="418" y="135" fill="#fff" font-size="10" font-family="sans-serif">70/30%</text>
+    <circle cx="418" cy="128" r="3" fill="#fff"/>
+  </svg>
+  <figcaption>K-Means forces round, equal blobs and hard labels; GMM fits tilted ellipses of different shapes and assigns soft probabilities.</figcaption>
+  </figure>
+
+  <h3>Fitting via EM (the specific case)</h3>
+  <p>Chicken-and-egg: to know each cluster's parameters you'd need to know which points belong to it, but to assign points you'd need the parameters. EM alternates:</p>
+
+  <h4>E-step — responsibilities (soft assignment via Bayes)</h4>
+  <div class="mathlead">"Of all clusters, weighted by how likely each is to have produced point \(n\), what fraction of the credit goes to cluster \(k\)?"</div>
+  <div class="math">\[ \gamma(z_{nk}) = \frac{\pi_k \, \mathcal{N}(\mathbf{x}_n \mid \boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)}{\sum_{j=1}^{K} \pi_j \, \mathcal{N}(\mathbf{x}_n \mid \boldsymbol{\mu}_j, \boldsymbol{\Sigma}_j)} \]</div>
+
+  <h4>M-step — re-estimate parameters from responsibilities</h4>
+  <div class="mathlead">Let \(N_k = \sum_n \gamma(z_{nk})\) be the total "responsibility mass" of cluster \(k\). Then:</div>
+  <div class="math">\[ \boldsymbol{\mu}_k^{\text{new}} = \frac{1}{N_k}\sum_{n} \gamma(z_{nk})\,\mathbf{x}_n \]</div>
+  <div class="math">\[ \boldsymbol{\Sigma}_k^{\text{new}} = \frac{1}{N_k}\sum_{n} \gamma(z_{nk})\,(\mathbf{x}_n - \boldsymbol{\mu}_k^{\text{new}})(\mathbf{x}_n - \boldsymbol{\mu}_k^{\text{new}})^{\top} \]</div>
+  <div class="math">\[ \pi_k^{\text{new}} = \frac{N_k}{N} \]</div>
+  <p>Each update is a <strong>responsibility-weighted</strong> mean / covariance / count: points that "belong more" to \(k\) pull its parameters more. The log-likelihood is guaranteed to increase (or stay flat) each iteration, so it converges.</p>
+  <div class="keytake">
+    <span class="lbl">Carry this into an interview</span>
+    <p>E-step assigns, M-step updates — <em>exactly</em> K-Means' assign/update loop, but with soft probabilistic responsibilities instead of hard nearest-centroid assignments. <strong>K-Means is "hard EM" on a spherical GMM.</strong></p>
+  </div>
+
+  <h3>The catches</h3>
+  <ul>
+    <li><strong>Local optimum only</strong>, sensitive to init → initialize with K-Means first, then run EM.</li>
+    <li><strong>Still must choose \(K\)</strong> — but principled: use <strong>BIC / AIC</strong> (likelihood vs. parameter-count tradeoff), pick lowest. Quantitative model selection, unlike eyeballing an elbow.</li>
+    <li><strong>Covariance singularity</strong>: a Gaussian latching onto one point sends its variance → 0 and likelihood → \(\infty\). Regularize by adding a small value to \(\Sigma\)'s diagonal.</li>
+    <li><strong>Covariance type knob</strong>: <code>full</code> (any ellipse), <code>diag</code> (axis-aligned), <code>spherical</code> (circles), <code>tied</code> (shared shape). More freedom → more parameters → more data needed, more overfitting risk.</li>
+  </ul>
+
+  <h3>Complexity</h3>
+  <p>\(O(n \cdot K \cdot d^2 \cdot \text{iters})\) for full covariance (the \(d^2\) is the covariance matrices). Heavier than K-Means' \(O(nKd)\), but still linear in \(n\) — scales far better than hierarchical.</p>
+
+  <h3>Where to use it &amp; why</h3>
+  <p><span class="pill good">elliptical / overlapping / unequal clusters</span><span class="pill good">need soft membership</span><span class="pill good">generative model (sample, density, BIC)</span><span class="pill good">density-based anomaly detection (low p(x))</span></p>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= EM ================= -->
+<section id="em">
+  <h2><span class="secnum">04</span>Expectation-Maximization (the general algorithm)</h2>
+  <p class="legend">EM is not just for GMMs — it's a general meta-algorithm for a recurring class of problem.</p>
+
+  <h3>The problem EM exists to solve</h3>
+  <p>You want maximum-likelihood parameters \(\theta\). Normally: write the likelihood, differentiate, set to zero, solve. EM exists for when you <strong>can't</strong> — when there are <strong>hidden (latent) variables</strong> \(Z\) that, if known, would make the problem trivial.</p>
+  <div class="keytake">
+    <span class="lbl">The signature of an EM-shaped problem</span>
+    <p><em>"If I knew \(Z\), estimating \(\theta\) would be easy. And if I knew \(\theta\), inferring \(Z\) would be easy. But I know neither."</em> In a GMM, \(Z\) = which Gaussian generated each point.</p>
+  </div>
+
+  <h3>Why the direct approach breaks</h3>
+  <div class="mathlead">The observed-data log-likelihood requires summing over all hidden values:</div>
+  <div class="math">\[ \log p(X \mid \theta) = \log \sum_{Z} p(X, Z \mid \theta) \]</div>
+  <p>The killer is the <strong>log of a sum</strong>. If it were a sum of logs you could differentiate term-by-term and solve. But the log sits <em>outside</em> the summation over \(Z\), tangling all clusters' parameters inside one logarithm — no closed form. <strong>EM is the trick for getting around the log-of-a-sum.</strong></p>
+
+  <h3>The core idea: optimize a surrogate lower bound</h3>
+  <p>The <strong>complete-data</strong> log-likelihood \(\log p(X,Z\mid\theta)\) <em>is</em> a sum of logs — easy. The only difficulty is not knowing \(Z\). So EM replaces \(Z\) with its expectation under the current best guess — the <strong>Q-function</strong>:</p>
+  <div class="math">\[ Q(\theta \mid \theta^{\text{old}}) = \mathbb{E}_{Z \mid X, \theta^{\text{old}}}\big[\log p(X, Z \mid \theta)\big] \]</div>
+  <p class="legend">"The average of the easy complete-data log-likelihood, taken over the hidden variables, using current beliefs about them."</p>
+
+  <h3>The two steps fall out</h3>
+  <ul>
+    <li><strong>E-step</strong>: with \(\theta^{\text{old}}\) fixed, infer the posterior over hidden variables \(p(Z \mid X, \theta^{\text{old}})\) and form \(Q\). (In a GMM this posterior <em>is</em> the responsibilities.)</li>
+    <li><strong>M-step</strong>: maximize \(Q\) over \(\theta\). Because \(Q\) is the expected <em>complete-data</em> likelihood, it's a sum of logs again — the tangle is gone, closed-form solvable. The maximizer is the new \(\theta\).</li>
+  </ul>
+  <div class="math">\[ \theta^{\text{new}} = \arg\max_{\theta}\; Q(\theta \mid \theta^{\text{old}}) \]</div>
+
+  <h3>Why it's guaranteed to work</h3>
+  <p>Each iteration EM maximizes a <strong>lower bound</strong> on the true log-likelihood, constructed to <em>touch</em> it exactly at \(\theta^{\text{old}}\). The M-step pushes the bound up, so the true likelihood must rise at least as much. Therefore the log-likelihood <strong>monotonically increases</strong> every iteration. Formally, the gap between the true likelihood and the bound is a <strong>KL divergence</strong> (always \(\geq 0\)); the E-step zeroes that gap at \(\theta^{\text{old}}\) by setting the bound's distribution to the true posterior.</p>
+  <div class="math">\[ \log p(X\mid\theta) = \underbrace{\mathcal{L}(q,\theta)}_{\text{lower bound (ELBO)}} + \underbrace{\mathrm{KL}\!\left(q \,\|\, p(Z\mid X,\theta)\right)}_{\geq 0} \]</div>
+  <div class="trap">
+    <span class="lbl">The catch</span>
+    <p>Monotonic improvement guarantees you reach <strong>a</strong> peak, not the <strong>highest</strong> peak — EM converges to a <em>local</em> optimum. Hence sensitivity to initialization.</p>
+  </div>
+
+  <h3>The clean mental model</h3>
+  <div class="story">
+    <p>EM turns one impossible optimization into a sequence of easy ones. It guesses the latent variables (E-step), solves the now-easy problem as if the guess were truth (M-step), then re-guesses with improved parameters — bootstrapping uphill, alternately refining beliefs about hidden structure and the parameters until both stop moving.</p>
+  </div>
+
+  <h3>Where EM shows up beyond GMMs</h3>
+  <ul>
+    <li><strong>K-Means</strong> — hard EM (hidden = cluster label; E = hard nearest-centroid assignment; M = recompute centroids).</li>
+    <li><strong>Hidden Markov Models</strong> — Baum-Welch is EM (hidden = unobserved state sequence). Classical speech recognition, bioinformatics.</li>
+    <li><strong>Missing-data imputation</strong> — hidden = the missing values themselves (the most general framing; clustering is just "the cluster label is missing").</li>
+    <li><strong>Latent Dirichlet Allocation / topic models</strong> — variational EM (hidden = which topic generated each word).</li>
+    <li><strong>Factor analysis / probabilistic PCA</strong> — hidden = the low-dimensional latent factors.</li>
+    <li><strong>Mixtures of anything</strong> (Bernoulli, Poisson), censored / truncated data in survival analysis.</li>
+  </ul>
+
+  <h3>Recipe for a novel situation</h3>
+  <ol>
+    <li>Am I doing maximum likelihood (or MAP) on a probabilistic model?</li>
+    <li>Is there a latent variable such that, <strong>if I knew it, the fit would be easy</strong>?</li>
+    <li>Given current parameters, can I compute (or approximate) the <strong>posterior over that hidden variable</strong>?</li>
+  </ol>
+  <p>All three yes → EM applies. If step 3's posterior is intractable → <strong>variational EM</strong> (approximate the posterior with a simpler family) — the bridge to variational inference and the VAE.</p>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= t-SNE ================= -->
+<section id="tsne">
+  <h2><span class="secnum">05</span>t-SNE</h2>
+  <p class="legend">t-distributed Stochastic Neighbor Embedding</p>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>PCA asks "what directions capture the most <em>variance</em>?" — global, linear, preserves large distances. t-SNE asks "<strong>who are each point's neighbors, and can I lay points out in 2D so neighbors stay neighbors?</strong>" It discards all concern for global geometry and obsesses over <strong>local neighborhood structure</strong>. That's why t-SNE plots show gorgeous, well-separated islands. It is almost exclusively a <strong>visualization</strong> tool (2D/3D for a human eye).</p>
+  </div>
+
+  <h3>How it works — distances become probabilities</h3>
+  <ol>
+    <li><strong>High-D neighborhoods → probabilities.</strong> For point \(i\): "if I pick a neighbor with probability proportional to closeness, how likely is \(j\)?" Uses a Gaussian; far structure vanishes into negligible probabilities.</li>
+    <li><strong>Same in low-D.</strong> Place points in 2D, compute neighbor-probabilities \(q_{ij}\) there.</li>
+    <li><strong>Match the two distributions</strong> by minimizing KL divergence via gradient descent until \(Q\) looks like \(P\).</li>
+  </ol>
+
+  <div class="mathlead">High-D conditional (asymmetric), then symmetrized:</div>
+  <div class="math">\[ p_{j\mid i} = \frac{\exp(-\lVert x_i - x_j\rVert^2 / 2\sigma_i^2)}{\sum_{k\neq i}\exp(-\lVert x_i - x_k\rVert^2 / 2\sigma_i^2)}, \qquad p_{ij} = \frac{p_{j\mid i} + p_{i\mid j}}{2n} \]</div>
+
+  <div class="mathlead">Low-D affinities use a Student-t (1 d.o.f. = Cauchy) kernel:</div>
+  <div class="math">\[ q_{ij} = \frac{\left(1 + \lVert y_i - y_j\rVert^2\right)^{-1}}{\sum_{k\neq l}\left(1 + \lVert y_k - y_l\rVert^2\right)^{-1}} \]</div>
+
+  <div class="mathlead">Cost = KL divergence (asymmetric → penalizes putting near points far, not vice versa):</div>
+  <div class="math">\[ C = \mathrm{KL}(P \| Q) = \sum_{i\neq j} p_{ij}\,\log\frac{p_{ij}}{q_{ij}} \]</div>
+
+  <h3>The two ideas that make it work</h3>
+  <div class="keytake">
+    <span class="lbl">1 · The Student-t tail (the "t") fixes crowding</span>
+    <p>High-D space has vastly more room than 2D. Squashing down, moderately-distant points get crushed together near the center — the <strong>crowding problem</strong>. The heavy-tailed Student-t in low-D lets moderately-far high-D points sit <em>much</em> farther apart in 2D without a big probability penalty — giving clusters room to separate cleanly instead of collapsing into one blob. This is the single cleverest piece.</p>
+  </div>
+  <div class="keytake">
+    <span class="lbl">2 · Perplexity</span>
+    <p>Each point's Gaussian width \(\sigma_i\) is tuned so every point has roughly the same <em>effective number of neighbors</em> — that target is <strong>perplexity</strong> (typically 5–50). The most important knob; results genuinely change with it.</p>
+  </div>
+
+  <h3>The landmines</h3>
+  <div class="trap">
+    <span class="lbl">Most-tested misconceptions</span>
+    <ul>
+      <li><strong>Inter-cluster distances are meaningless.</strong> Gaps between clusters tell you nothing about dissimilarity.</li>
+      <li><strong>Cluster sizes are meaningless.</strong> t-SNE expands dense clusters and contracts sparse ones.</li>
+      <li><strong>Non-deterministic</strong> (random init + SGD) — set a seed.</li>
+      <li><strong>No <code>transform</code> for new points</strong> — it embeds the specific points given; can't project new data.</li>
+      <li><strong>Can manufacture structure from noise</strong> with the wrong perplexity — vary it and check stability.</li>
+      <li><strong>Slow</strong>: \(O(n^2)\) naïve, \(O(n\log n)\) with Barnes-Hut; struggles past ~100k points.</li>
+    </ul>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= UMAP ================= -->
+<section id="umap">
+  <h2><span class="secnum">06</span>UMAP</h2>
+  <p class="legend">Uniform Manifold Approximation and Projection</p>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>UMAP solves the same problem as t-SNE — squash high-D to 2D/3D keeping neighbors together — but it's faster, preserves more of the global picture, and can project new points. By 2026 it's the <strong>default</strong>; t-SNE is the older incumbent it displaced. Intuition shift: t-SNE thinks in <em>neighbor probabilities</em>; UMAP builds a <strong>graph</strong> — connect each point to its nearest neighbors, then redraw that graph in 2D so connected points stay close.</p>
+  </div>
+
+  <h3>The machinery</h3>
+  <ol>
+    <li><strong>Build a weighted k-NN graph in high-D.</strong> Connect each point to its \(k\) nearest neighbors; edge weights encode neighbor strength. Per-point local distance scaling (like perplexity) treats dense/sparse regions fairly; each point connects to at least its nearest neighbor (nothing stranded). Graph symmetrized by combining directional weights. (Formally a "fuzzy simplicial set"; operationally a weighted k-NN graph.)</li>
+    <li><strong>Lay the graph out in low-D.</strong> Smart <strong>spectral initialization</strong> (not random → more stable, more global structure). Optimize with attractive forces (connected points) + repulsive forces (unconnected), via SGD with <strong>negative sampling</strong> (push apart only a small random sample of non-neighbors each step — borrowed from word2vec, a huge speedup).</li>
+  </ol>
+  <div class="mathlead">Cost = fuzzy-set cross-entropy between high-D graph and low-D graph:</div>
+  <div class="math">\[ C = \sum_{(i,j)} \Big[\, v_{ij}\log\frac{v_{ij}}{w_{ij}} + (1-v_{ij})\log\frac{1-v_{ij}}{1-w_{ij}} \,\Big] \]</div>
+  <p class="legend">\(v_{ij}\) = high-D edge weight, \(w_{ij}\) = low-D edge weight. Unlike t-SNE's KL (penalizes only near→far), cross-entropy penalizes <strong>both</strong> near→far <em>and</em> far→near — so UMAP retains more global structure.</p>
+
+  <h3>The two key hyperparameters</h3>
+  <ul>
+    <li><strong><code>n_neighbors</code></strong> — the perplexity analog. Low (~5) → fine local detail, fragmented. High (~50–100) → broader, more global structure.</li>
+    <li><strong><code>min_dist</code></strong> — how tightly points may pack in low-D. Low (~0–0.1) → tight clumps, crisp separation. High (~0.5+) → spread out, overall topology. No t-SNE equivalent.</li>
+  </ul>
+
+  <h3>Why UMAP beats t-SNE practically</h3>
+  <ul>
+    <li><strong>Speed</strong> — approximate NN (NN-Descent) + negative sampling → ~\(O(n^{1.14})\) empirically; handles millions where t-SNE chokes ~100k.</li>
+    <li><strong>Global structure</strong> — spectral init + cross-entropy preserve more inter-cluster meaning.</li>
+    <li><strong>Out-of-sample <code>transform</code></strong> — learns a reusable mapping; can project new points. t-SNE cannot. Usable in real pipelines.</li>
+    <li><strong>General reduction</strong> — sometimes used to reduce to 10–50 dims feeding a downstream model, not only 2D.</li>
+  </ul>
+  <div class="trap">
+    <span class="lbl">Caveats still apply</span>
+    <p>Inter-cluster distances are only <em>partially</em> reliable (more than t-SNE, but it's not PCA). It can create false structure / tear manifolds with wrong <code>n_neighbors</code>. Non-deterministic by default (seed it). Same epistemic humility as t-SNE.</p>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= CLUSTERING DECISION ================= -->
+<section id="cluster-decide">
+  <h2><span class="secnum">07</span>Clustering: which one when</h2>
+
+  <h3>Decision logic — the questions you actually ask</h3>
+  <table>
+    <tr><th>Question</th><th>Answer → algorithm</th></tr>
+    <tr><td>Know how many clusters? + big data</td><td><strong>K-Means</strong> (fast, scales)</td></tr>
+    <tr><td>Don't know how many?</td><td><strong>DBSCAN/HDBSCAN</strong> (finds count from density) or <strong>Hierarchical</strong> (build tree, cut later)</td></tr>
+    <tr><td>Round, equal-size blobs?</td><td><strong>K-Means</strong></td></tr>
+    <tr><td>Elliptical / overlapping / unequal?</td><td><strong>GMM</strong></td></tr>
+    <tr><td>Arbitrary, snake-like, non-convex?</td><td><strong>DBSCAN</strong> (or single-linkage hierarchical)</td></tr>
+    <tr><td>Need outlier handling?</td><td><strong>DBSCAN</strong> (K-Means & GMM force every point in, and are distorted by outliers)</td></tr>
+    <tr><td>Need soft / probabilistic membership?</td><td><strong>GMM</strong> (only one native)</td></tr>
+    <tr><td>Millions of points?</td><td><strong>K-Means</strong> \(O(n)\), or DBSCAN with spatial index</td></tr>
+    <tr><td>Large data?</td><td><strong>Never hierarchical</strong> (\(O(n^2)\) memory)</td></tr>
+    <tr><td>Assign future/unseen points?</td><td><strong>K-Means</strong> (nearest centroid) or <strong>GMM</strong> (highest responsibility); DBSCAN & hierarchical refit only</td></tr>
+    <tr><td>Need deterministic / reproducible?</td><td><strong>Hierarchical</strong> (no random init) or <strong>DBSCAN</strong> (deterministic up to border ties)</td></tr>
+  </table>
+
+  <h3>Compressed mental map</h3>
+  <div class="twocol">
+    <div class="card"><h4>K-Means</h4><p>Fast, scalable, hard assignment, assumes spherical equal blobs, needs \(k\). The default baseline.</p></div>
+    <div class="card"><h4>GMM</h4><p>K-Means' probabilistic upgrade: elliptical clusters, soft assignment, generative, principled \(k\)-selection via BIC. Costs more compute, still needs \(k\).</p></div>
+    <div class="card"><h4>DBSCAN</h4><p>Density-based: arbitrary shapes, finds \(k\) itself, flags noise. Struggles with varying density and high dimensions.</p></div>
+    <div class="card"><h4>Hierarchical</h4><p>Full nested tree, no \(k\) up front, deterministic, interpretable structure. \(O(n^2)\), small data only, no out-of-sample assignment.</p></div>
+  </div>
+
+  <div class="keytake">
+    <span class="lbl">One-liner for an interviewer</span>
+    <p>K-Means and GMM are parametric, centroid/distribution-based methods that need \(k\) and assume cluster shape; DBSCAN and hierarchical are nonparametric structure-discovery methods that don't. GMM <em>generalizes</em> K-Means by adding covariance and soft assignment; DBSCAN generalizes nothing — it's a different paradigm built on <strong>density</strong> rather than distance-to-center.</p>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= TF-IDF ================= -->
+<section id="tfidf">
+  <h2><span class="secnum">08</span>TF-IDF</h2>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>TF-IDF turns a word into a number answering: "<strong>how important is this word to this specific document, relative to the whole corpus?</strong>" It's a smarter word-count that automatically crushes filler words and boosts distinctive ones.</p>
+  </div>
+
+  <h3>The components</h3>
+  <ul>
+    <li><strong>TF</strong> (term frequency) — how often the word appears in <em>this</em> document.</li>
+    <li><strong>IDF</strong> (inverse document frequency) — how rare the word is <em>across all</em> documents. "the/is/and" everywhere → IDF ≈ 0 → crushed. "thrombocytopenia" in 3 docs → high IDF → boosted.</li>
+    <li><strong>TF-IDF = TF × IDF</strong> — high only when a word is frequent <em>here</em> but rare <em>elsewhere</em>.</li>
+  </ul>
+  <div class="mathlead">A common smoothed form:</div>
+  <div class="math">\[ \text{tf-idf}(t,d) = \underbrace{f_{t,d}}_{\text{count in }d}\;\times\;\underbrace{\log\!\frac{N}{1 + n_t}}_{\text{rarity across corpus}} \]</div>
+  <p class="legend">\(N\) = total documents, \(n_t\) = documents containing term \(t\). The \(+1\) avoids division by zero.</p>
+
+  <h3>The key move: text → tabular data</h3>
+  <p>TF-IDF vectorization converts a column of raw text into a numeric matrix classical ML can consume. <strong>Rows = documents, columns = vocabulary words, values = TF-IDF.</strong> Each document becomes a point in "word space."</p>
+  <table>
+    <tr><th></th><th>approval</th><th>cheap</th><th>deal</th><th>loan</th><th>meeting</th><th>noon</th><th>offer</th></tr>
+    <tr><td>doc1 "cheap loan offer"</td><td>0</td><td>0.52</td><td>0</td><td>0.52</td><td>0</td><td>0</td><td>0.67</td></tr>
+    <tr><td>doc2 "meeting at noon"</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.47</td><td>0.6</td><td>0</td></tr>
+    <tr><td>doc3 "loan approval meeting"</td><td>0.6</td><td>0</td><td>0</td><td>0.47</td><td>0.47</td><td>0</td><td>0</td></tr>
+    <tr><td>doc4 "cheap cheap deal"</td><td>0</td><td>0.85</td><td>0.52</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+  </table>
+
+  <div class="keytake">
+    <span class="lbl">The defining property: huge &amp; sparse</span>
+    <p>Real vocab = 20k–100k+ unique words → that many <strong>columns</strong>. Any single document uses only a few hundred → most columns are zero. Stored as a <strong>sparse matrix</strong>. This sparsity + dimensionality shapes every downstream choice. (Your "one feature is text" instinct was right but undersized — it's one text column exploding into thousands of word-features.)</p>
+  </div>
+
+  <h3>How it's used in classical ML</h3>
+  <ol>
+    <li><strong>Text classification</strong> (bread-and-butter): spam, sentiment, topic, ticket routing. Pipeline: <code>raw text → TF-IDF → classifier</code>. Classic pairing: <strong>TF-IDF + Linear SVM</strong> or <strong>Logistic Regression</strong> (linear models thrive in high-D sparse space; data is usually linearly separable there). <strong>Multinomial Naive Bayes</strong> is the other strong, fast baseline. This combo was SOTA pre-deep-learning and is still a brutally strong baseline in 2026.</li>
+    <li><strong>Document clustering</strong>: feed TF-IDF to <strong>K-Means</strong> (with cosine, not Euclidean) to group articles/complaints by topic.</li>
+    <li><strong>Information retrieval / search / similarity</strong>: <strong>cosine similarity</strong> between TF-IDF vectors. The backbone of pre-neural search; the classical cousin of embeddings + vector DBs (text → vector → similarity), just sparse-lexical instead of dense-semantic.</li>
+  </ol>
+
+  <div class="trap">
+    <span class="lbl">PCA on TF-IDF — the gotcha</span>
+    <p>Don't use vanilla PCA. PCA <strong>centers</strong> the data (subtracts the column mean), which turns every zero into a nonzero — destroying sparsity and exploding memory. Use <strong>Truncated SVD</strong> (= LSA), which does linear reduction <em>without</em> centering and preserves sparsity. Corrected pipeline:</p>
+    <p style="text-align:center"><code>text → TF-IDF (50k sparse) → Truncated SVD/LSA (→100–300 dense) → classifier / clustering / t-SNE / UMAP</code></p>
+  </div>
+
+  <h3>Normalize &amp; use cosine</h3>
+  <p>TF-IDF vectors are usually <strong>L2-normalized</strong> (unit length) to remove document-length effects — a long doc shouldn't be "more" of a topic just for being long. Once unit-length, <strong>dot product = cosine similarity</strong>, which measures <em>direction</em> (which words, in what proportion) not <em>magnitude</em>. For text, direction is what matters — hence cosine, not Euclidean, and configure K-Means accordingly.</p>
+
+  <h3>Where it stands in 2026</h3>
+  <table>
+    <tr><th>TF-IDF</th><th>Embeddings (BERT, sentence-transformers)</th></tr>
+    <tr><td>Sparse, lexical, fast, interpretable, zero training cost. "Dumb": "loan" and "mortgage" are different columns with zero overlap — pure surface word-matching.</td><td>Dense, semantic, understands synonyms/meaning, but needs a model, compute, less interpretable.</td></tr>
+  </table>
+  <p>Reach for TF-IDF as a fast, strong, explainable baseline; for keyword-driven tasks (spam, legal/medical where exact terms matter); when compute is limited; when you need interpretability ("which words drove this?"). Honest answer: <em>start with TF-IDF + linear model; move to embeddings if you need semantic understanding and can afford the compute.</em></p>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= TRUNCATED SVD / LSA ================= -->
+<section id="svd">
+  <h2><span class="secnum">09</span>Truncated SVD &amp; LSA</h2>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>Truncated SVD is "keep the top-\(k\) singular vectors from SVD" — your instinct was right. The interesting part is <em>why</em> that's the same thing as PCA, <em>when</em> it isn't, and <em>why</em> doing it to a TF-IDF matrix produces "topics."</p>
+  </div>
+
+  <h3>From SVD</h3>
+  <div class="mathlead">Any matrix \(X\) (\(n\) docs × \(d\) words) factors as:</div>
+  <div class="math">\[ X = U \Sigma V^{\top} \]</div>
+  <ul>
+    <li><strong>\(V\)</strong> (right singular vectors) — directions in <em>feature space</em>, i.e. combinations of words; axes of maximum variation.</li>
+    <li><strong>\(\Sigma\)</strong> (singular values) — how much energy/variance each direction carries, sorted descending.</li>
+    <li><strong>\(U\)</strong> — the documents expressed in those directions.</li>
+  </ul>
+  <div class="mathlead">Truncated SVD keeps the top \(k\):</div>
+  <div class="math">\[ X \approx U_k \Sigma_k V_k^{\top}, \qquad \text{reduced data} = U_k \Sigma_k \]</div>
+  <p>The top singular vectors capture dominant co-variation; the long tail of tiny singular values is mostly noise. By the <strong>Eckart–Young theorem</strong>, truncated SVD is the <em>best possible rank-\(k\) approximation</em> of \(X\) (smallest reconstruction error).</p>
+
+  <div class="keytake">
+    <span class="lbl">PCA <em>is</em> SVD on centered data</span>
+    <p>They're the same algorithm with one preprocessing difference:</p>
+    <ul>
+      <li><strong>PCA</strong>: subtract the column mean (center), <em>then</em> SVD. Finds directions of maximum <strong>variance</strong> (defined around the mean → centering is mandatory).</li>
+      <li><strong>Truncated SVD</strong>: SVD on raw, <strong>uncentered</strong> \(X\). Finds directions of maximum <strong>energy</strong> (around the origin).</li>
+    </ul>
+    <p>The <em>only</em> difference: <strong>does the data get centered first?</strong> Center → PCA. Don't → truncated SVD. On already-centered data they're identical.</p>
+  </div>
+
+  <h3>Why it matters for text — the sparsity collision</h3>
+  <p>Centering means subtracting each column's (small positive) mean from every entry, so every zero becomes \(0-\text{mean} \neq 0\) → the sparse matrix densifies into a full 50k-column matrix that won't fit in RAM. PCA <em>requires</em> centering → unusable on large sparse text. Truncated SVD <em>skips</em> centering → operates directly on the sparse matrix. <strong>That's why it exists as a distinct tool: it's the dimensionality reducer that survives sparse data.</strong></p>
+
+  <h3>Why "LSA / Latent Semantic Analysis"?</h3>
+  <p>LSA = truncated SVD applied specifically to a document-term matrix. Each top right-singular vector \(V_k\) is a direction in word-space — a weighted combination of words that tend to <strong>co-occur</strong> across documents:</p>
+  <ul>
+    <li>Component 1 might weight {loan, mortgage, credit, interest, approval} → a "finance" direction.</li>
+    <li>Component 2 might weight {patient, dose, symptom, diagnosis} → a "medical" direction.</li>
+  </ul>
+  <p>Nobody labeled these — SVD's top directions capture co-variation, and in a doc-term matrix that <em>is</em> word co-occurrence. These are the <strong>latent semantic dimensions</strong> — hidden meaning-axes inferred from co-occurrence. Hence <em>Latent</em> (hidden), <em>Semantic</em> (meaning), <em>Analysis</em>.</p>
+  <div class="keytake">
+    <span class="lbl">LSA partially solves synonymy</span>
+    <p>Plain TF-IDF: "car" and "automobile" are different columns with zero overlap, so two docs using one each look unrelated (cosine ≈ 0). But both co-occur with {road, drive, engine, wheel}, so LSA places them along the <em>same</em> latent direction — the docs land near each other despite sharing no literal words. The crude, linear ancestor of dense embeddings (LSA → word2vec → modern embeddings).</p>
+  </div>
+
+  <h3>Truncated SVD / LSA vs. PCA</h3>
+  <div class="twocol">
+    <div class="card"><h4 style="color:var(--good)">Advantages over PCA</h4>
+      <ul><li>Handles <strong>sparse</strong> data without densifying — the decisive win on text.</li>
+      <li>Scales better (randomized SVD computes only top-\(k\)).</li>
+      <li>No centering step (the step that breaks on sparse data).</li></ul></div>
+    <div class="card"><h4 style="color:var(--bad)">Disadvantages vs. PCA</h4>
+      <ul><li>Components aren't "principal components" in the variance sense — directions maximize energy around the origin; on uncentered data the leading component often just points toward the overall mean/magnitude (a "size" direction).</li>
+      <li>"Explained variance" framing is exact for PCA, only approximate here.</li>
+      <li>For dense, modest-dimensional data, PCA is the more principled choice.</li></ul></div>
+  </div>
+  <div class="keytake">
+    <span class="lbl">One-liner</span>
+    <p>Truncated SVD is PCA without the centering step, which is precisely what lets it work on huge sparse matrices like TF-IDF; applied to a document-term matrix it's called LSA, and its top components are interpretable as latent topics because they capture word co-occurrence.</p>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= ISOLATION FOREST ================= -->
+<section id="iforest">
+  <h2><span class="secnum">10</span>Isolation Forest</h2>
+
+  <div class="story">
+    <span class="lbl">Simple story</span>
+    <p>Every other anomaly method <em>models what "normal" looks like</em> and flags deviations (fit a Gaussian → flag low-probability; find dense regions → flag sparse stragglers). Isolation Forest <strong>inverts the premise</strong>: anomalies are few and different, so they're <em>easy to isolate</em>. Keep making random cuts in feature space — an outlier in a sparse region gets fenced into its own box after just a few cuts; a normal point buried in a crowd needs many. <strong>The anomaly score is: how few cuts did it take to isolate this point?</strong> No notion of distance, density, or distribution required.</p>
+  </div>
+
+  <h3>How it works</h3>
+  <h4>Build one isolation tree (iTree)</h4>
+  <ol>
+    <li>Take a small random subsample (default <strong>256</strong> points).</li>
+    <li>Pick a <strong>random feature</strong>.</li>
+    <li>Pick a <strong>random split value</strong> between that feature's min and max in the node.</li>
+    <li>Split; recurse until every point is alone (or a depth cap is hit).</li>
+  </ol>
+  <p>The <strong>path length</strong> for a point = number of edges from root to its leaf = number of random cuts needed to isolate it.</p>
+  <h4>Build a forest</h4>
+  <p>Many such trees, each on a different random subsample with different random splits. <strong>Score</strong> a point by its <em>average path length</em> across trees → normalize to \([0,1]\).</p>
+
+  <figure>
+  <svg viewBox="0 0 560 220" xmlns="http://www.w3.org/2000/svg">
+    <text x="140" y="24" text-anchor="middle" fill="#9aa3b2" font-size="12" font-family="sans-serif">normal point — many cuts</text>
+    <rect x="40" y="40" width="200" height="150" fill="none" stroke="#2a2f3a"/>
+    <line x1="120" y1="40" x2="120" y2="190" stroke="#5fb6c9" opacity=".6"/>
+    <line x1="120" y1="110" x2="240" y2="110" stroke="#5fb6c9" opacity=".6"/>
+    <line x1="80" y1="40" x2="80" y2="110" stroke="#5fb6c9" opacity=".6"/>
+    <line x1="80" y1="75" x2="120" y2="75" stroke="#5fb6c9" opacity=".6"/>
+    <circle cx="100" cy="92" r="5" fill="#5fb6c9"/>
+    <text x="250" y="180" fill="#5fb6c9" font-size="11" font-family="sans-serif">deep</text>
+
+    <text x="420" y="24" text-anchor="middle" fill="#9aa3b2" font-size="12" font-family="sans-serif">anomaly — few cuts</text>
+    <rect x="320" y="40" width="200" height="150" fill="none" stroke="#2a2f3a"/>
+    <line x1="470" y1="40" x2="470" y2="190" stroke="#eb6f6f"/>
+    <line x1="470" y1="80" x2="520" y2="80" stroke="#eb6f6f"/>
+    <circle cx="497" cy="60" r="5" fill="#eb6f6f"/>
+    <text x="330" y="180" fill="#eb6f6f" font-size="11" font-family="sans-serif">shallow → isolated fast</text>
+  </svg>
+  <figcaption>A normal point (left) requires many random cuts to isolate; an anomaly (right) is fenced off in just a couple — short path length is the signal.</figcaption>
+  </figure>
+
+  <div class="mathlead">Anomaly score (\(h(x)\) = path length, \(c(n)\) = average path length normalizer for \(n\) points):</div>
+  <div class="math">\[ s(x, n) = 2^{-\frac{\mathbb{E}[h(x)]}{c(n)}} \]</div>
+  <p class="legend">Score → 1: isolated very quickly (anomaly). Well below 0.5: many cuts (normal). ~0.5: no clear signal.</p>
+
+  <h3>Why it's NOT a decision tree or Random Forest</h3>
+  <table>
+    <tr><th>Aspect</th><th>Decision Tree / Random Forest</th><th>Isolation Forest</th></tr>
+    <tr><td>Supervision</td><td><strong>Supervised</strong> — needs labels \(y\); splits to separate classes / predict target</td><td><strong>Unsupervised</strong> — no labels; measures a structural property</td></tr>
+    <tr><td>Split choice</td><td><strong>Optimized</strong> — best feature & threshold by information gain / Gini / variance reduction</td><td><strong>Random</strong> feature, <strong>random</strong> threshold; no objective minimized at the split</td></tr>
+    <tr><td>Output</td><td>Class label / regression value from the <em>leaf contents</em></td><td>Anomaly score from <em>path length</em> (how deep), not leaf contents</td></tr>
+    <tr><td>Meaning of depth</td><td>No inherent meaning</td><td><strong>Short depth IS the anomaly signal</strong></td></tr>
+    <tr><td>What's averaged</td><td>Predictions (votes / mean) to reduce prediction variance</td><td>Path lengths to reduce isolation-depth variance</td></tr>
+  </table>
+  <p>It borrows Random Forest's many-random-trees <em>skeleton</em> but nothing of its purpose, splitting logic, or output semantics.</p>
+
+  <div class="keytake">
+    <span class="lbl">Two counterintuitive design choices (interview gold)</span>
+    <ul>
+      <li><strong>Subsample only 256 — small is better.</strong> Large samples cause <em>swamping</em> (anomalies surrounded by so many normals they stop looking isolated) and <em>masking</em> (anomaly clusters hiding each other). Small subsamples keep anomalies sparse and genuinely isolatable — and make it fast and memory-light.</li>
+      <li><strong>Shallow / depth-capped trees</strong> (~\(\log_2 \psi\)). You only care that anomalies isolate <em>early</em>; if a point isn't isolated by the cap, it's clearly normal. No loss of signal.</li>
+    </ul>
+  </div>
+
+  <h3>Complexity</h3>
+  <p>Training \(\approx O(t \cdot \psi \log \psi)\) (\(t\) = trees, \(\psi\) = subsample = 256). Since \(\psi\) is a tiny constant, effectively <strong>linear in dataset size and trivially parallelizable</strong>. Scoring \(O(t \log \psi)\) per point. One of the fastest anomaly detectors.</p>
+
+  <h3>Where to use it &amp; why</h3>
+  <p><span class="pill good">high-dimensional (no distance metric → sidesteps curse of dimensionality)</span><span class="pill good">large data (near-linear, parallel)</span><span class="pill good">no labels</span><span class="pill good">no distribution assumption</span><span class="pill good">global scattered anomalies</span></p>
+  <div class="trap">
+    <span class="lbl">Watch out for</span>
+    <ul>
+      <li><strong>Local anomalies in varying-density data</strong> — a point anomalous only relative to its local neighborhood (but not globally sparse) can be missed. <strong>Local Outlier Factor (LOF)</strong> is the density-based alternative for local anomalies.</li>
+      <li><strong>Axis-aligned cut weakness</strong> — splits on one feature at a time struggle with anomalies that stand out only along a <em>diagonal</em> feature combination. <strong>Extended Isolation Forest</strong> uses oblique (random-direction) cuts.</li>
+      <li><strong><code>contamination</code> parameter</strong> — you usually must specify the expected anomaly proportion to set the threshold; getting it wrong skews how many points get flagged.</li>
+    </ul>
+  </div>
+
+  <h3>Among anomaly detectors</h3>
+  <table>
+    <tr><th>Method</th><th>Basis</th><th>Notes</th></tr>
+    <tr><td><strong>Isolation Forest</strong></td><td>Isolation</td><td>Unsupervised, fast, high-D friendly, no distribution assumption, finds <em>global</em> anomalies. Default for tabular at scale.</td></tr>
+    <tr><td>Gaussian / GMM density</td><td>Distribution</td><td>Flags low-probability points; good when normal is Gaussian-ish, bad in high-D.</td></tr>
+    <tr><td>DBSCAN noise</td><td>Density</td><td>Anomalies as a clustering byproduct; struggles with varying density / high-D.</td></tr>
+    <tr><td>LOF</td><td>Local density</td><td>Catches <em>local</em> anomalies Isolation Forest misses.</td></tr>
+    <tr><td>One-Class SVM</td><td>Boundary</td><td>Learns a boundary around normal data; powerful but slow, hard to tune, scales poorly.</td></tr>
+  </table>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= DIM-RED DECISION ================= -->
+<section id="dimred-decide">
+  <h2><span class="secnum">11</span>Dimensionality reduction: PCA vs t-SNE vs UMAP</h2>
+  <div class="keytake">
+    <span class="lbl">Framing</span>
+    <p>They're not really competitors — they answer different questions and are often used <strong>together</strong>. <strong>PCA is for <em>modeling</em></strong> (and as a first-stage reducer). <strong>t-SNE and UMAP are for <em>seeing</em>.</strong></p>
+  </div>
+
+  <table>
+    <tr><th></th><th>PCA</th><th>t-SNE</th><th>UMAP</th></tr>
+    <tr><td>Type</td><td>Linear</td><td>Nonlinear</td><td>Nonlinear</td></tr>
+    <tr><td>Preserves</td><td>Global variance / large distances</td><td>Local neighborhoods only</td><td>Local + <em>some</em> global</td></tr>
+    <tr><td>Math basis</td><td>Eigendecomposition of covariance</td><td>KL divergence of neighbor probs</td><td>Cross-entropy of fuzzy neighbor graph</td></tr>
+    <tr><td>Speed</td><td>Fastest</td><td>Slowest \(O(n\log n)\)</td><td>Fast ~\(O(n^{1.14})\)</td></tr>
+    <tr><td>Scales to</td><td>Millions+</td><td>~100k</td><td>Millions</td></tr>
+    <tr><td>Deterministic</td><td>Yes</td><td>No</td><td>No (default)</td></tr>
+    <tr><td>Transform new points</td><td>Yes</td><td><strong>No</strong></td><td><strong>Yes</strong></td></tr>
+    <tr><td>Inter-cluster distance meaningful</td><td>Yes</td><td>No</td><td>Partially</td></tr>
+    <tr><td>Cluster size meaningful</td><td>Yes</td><td>No</td><td>Partially</td></tr>
+    <tr><td>Interpretable axes</td><td>Yes</td><td>No</td><td>No</td></tr>
+    <tr><td>Key hyperparameters</td><td>n_components</td><td>perplexity</td><td>n_neighbors, min_dist</td></tr>
+    <tr><td>Primary use</td><td>Preprocessing / compression / denoising</td><td>Visualization only</td><td>Visualization + sometimes reduction</td></tr>
+  </table>
+
+  <h3>Decision logic</h3>
+  <ul>
+    <li><strong>PCA</strong> — reach for it first, always. Cheap, linear, deterministic, interpretable, reusable. Preprocessing before a model, compression, decorrelation, and the <em>first stage</em> before t-SNE/UMAP. If structure is roughly linear, PCA alone suffices.</li>
+    <li><strong>t-SNE</strong> — when you specifically want the crispest <em>local</em> cluster separation for a 2D plot, data isn't huge, no need to transform new points. Increasingly legacy, largely superseded.</li>
+    <li><strong>UMAP</strong> — the modern default for nonlinear reduction: fast, scalable, retains more global layout, can project new data, can feed downstream models. In 2026, "reduce this for a 2D plot" → UMAP unless there's a reason otherwise.</li>
+  </ul>
+
+  <div class="keytake">
+    <span class="lbl">The pro move — use both in sequence</span>
+    <p>Run PCA first to knock data from ~1000 → ~50 dims, <em>then</em> t-SNE/UMAP to 2D. PCA strips noise and cuts dimensionality cheaply, making the nonlinear step faster and often better. Standard practice (sklearn's t-SNE docs recommend it).</p>
+  </div>
+  <div class="trap">
+    <span class="lbl">The single most-tested misconception</span>
+    <p><strong>Never read cluster sizes or inter-cluster gaps off a t-SNE / UMAP plot as quantitatively meaningful.</strong></p>
+  </div>
+
+  <div class="keytake">
+    <span class="lbl">One-liner for an interview</span>
+    <p>PCA is linear, global, deterministic, reusable — used as preprocessing. t-SNE is nonlinear, local, stochastic, fit-once, visualization-only, with meaningless inter-cluster distances. UMAP is the modern default — near-linear, scales to millions, preserves more global structure, and uniquely can transform unseen points. Standard pipeline: PCA → ~50 dims, then UMAP → 2D.</p>
+  </div>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<!-- ================= CHEAT SHEET ================= -->
+<section id="cheatsheet">
+  <h2><span class="secnum">12</span>Master cheat-sheet</h2>
+
+  <table>
+    <tr><th>Algorithm</th><th>Category</th><th>Core idea</th><th>Complexity</th><th>Key gotcha</th></tr>
+    <tr><td><strong>DBSCAN</strong></td><td>Clustering (density)</td><td>Dense regions = clusters; chain through core points; flag noise</td><td>\(O(n\log n)\)</td><td>One global \(\varepsilon\) fails on varying density → HDBSCAN</td></tr>
+    <tr><td><strong>Hierarchical</strong></td><td>Clustering (tree)</td><td>Merge closest clusters; cut dendrogram at the big gap</td><td>\(O(n^2)\)–\(O(n^3)\)</td><td>\(O(n^2)\) memory; greedy irreversible merges; no new-point assignment</td></tr>
+    <tr><td><strong>GMM</strong></td><td>Clustering (generative)</td><td>Mixture of Gaussians; soft assignment via EM</td><td>\(O(nKd^2 \cdot \text{it})\)</td><td>Local optimum; covariance singularity; choose \(K\) via BIC</td></tr>
+    <tr><td><strong>EM</strong></td><td>Optimization meta-algo</td><td>Guess latent \(Z\) (E), re-fit \(\theta\) as if true (M), repeat; climbs a lower bound</td><td>per-problem</td><td>Local optimum only; needs tractable posterior (else variational EM)</td></tr>
+    <tr><td><strong>t-SNE</strong></td><td>Dim-red (visualization)</td><td>Match neighbor-probability distributions; Student-t fixes crowding</td><td>\(O(n\log n)\)</td><td>Inter-cluster distance & size meaningless; no transform; slow</td></tr>
+    <tr><td><strong>UMAP</strong></td><td>Dim-red (visualization)</td><td>Build weighted k-NN graph; lay out via attract/repel + neg sampling</td><td>~\(O(n^{1.14})\)</td><td>Partial global reliability only; can tear manifolds</td></tr>
+    <tr><td><strong>PCA</strong></td><td>Dim-red (linear)</td><td>SVD of centered data → max-variance directions</td><td>fast</td><td>Linear only; centering kills sparsity (use Truncated SVD)</td></tr>
+    <tr><td><strong>TF-IDF</strong></td><td>Text → features</td><td>TF × IDF → distinctive-word weighting; wide sparse matrix</td><td>fast</td><td>Lexical only (no synonyms); use cosine + L2-normalize</td></tr>
+    <tr><td><strong>Truncated SVD / LSA</strong></td><td>Dim-red (sparse)</td><td>PCA without centering; top-\(k\) singular vectors = latent topics</td><td>fast (randomized)</td><td>Uncentered → leading component may just be a "size" direction</td></tr>
+    <tr><td><strong>Isolation Forest</strong></td><td>Anomaly detection</td><td>Random cuts; short path length = easy to isolate = anomaly</td><td>~\(O(n)\)</td><td>Misses local anomalies (use LOF); axis-aligned (use Extended iForest)</td></tr>
+  </table>
+
+  <h3>The connective tissue (how it all chains)</h3>
+  <ul>
+    <li><strong>K-Means → GMM</strong>: GMM with spherical equal covariance = K-Means. K-Means = hard EM.</li>
+    <li><strong>EM</strong> underlies GMM, K-Means, HMMs (Baum-Welch), topic models, probabilistic PCA, missing-data imputation.</li>
+    <li><strong>PCA = SVD on centered data</strong>; Truncated SVD = SVD uncentered; LSA = Truncated SVD on a doc-term matrix.</li>
+    <li><strong>The text pipeline</strong>: text → TF-IDF → Truncated SVD/LSA (→ dense) → K-Means / linear classifier / UMAP visualization.</li>
+    <li><strong>The visualization pipeline</strong>: high-D → PCA (~50 dims) → t-SNE / UMAP (2D).</li>
+    <li><strong>High dimensions break distance/density methods</strong> (DBSCAN, KNN, Gaussian density) — Isolation Forest sidesteps this by avoiding distance entirely.</li>
+    <li><strong>LSA → word2vec → modern embeddings</strong>: the lineage from sparse-lexical to dense-semantic text representation.</li>
+  </ul>
+  <div class="backtop"><a href="#top">↑ back to top</a></div>
+</section>
+
+<hr class="soft">
+<p style="text-align:center; color:var(--muted); font-size:.85rem;">End of reference · Covers DBSCAN · Hierarchical · GMM · EM · t-SNE · UMAP · clustering decision · TF-IDF · Truncated SVD/LSA · Isolation Forest · dim-reduction decision · cheat-sheet</p>
+
+</div>
+</body>
+</html>

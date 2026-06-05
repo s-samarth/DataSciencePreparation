@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Engineering — Session Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spline+Sans+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap');
+
+  :root{
+    --bg:#0e1014;
+    --bg2:#15181f;
+    --panel:#171b23;
+    --panel2:#1c212b;
+    --ink:#e8e6e0;
+    --ink-soft:#b3b1ab;
+    --ink-dim:#83817b;
+    --line:#2a2f3a;
+    --line2:#373d4a;
+    --amber:#e0a458;
+    --amber-bright:#f0b968;
+    --teal:#5fb3a8;
+    --rust:#c97e5a;
+    --rose:#cd7a7a;
+    --violet:#9d8bc4;
+    --green:#7fa86a;
+    --code:#1a1e26;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:
+      radial-gradient(ellipse 1200px 600px at 70% -10%, rgba(224,164,88,0.06), transparent 60%),
+      radial-gradient(ellipse 900px 500px at 10% 30%, rgba(95,179,168,0.04), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Newsreader', Georgia, serif;
+    font-size:18px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:120px;
+  }
+
+  /* ---------- Layout ---------- */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .grid{display:grid;grid-template-columns:248px 1fr;gap:56px;max-width:1180px;margin:0 auto;padding:0 28px;}
+
+  /* ---------- Header ---------- */
+  header.hero{
+    border-bottom:1px solid var(--line);
+    padding:74px 0 48px;
+    margin-bottom:8px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero .kicker{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:22px;
+  }
+  .hero h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(40px, 6vw, 76px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    margin-bottom:24px;
+    color:#f6f4ee;
+  }
+  .hero h1 em{font-style:italic;color:var(--amber-bright);}
+  .hero .sub{
+    font-size:20px;
+    color:var(--ink-soft);
+    max-width:680px;
+    line-height:1.6;
+  }
+  .hero .meta{
+    margin-top:30px;
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    font-family:'Spline Sans Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+  }
+  .hero .meta b{color:var(--teal);font-weight:500;}
+
+  /* ---------- Sidebar nav ---------- */
+  nav.toc{
+    position:sticky;
+    top:32px;
+    align-self:start;
+    max-height:calc(100vh - 64px);
+    overflow-y:auto;
+    padding-right:6px;
+    font-family:'Spline Sans Mono', monospace;
+  }
+  nav.toc::-webkit-scrollbar{width:5px;}
+  nav.toc::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px;}
+  nav.toc .toc-title{
+    font-size:11px;
+    letter-spacing:0.26em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:0 0 16px 0;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  nav.toc ol{list-style:none;counter-reset:c;}
+  nav.toc li{margin:0;counter-increment:c;}
+  nav.toc a{
+    display:block;
+    text-decoration:none;
+    color:var(--ink-dim);
+    font-size:12.5px;
+    line-height:1.4;
+    padding:7px 0 7px 28px;
+    position:relative;
+    transition:color .18s, transform .18s;
+    border-left:1px solid transparent;
+  }
+  nav.toc a::before{
+    content:counter(c, decimal-leading-zero);
+    position:absolute;
+    left:0;top:7px;
+    color:var(--line2);
+    font-size:11px;
+  }
+  nav.toc a:hover{color:var(--amber);transform:translateX(2px);}
+  nav.toc a.cluster-head{
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    font-size:10.5px;
+    margin-top:18px;
+    padding-left:0;
+    pointer-events:none;
+  }
+  nav.toc a.cluster-head::before{content:'';}
+
+  /* ---------- Main content ---------- */
+  main{min-width:0;}
+
+  .cluster-banner{
+    margin:70px 0 38px;
+    padding:0;
+  }
+  .cluster-banner:first-child{margin-top:18px;}
+  .cluster-banner .ix{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.3em;
+    color:var(--amber);
+    text-transform:uppercase;
+  }
+  .cluster-banner h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:34px;
+    letter-spacing:-0.015em;
+    margin-top:8px;
+    color:#f4f2ec;
+    line-height:1.1;
+  }
+  .cluster-banner .cl-desc{
+    color:var(--ink-dim);
+    font-size:17px;
+    margin-top:10px;
+    max-width:620px;
+  }
+  .cluster-rule{height:1px;background:linear-gradient(90deg,var(--amber),transparent);margin-top:20px;}
+
+  article.topic{
+    background:linear-gradient(180deg, var(--panel), var(--bg2));
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:34px 38px 30px;
+    margin-bottom:26px;
+    position:relative;
+  }
+  article.topic::before{
+    content:'';
+    position:absolute;left:0;top:26px;bottom:26px;width:3px;
+    background:linear-gradient(180deg,var(--amber),transparent);
+    border-radius:3px;
+  }
+  article.topic h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:25px;
+    letter-spacing:-0.01em;
+    color:#f2f0ea;
+    margin-bottom:4px;
+    line-height:1.18;
+  }
+  article.topic .tagline{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:12px;
+    color:var(--teal);
+    letter-spacing:0.03em;
+    margin-bottom:20px;
+  }
+  article.topic h4{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:24px 0 10px;
+  }
+  article.topic p{margin-bottom:13px;color:var(--ink-soft);}
+  article.topic p.lead{color:var(--ink);font-size:18.5px;}
+  article.topic strong{color:var(--ink);font-weight:600;}
+  article.topic em{color:var(--amber-bright);font-style:italic;}
+  article.topic ul{margin:6px 0 14px;padding-left:0;list-style:none;}
+  article.topic ul li{
+    position:relative;padding-left:22px;margin-bottom:8px;color:var(--ink-soft);
+  }
+  article.topic ul li::before{
+    content:'▸';position:absolute;left:2px;top:0;color:var(--amber);font-size:13px;
+  }
+  article.topic ul li strong{color:var(--ink);}
+
+  code{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:0.82em;
+    background:var(--code);
+    border:1px solid var(--line);
+    border-radius:5px;
+    padding:1px 6px;
+    color:var(--teal);
+  }
+  .formula{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:14px;
+    background:var(--code);
+    border:1px solid var(--line2);
+    border-left:3px solid var(--amber);
+    border-radius:8px;
+    padding:16px 20px;
+    margin:14px 0;
+    color:#d4e3df;
+    overflow-x:auto;
+    line-height:1.7;
+    white-space:pre;
+  }
+  .formula .cmt{color:var(--ink-dim);}
+
+  /* key insight callout */
+  .insight{
+    background:linear-gradient(135deg, rgba(224,164,88,0.09), rgba(224,164,88,0.02));
+    border:1px solid rgba(224,164,88,0.28);
+    border-radius:10px;
+    padding:16px 20px;
+    margin:18px 0;
+  }
+  .insight .lbl{
+    font-family:'Spline Sans Mono', monospace;
+    font-size:11px;letter-spacing:0.2em;text-transform:uppercase;
+    color:var(--amber-bright);display:block;margin-bottom:6px;
+  }
+  .insight p{margin:0;color:var(--ink);}
+
+  .trap{
+    background:linear-gradient(135deg, rgba(205,122,122,0.08), rgba(205,122,122,0.02));
+    border:1px solid rgba(205,122,122,0.28);
+    border-radius:10px;padding:16px 20px;margin:18px 0;
+  }
+  .trap .lbl{font-family:'Spline Sans Mono', monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--rose);display:block;margin-bottom:6px;}
+  .trap p{margin:0;color:var(--ink);}
+
+  /* tables */
+  .tbl{width:100%;border-collapse:collapse;margin:16px 0;font-family:'Spline Sans Mono', monospace;font-size:13px;}
+  .tbl th{
+    text-align:left;padding:10px 14px;background:var(--panel2);
+    color:var(--amber);font-weight:500;border-bottom:1px solid var(--line2);
+    letter-spacing:0.03em;font-size:11.5px;text-transform:uppercase;
+  }
+  .tbl td{padding:10px 14px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top;}
+  .tbl tr:last-child td{border-bottom:none;}
+  .tbl td strong{color:var(--ink);}
+  .tbl tbody tr:hover td{background:rgba(255,255,255,0.012);}
+
+  /* svg figure */
+  figure.viz{
+    margin:22px 0;background:var(--code);border:1px solid var(--line2);
+    border-radius:12px;padding:24px;overflow-x:auto;
+  }
+  figure.viz figcaption{
+    font-family:'Spline Sans Mono', monospace;font-size:11.5px;letter-spacing:0.04em;
+    color:var(--ink-dim);margin-top:16px;text-align:center;
+  }
+  svg{display:block;margin:0 auto;max-width:100%;height:auto;}
+  .svg-label{font-family:'Spline Sans Mono', monospace;font-size:12px;fill:var(--ink-soft);}
+  .svg-label-sm{font-family:'Spline Sans Mono', monospace;font-size:10px;fill:var(--ink-dim);}
+  .svg-title{font-family:'Spline Sans Mono', monospace;font-size:13px;fill:var(--amber);letter-spacing:0.05em;}
+
+  /* one-liner summary */
+  .summary{
+    border-top:1px dashed var(--line2);margin-top:24px;padding-top:16px;
+  }
+  .summary .lbl{font-family:'Spline Sans Mono', monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:6px;}
+  .summary p{color:var(--ink);margin:0;font-size:16.5px;}
+
+  /* QA */
+  .qa{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;}
+  .qa .q{color:var(--amber-bright);font-weight:600;margin-bottom:2px;}
+  .qa .a{color:var(--ink-soft);margin-bottom:14px;}
+  .qa .q::before{content:'Q · ';font-family:'Spline Sans Mono',monospace;font-size:12px;color:var(--ink-dim);}
+
+  /* connection chips */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px;}
+  .chip{
+    font-family:'Spline Sans Mono', monospace;font-size:10.5px;letter-spacing:0.04em;
+    background:var(--panel2);border:1px solid var(--line2);border-radius:20px;
+    padding:4px 12px;color:var(--ink-dim);
+  }
+  .chip b{color:var(--teal);font-weight:500;}
+
+  footer{
+    text-align:center;margin-top:90px;padding-top:34px;border-top:1px solid var(--line);
+    font-family:'Spline Sans Mono', monospace;font-size:12px;color:var(--ink-dim);letter-spacing:0.05em;
+  }
+  footer b{color:var(--amber);}
+
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:14px 0;}
+  @media(max-width:900px){
+    .grid{grid-template-columns:1fr;}
+    nav.toc{display:none;}
+    .two-col{grid-template-columns:1fr;}
+    article.topic{padding:26px 22px;}
+  }
+
+  a.backlink{color:var(--teal);text-decoration:none;border-bottom:1px dotted var(--line2);}
+  a.backlink:hover{color:var(--amber);}
+
+  mark{background:rgba(224,164,88,0.18);color:var(--amber-bright);padding:0 3px;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">AI Engineering · Self-Study Session Log</div>
+    <h1>The <em>Interview-Prep</em> Field Notes</h1>
+    <p class="sub">A complete, clustered reference of everything worked through in one sitting — from CPU caches and the GIL up through LLM serving internals, RAG retrieval, the planning debate, 2026 benchmarks, and the agent-security frontier. Built to be re-read.</p>
+    <div class="meta">
+      <span><b>22</b> topics</span>
+      <span><b>7</b> clusters</span>
+      <span>Systems · LLMs · RAG · Eval · Security</span>
+      <span>Saved <b>27 May 2026</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="grid">
+  <!-- ============ TOC ============ -->
+  <nav class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <a class="cluster-head">A · Systems & Hardware</a>
+      <li><a href="#t1">Threads vs Processes</a></li>
+      <li><a href="#t2">CPU/GPU Cache Hierarchy</a></li>
+      <li><a href="#t3">P50 / P99 Latency</a></li>
+
+      <a class="cluster-head">B · Serving & Inference</a>
+      <li><a href="#t4">Throughput vs Latency · Batching</a></li>
+      <li><a href="#t5">Continuous Batching</a></li>
+      <li><a href="#t6">Execution Modes (sync/async)</a></li>
+      <li><a href="#t7">Inference Optimization Stack</a></li>
+      <li><a href="#t8">Output Token Economics</a></li>
+      <li><a href="#t9">Caching for Consistency</a></li>
+
+      <a class="cluster-head">C · LLM Internals & Training</a>
+      <li><a href="#t10">Structured Output & Tool Calling</a></li>
+      <li><a href="#t11">Prompting: CoT · Reflect · ReAct</a></li>
+      <li><a href="#t12">DSPy</a></li>
+
+      <a class="cluster-head">D · Retrieval & RAG</a>
+      <li><a href="#t13">Vector Distance Metrics</a></li>
+      <li><a href="#t14">ANN Indexes: HNSW/Annoy/ScaNN</a></li>
+      <li><a href="#t15">Query Rewriting & Post-Retrieval</a></li>
+      <li><a href="#t16">Tabular Data in RAG</a></li>
+
+      <a class="cluster-head">E · Evaluation</a>
+      <li><a href="#t17">BLEU · ROUGE · Beam Search</a></li>
+      <li><a href="#t18">Elo Scoring</a></li>
+      <li><a href="#t19">2026 Benchmarks & Gaming</a></li>
+
+      <a class="cluster-head">F · Reasoning & Planning</a>
+      <li><a href="#t20">The Planning Debate</a></li>
+
+      <a class="cluster-head">G · AI Security</a>
+      <li><a href="#t21">Guardrails & Safety Metrics</a></li>
+      <li><a href="#t22">Attack Landscape & Frontier</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+
+  <p style="color:var(--ink-dim);font-family:'Spline Sans Mono',monospace;font-size:13px;line-height:1.7;border:1px dashed var(--line2);border-radius:10px;padding:16px 20px;margin-bottom:10px;">
+  NOTE TO SELF — These topics came from a raw list of questions I had while studying AI engineering, so the original order was non-linear. I've re-clustered them into 7 coherent themes. Read top-to-bottom or jump around; each topic is self-contained, with the trap-questions, formulas, and one-line summaries preserved.
+  </p>
+
+  <!-- ===================== CLUSTER A ===================== -->
+  <section class="cluster-banner" id="clA">
+    <div class="ix">Cluster A</div>
+    <h2>Systems &amp; Hardware Foundations</h2>
+    <p class="cl-desc">The substrate everything else runs on — concurrency, the memory hierarchy, and how we even measure "fast."</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T1 -->
+  <article class="topic" id="t1">
+    <h3>1 · Multithreading vs Multiprocessing</h3>
+    <div class="tagline">concurrency ≠ parallelism · the GIL is the whole story</div>
+    <p class="lead">A <strong>process</strong> is a full program with its own memory; a <strong>thread</strong> is a worker inside a process sharing that memory. Spawning a process is expensive (fresh memory, descriptors); spawning a thread is cheap.</p>
+
+    <h4>Why Python threading feels "not really parallel"</h4>
+    <p>CPython's <strong>GIL (Global Interpreter Lock)</strong> ensures only one thread executes Python bytecode at a time per process. So 16 threads on 16 cores still run Python code one-at-a-time — they take turns. <em>But the GIL releases during I/O and many C-extension calls</em> (NumPy, PyTorch, network, disk). That's the entire nuance.</p>
+
+    <ul>
+      <li><strong>Threading wins</strong> on I/O-bound work: waiting on API calls, DB, network, disk. While thread A waits on HTTP, thread B runs. This is <em>concurrency</em>.</li>
+      <li><strong>Multiprocessing wins</strong> on CPU-bound pure-Python work: separate interpreters, each its own GIL → genuine <em>parallelism</em>. Cost: no shared memory, data passes via pickling (slow), so use chunky work per process.</li>
+      <li><strong>async/await</strong> is often best for thousands of concurrent network calls — single thread, switches at every <code>await</code>, lower overhead than threads.</li>
+    </ul>
+
+    <h4>The AI-engineer decision table</h4>
+    <table class="tbl">
+      <thead><tr><th>Bottleneck</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td>LLM API calls, DB, network</td><td>async &gt; threading</td></tr>
+        <tr><td>Reading thousands of files</td><td>threading</td></tr>
+        <tr><td>CPU-bound Python (rare in ML)</td><td>multiprocessing</td></tr>
+        <tr><td>Data loading/preprocessing for training</td><td>multiprocessing — this is what <code>DataLoader(num_workers=N)</code> is</td></tr>
+        <tr><td>GPU inference</td><td>neither — the GPU is the parallel engine; you batch</td></tr>
+      </tbody>
+    </table>
+
+    <div class="summary"><span class="lbl">One line</span><p>Threading = one interpreter, workers take turns, great for <em>waiting</em>; multiprocessing = many interpreters, true parallelism, great for <em>computing</em>; the GIL is why CPython threading can't give CPU parallelism.</p></div>
+    <div class="chips"><span class="chip">leads to → <b>DataLoader num_workers</b></span><span class="chip">contrast → <b>GPU batching</b></span></div>
+  </article>
+
+  <!-- T2 -->
+  <article class="topic" id="t2">
+    <h3>2 · L1 / L2 / L3 Cache &amp; the Memory Hierarchy</h3>
+    <div class="tagline">every ML perf trick is secretly about keeping data in fast memory</div>
+    <p class="lead">CPUs are absurdly fast; RAM is slow by comparison. Caches exist because <strong>moving data is the expensive part of modern computing, not the math.</strong></p>
+
+    <figure class="viz">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg">
+        <text x="360" y="22" text-anchor="middle" class="svg-title">THE LATENCY PYRAMID — each step ~10–100× slower</text>
+        <!-- pyramid bars -->
+        <g>
+          <rect x="300" y="44" width="120" height="30" rx="4" fill="#e0a458"/>
+          <text x="360" y="64" text-anchor="middle" class="svg-label-sm" fill="#0e1014">REGISTER &lt;1ns</text>
+
+          <rect x="270" y="80" width="180" height="30" rx="4" fill="#d49a52"/>
+          <text x="360" y="100" text-anchor="middle" class="svg-label-sm" fill="#0e1014">L1  ~1ns · 32–64KB</text>
+
+          <rect x="230" y="116" width="260" height="30" rx="4" fill="#5fb3a8"/>
+          <text x="360" y="136" text-anchor="middle" class="svg-label-sm" fill="#0e1014">L2  ~3–5ns · 256KB–1MB</text>
+
+          <rect x="185" y="152" width="350" height="30" rx="4" fill="#4f9b91"/>
+          <text x="360" y="172" text-anchor="middle" class="svg-label-sm" fill="#0e1014">L3  ~10–20ns · 8–64MB shared</text>
+
+          <rect x="120" y="188" width="480" height="30" rx="4" fill="#c97e5a"/>
+          <text x="360" y="208" text-anchor="middle" class="svg-label-sm" fill="#0e1014">RAM  ~100ns · GBs</text>
+
+          <rect x="60" y="224" width="600" height="30" rx="4" fill="#8a5a44"/>
+          <text x="360" y="244" text-anchor="middle" class="svg-label-sm" fill="#f6f4ee">SSD  ~100,000ns · TBs</text>
+
+          <rect x="20" y="260" width="680" height="30" rx="4" fill="#3a2e28"/>
+          <text x="360" y="280" text-anchor="middle" class="svg-label-sm" fill="#b3b1ab">NETWORK  ~1,000,000+ns</text>
+        </g>
+      </svg>
+      <figcaption>L1 is ~100× faster than RAM. The whole point of the hierarchy is to avoid trips to slow memory.</figcaption>
+    </figure>
+
+    <h4>The desk analogy</h4>
+    <ul>
+      <li><strong>L1</strong> = desk in front of you (tiny, what you use right now; split L1d data / L1i instructions)</li>
+      <li><strong>L2</strong> = drawer under the desk</li>
+      <li><strong>L3</strong> = shelf shared with roommates (other cores)</li>
+      <li><strong>RAM</strong> = warehouse downstairs · <strong>SSD</strong> = warehouse in another city</li>
+    </ul>
+
+    <h4>Why this matters for AI</h4>
+    <ul>
+      <li><strong>Blocked/tiled matmul</strong>: BLAS splits matrices into tiles that fit in L2/L3, does all work while hot, then moves on → 10–100× over naive loops.</li>
+      <li><strong>Batch size</strong>: weights load to cache once, reused across the batch → amortizes the memory load.</li>
+      <li><strong>Flash Attention</strong>: keeps attention tiles in GPU SRAM, never materializes the full N×N matrix in slow HBM. Same math, far less memory traffic.</li>
+      <li><strong>Memory-bound inference</strong>: decode loads billions of weights from HBM per token → compute units idle. Quantization helps because smaller weights = less to move.</li>
+    </ul>
+
+    <h4>GPU hierarchy maps onto CPU's</h4>
+    <table class="tbl">
+      <thead><tr><th>CPU</th><th>GPU equivalent</th></tr></thead>
+      <tbody>
+        <tr><td>L1 / shared memory</td><td>SRAM (~100–200KB per SM)</td></tr>
+        <tr><td>L2 cache</td><td>L2 (~40–50MB on H100)</td></tr>
+        <tr><td>RAM</td><td>HBM (~80GB on H100)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight"><span class="lbl">Two concepts that unlock everything</span>
+      <p><strong>Spatial locality</strong> — access X, you'll likely access X+1 soon (so caches load 64-byte lines, not single bytes → ordered NumPy iteration is fast, random is slow). <strong>Temporal locality</strong> — recently used → reused soon (so looping weights over a whole batch is efficient).</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>L1/L2/L3 are progressively bigger/slower/more-shared layers of fast memory between CPU and slow RAM; every major ML trick (tiling, batching, flash attention, quantization) is about keeping useful data in fast memory longer.</p></div>
+    <div class="chips"><span class="chip">feeds → <b>Flash Attention</b></span><span class="chip">feeds → <b>memory-bound decode</b></span><span class="chip">feeds → <b>output token cost</b></span></div>
+  </article>
+
+  <!-- T3 -->
+  <article class="topic" id="t3">
+    <h3>3 · P50 &amp; P99 — Latency Percentiles</h3>
+    <div class="tagline">averages lie about latency · the tail is real people</div>
+    <p class="lead"><strong>P50</strong> = median (half of requests faster). <strong>P99</strong> = 99% faster, the slowest 1% are worse. General rule: <code>Pxx</code> means xx% of requests were faster than this value.</p>
+
+    <h4>Why not the average?</h4>
+    <p>100 requests: 99 take 50ms, one takes 5000ms. <strong>Average</strong> ≈ 99.5ms (hides the outlier <em>and</em> is dragged by it). <strong>P50</strong> = 50ms (typical truth). <strong>P99</strong> = 5000ms (the ugly truth). Latency distributions are right-skewed with long tails, so the mean is a bad summary.</p>
+
+    <h4>Why the tail matters at scale</h4>
+    <ul>
+      <li><strong>Fan-out compounds</strong>: 100 internal calls, each 1% chance of P99-slow → <code>1 − 0.99¹⁰⁰ ≈ 63%</code> chance at least one is slow. Your user-facing P99 is dominated by internal P99 ("tail at scale", Dean &amp; Barroso).</li>
+      <li><strong>Users feel their request, not your median</strong> — 1% bad × 1M/day = 10,000 bad experiences daily.</li>
+      <li><strong>SLAs are written on tail percentiles</strong>, never on averages.</li>
+    </ul>
+
+    <h4>Sharp for LLM serving</h4>
+    <ul>
+      <li><strong>Variable output length</strong> → naturally long tail (a 2000-token gen is slow).</li>
+      <li><strong>TTFT</strong> (time to first token, prefill+queue) vs <strong>TPOT</strong> (time per output token, streaming speed) — tracked separately, each as percentiles.</li>
+      <li><strong>Batching interference</strong>: one giant request slows others in the batch → throughput optimizations can worsen P99.</li>
+      <li><strong>Cold starts</strong>: a request hitting a fresh replica eats the multi-GB model load → pure tail event.</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">The senior framing</span><p>The <em>gap</em> between P50 and P99 measures consistency. P50 100ms / P99 120ms = tight. P50 100ms / P99 3000ms = something nasty lurking in the tail. "How's the latency" is never one number.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>P50 = typical experience, P99 = worst-case the users complain about and SLAs are written against; averages hide outliers, tails compound across distributed calls, and LLM tails are structurally large from variable output length + batching.</p></div>
+    <div class="chips"><span class="chip">connects → <b>TTFT/TPOT</b></span><span class="chip">connects → <b>batching tradeoff</b></span></div>
+  </article>
+
+  <!-- ===================== CLUSTER B ===================== -->
+  <section class="cluster-banner" id="clB">
+    <div class="ix">Cluster B</div>
+    <h2>Serving &amp; Inference Engineering</h2>
+    <p class="cl-desc">How a real LLM inference service actually works — the prefill/decode split that explains almost everything, batching, parallelism, and pricing.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T4 -->
+  <article class="topic" id="t4">
+    <h3>4 · Throughput vs Latency &amp; Batching</h3>
+    <div class="tagline">batching raises BOTH throughput and latency</div>
+    <p class="lead"><strong>Throughput</strong> = requests/tokens completed per unit time (system output rate). <strong>Latency</strong> = how long one request takes (one user's wait). Batching trades the second for the first.</p>
+
+    <h4>Why batching trades latency for throughput</h4>
+    <p>The GPU hates being underfed. Loading weights from HBM is the expensive part. Process 1 request → load billions of weights for a few tokens, compute units idle. Process 32 together → load each weight <em>once</em>, reuse across all 32 → ~32× useful work for ~same memory cost. <strong>That's the throughput win.</strong> But each request now waits (queue + shared slower step). The <em>bus vs taxi</em>: bus moves far more people/hour but your individual trip is slower.</p>
+
+    <h4>When to use a Batch API (the product)</h4>
+    <p>Submit a large job, provider processes asynchronously within ~24h at ~50% discount. <strong>The decision rule is one question: is a human (or latency-sensitive system) waiting on this response right now?</strong></p>
+    <table class="tbl">
+      <thead><tr><th>Use Batch API</th><th>Use real-time API</th></tr></thead>
+      <tbody>
+        <tr><td>Bulk embeddings (1M docs)</td><td>Chat / copilots</td></tr>
+        <tr><td>Offline eval / LLM-judge</td><td>Agents responding to a person</td></tr>
+        <tr><td>Dataset labeling, synthetic data</td><td>Autocomplete</td></tr>
+        <tr><td>Tolerates minutes-to-hours</td><td>Needs sub-second to few-sec</td></tr>
+      </tbody>
+    </table>
+
+    <div class="summary"><span class="lbl">One line</span><p>Batching raises throughput and latency by amortizing the expensive weight-load across many requests; use a Batch API whenever no one is waiting (bulk embeddings, eval, labeling) for ~50% savings, real-time APIs whenever someone is blocked.</p></div>
+    <div class="chips"><span class="chip">refined by → <b>continuous batching</b></span><span class="chip">root cause → <b>prefill/decode split</b></span></div>
+  </article>
+
+  <!-- T5 -->
+  <article class="topic" id="t5">
+    <h3>5 · Continuous Batching — Resolving the Paradox</h3>
+    <div class="tagline">decode is one-token-per-step, so the batch reforms every step</div>
+    <p class="lead">The confusion: "if batching = load weights once + compute in parallel, how can requests leave mid-flight without breaking parallelism?" The resolution is the single most important fact about LLM inference.</p>
+
+    <div class="insight"><span class="lbl">The key fact</span><p>LLM generation is <strong>step-by-step, one token at a time</strong>. A 200-token answer = 200 forward passes. A "step" = one forward pass = <em>one next token for every request currently in the batch</em>. Within a step, every request needs the identical operation — one pass through the weights. That's perfectly parallel regardless of how far along each request is.</p></div>
+
+    <figure class="viz">
+      <svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg">
+        <text x="360" y="20" text-anchor="middle" class="svg-title">CONTINUOUS BATCHING — roster changes between steps, never mid-step</text>
+        <!-- step N -->
+        <text x="120" y="58" text-anchor="middle" class="svg-label">STEP N</text>
+        <rect x="60" y="70" width="120" height="34" rx="5" fill="#1c212b" stroke="#5fb3a8"/>
+        <text x="120" y="92" text-anchor="middle" class="svg-label-sm" fill="#5fb3a8">A · B · C</text>
+        <text x="120" y="124" text-anchor="middle" class="svg-label-sm">1 token each ∥</text>
+
+        <!-- arrow -->
+        <text x="270" y="80" text-anchor="middle" class="svg-label-sm" fill="#e0a458">B finishes →</text>
+        <text x="270" y="98" text-anchor="middle" class="svg-label-sm" fill="#e0a458">D joins from queue</text>
+        <path d="M205 90 L335 90" stroke="#e0a458" stroke-width="1.5" marker-end="url(#ar)"/>
+        <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#e0a458"/></marker></defs>
+
+        <!-- step N+1 -->
+        <text x="420" y="58" text-anchor="middle" class="svg-label">STEP N+1</text>
+        <rect x="360" y="70" width="120" height="34" rx="5" fill="#1c212b" stroke="#5fb3a8"/>
+        <text x="420" y="92" text-anchor="middle" class="svg-label-sm" fill="#5fb3a8">A · C · D</text>
+        <text x="420" y="124" text-anchor="middle" class="svg-label-sm">1 token each ∥</text>
+
+        <!-- KV cache note -->
+        <rect x="60" y="160" width="600" height="60" rx="8" fill="rgba(224,164,88,0.06)" stroke="rgba(224,164,88,0.3)"/>
+        <text x="360" y="184" text-anchor="middle" class="svg-label-sm" fill="#e0a458">Each request's progress lives in its KV CACHE.</text>
+        <text x="360" y="204" text-anchor="middle" class="svg-label-sm">Scheduler just picks which KV caches to include each step · add D = alloc · remove B = free.</text>
+      </svg>
+      <figcaption>The bus stops every block: people get off, people get on, then it drives one block with whoever's aboard. Driving = the parallel forward pass.</figcaption>
+    </figure>
+
+    <p><strong>Static batching</strong> (the old way) locks {A,B,C} until all finish — B's slot sits idle for 170 steps while A finishes. <strong>Continuous batching</strong> lets B leave instantly and D take the slot, keeping the GPU packed with active work every step.</p>
+
+    <div class="summary"><span class="lbl">One line</span><p>Generation is one-token-per-step, so each step is a fully-parallel single forward pass over whoever's present; continuous batching reshuffles membership <em>between</em> steps (state preserved in each request's KV cache), keeping the GPU packed without ever breaking within-step parallelism.</p></div>
+    <div class="chips"><span class="chip">enabled by → <b>PagedAttention / KV cache</b></span></div>
+  </article>
+
+  <!-- T6 -->
+  <article class="topic" id="t6">
+    <h3>6 · LLM Execution Modes (sync / async / streaming)</h3>
+    <div class="tagline">streaming is orthogonal · the real problem is binding job life to connection life</div>
+    <p class="lead">"Synchronous" is overloaded — it means both "held-open blocking connection" AND "non-streaming." Streaming is a <em>separate axis</em>. That's the source of confusion.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Mode</th><th>Connection</th><th>Delivery</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td>Sync request-response</td><td>held open, blocks</td><td>one final result</td><td>fast bounded jobs (&lt;~30s)</td></tr>
+        <tr><td>Sync streaming</td><td>held open</td><td>incremental</td><td>chat — bounded but live tokens</td></tr>
+        <tr><td>Async (job queue)</td><td>submit + poll</td><td>poll for final</td><td>long agent runs, batch</td></tr>
+        <tr><td>Async streaming (pub/sub)</td><td>submit + subscribe</td><td>incremental</td><td>long runs + live progress</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Why agent runtime is variable</h4>
+    <p>An agent is a loop: think → tool → observe → think → … The number of iterations is data-dependent. Simple query = 1 call = 2s; complex = 15 tool calls + retries = 5min. Unbounded and input-dependent.</p>
+
+    <h4>Why load balancers kill long sync connections</h4>
+    <ul>
+      <li><strong>Idle/read timeouts</strong> (30–60s default) terminate held-open connections → client gets 504 even though the server is still working.</li>
+      <li><strong>Streaming only partly helps</strong>: most LB timeouts are <em>idle</em> timeouts; streaming tokens resets the timer — but a 90s silent "thinking" phase still fires it.</li>
+      <li><strong>Connection exhaustion</strong>: each long sync connection ties up a worker slot for the whole job.</li>
+      <li><strong>Deploys/autoscaling drain connections</strong> → a 4-min-in agent run dies.</li>
+      <li><strong>Retry storms</strong>: timeout → client retries → two doomed 5-min runs.</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">The fix</span><p>Decouple job life from connection life: <code>POST</code> → <code>202 + job_id</code> (connection closes in ms), worker runs the agent independent of any connection, client polls or subscribes via a <em>reconnectable</em> SSE/WebSocket. With async, the streaming connection is disposable; with sync, the connection <em>is</em> the job.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Sync is fine for bounded short jobs; the moment runtime is unbounded (agentic loops) you must submit→job-id→poll/subscribe, because LB idle/total timeouts, connection exhaustion, deploy drains, and retry storms all kill long held-open connections. Streaming is a UX layer on top of either, not a substitute.</p></div>
+  </article>
+
+  <!-- T7 -->
+  <article class="topic" id="t7">
+    <h3>7 · The Inference Optimization Stack</h3>
+    <div class="tagline">everything derives from prefill (compute-bound) vs decode (memory-bound)</div>
+
+    <figure class="viz">
+      <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg">
+        <text x="360" y="22" text-anchor="middle" class="svg-title">PREFILL vs DECODE — opposite hardware profiles</text>
+        <!-- prefill -->
+        <rect x="50" y="48" width="290" height="130" rx="10" fill="rgba(95,179,168,0.07)" stroke="#5fb3a8"/>
+        <text x="195" y="74" text-anchor="middle" class="svg-label" fill="#5fb3a8">PREFILL</text>
+        <text x="195" y="98" text-anchor="middle" class="svg-label-sm">All N input tokens in ONE pass ∥</text>
+        <text x="195" y="118" text-anchor="middle" class="svg-label-sm">Big matmul → compute units busy</text>
+        <text x="195" y="142" text-anchor="middle" class="svg-label" fill="#e0a458">COMPUTE-BOUND</text>
+        <text x="195" y="164" text-anchor="middle" class="svg-label-sm">→ prices INPUT tokens (cheap/token)</text>
+        <!-- decode -->
+        <rect x="380" y="48" width="290" height="130" rx="10" fill="rgba(201,126,90,0.07)" stroke="#c97e5a"/>
+        <text x="525" y="74" text-anchor="middle" class="svg-label" fill="#c97e5a">DECODE</text>
+        <text x="525" y="98" text-anchor="middle" class="svg-label-sm">One token at a time, serial</text>
+        <text x="525" y="118" text-anchor="middle" class="svg-label-sm">Read ALL weights per token → idle</text>
+        <text x="525" y="142" text-anchor="middle" class="svg-label" fill="#e0a458">MEMORY-BANDWIDTH-BOUND</text>
+        <text x="525" y="164" text-anchor="middle" class="svg-label-sm">→ prices OUTPUT tokens (costly/token)</text>
+      </svg>
+      <figcaption>This asymmetry is the root of almost every serving optimization.</figcaption>
+    </figure>
+
+    <h4>The levers</h4>
+    <ul>
+      <li><strong>Continuous batching + PagedAttention</strong> — pack concurrent requests densely. PagedAttention manages KV cache like OS virtual memory (non-contiguous pages, no fragmentation) — vLLM's signature innovation, the substrate under everything.</li>
+      <li><strong>Prefill/decode disaggregation</strong> — run the two phases on separate GPU pools so compute-heavy prefill doesn't stall decode streaming (the interference problem). Transfer KV cache between pools over NVLink/InfiniBand. Lets you scale each independently and even use different hardware. Cheaper middle-ground: <em>chunked prefill</em> (break long prefills into chunks, interleave with decode on the same GPU).</li>
+      <li><strong>Parallelism — two categories:</strong></li>
+    </ul>
+
+    <table class="tbl">
+      <thead><tr><th>Type</th><th>What it does</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Data / replica</strong></td><td>N independent copies + LB → scales <em>throughput</em></td><td>model fits on 1 GPU</td></tr>
+        <tr><td><strong>Tensor (TP)</strong></td><td>split each layer/matrix across GPUs, all-reduce every layer → fits + speeds model</td><td>within a node (NVLink)</td></tr>
+        <tr><td><strong>Pipeline (PP)</strong></td><td>split by layers into stages, assembly line</td><td>across nodes</td></tr>
+        <tr><td><strong>Expert (EP)</strong></td><td>distribute MoE experts across GPUs</td><td>MoE models</td></tr>
+        <tr><td><strong>Context / sequence</strong></td><td>split one long sequence across GPUs</td><td>extreme context length</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Decision order:</strong> fits on 1 GPU → replicas. Fits on 1 node → TP then replicate. Bigger → TP in-node + PP across nodes. MoE → add EP. Huge context → add sequence parallel. <em>TP/PP/EP make the model fit &amp; fast; replicas make the service handle volume.</em></p>
+
+    <h4>How prompt caching fits</h4>
+    <p>Prompt/prefix caching saves &amp; reuses the <strong>KV cache of a shared prefix</strong> (system prompt, long doc, few-shot, chat history) → skips recomputing prefill for the repeated part. It's a <em>prefill-side</em> optimization: slashes TTFT, frees prefill capacity. vLLM/SGLang do automatic prefix caching (SGLang's RadixAttention = prefix tree). It does <em>not</em> touch decode or change outputs.</p>
+
+    <div class="summary"><span class="lbl">One line</span><p>Optimization stacks on the prefill(compute)/decode(memory) split: continuous batching + PagedAttention for density, disaggregation (or chunked prefill) to stop prefill stalling decode, parallelism in two flavors (replica for throughput; TP/PP/EP/context to fit &amp; accelerate), and prompt caching as a prefill-side TTFT/cost win.</p></div>
+  </article>
+
+  <!-- T8 -->
+  <article class="topic" id="t8">
+    <h3>8 · Why Output Tokens Cost ~5× Input</h3>
+    <div class="tagline">it's GPU-time per token, traced to prefill vs decode</div>
+    <p class="lead">Input tokens are priced by <strong>prefill</strong>, output tokens by <strong>decode</strong>. Input tokens share one parallel forward pass (cheap/token); each output token needs its own full serial forward pass reading all weights (costly/token).</p>
+
+    <h4>"Are GPUs bad at memory bandwidth?" — No, but you found the bottleneck</h4>
+    <p>An H100 has ~3.3 TB/s HBM bandwidth — staggering. The issue is the <strong>compute-to-bandwidth ratio</strong> (FLOPs per byte is enormous). Prefill exploits it (many tokens per weight load = high arithmetic intensity). Decode wastes it (load a huge weight to multiply by <em>one</em> token = low arithmetic intensity, compute idle). <em>GPUs aren't bad at bandwidth; decode is structurally bad at using the GPU's compute.</em> Batching partially rescues this by raising arithmetic intensity.</p>
+
+    <h4>The economics chain</h4>
+    <ul>
+      <li>GPU-time is the real cost (providers rent by the hour).</li>
+      <li>Output tokens consume far more GPU-seconds each (one full serial pass vs a fraction of a shared pass).</li>
+      <li>Output ties up a slot + KV memory for the whole generation (opportunity cost: fewer concurrent users).</li>
+      <li>Output batches less efficiently than prefill → lower tokens/sec/GPU → higher per-token cost.</li>
+    </ul>
+    <p>Electricity is a real but <em>minor</em> component — the dominant cost is GPU capital + opportunity cost. The 2–8× ratio (varies by model) tracks the GPU-second difference. GQA/MLA and better batching narrow the gap; cached input is even cheaper (skips prefill compute).</p>
+
+    <div class="summary"><span class="lbl">One line</span><p>Output costs more because input is processed in the compute-efficient parallel prefill (many tokens/pass) while each output token is a full memory-bound decode pass (GPU compute idle, hardware occupied longer); pricing tracks GPU-time-per-token and decode burns far more.</p></div>
+  </article>
+
+  <!-- T9 -->
+  <article class="topic" id="t9">
+    <h3>9 · Caching for Consistency: Semantic vs Prompt</h3>
+    <div class="tagline">semantic caching enforces consistency · prompt caching does NOT</div>
+    <p class="lead">A trap hides in the question: the two cache types attack different problems. Semantic caching helps consistency; prompt caching helps latency/cost only.</p>
+
+    <h4>Semantic caching — the consistency tool</h4>
+    <p>Keys responses by the query's <strong>embedding</strong>. New query → embed → vector similarity search → above threshold → return the cached response. "What's your refund policy?" and "How do refunds work?" embed nearby → both get the <em>same stored answer</em> → consistency enforced because paraphrases collapse to one response.</p>
+    <div class="trap"><span class="lbl">The trap — false cache hits</span><p>Loose threshold → wrong answers served confidently. Embeddings are blind to <em>negation</em> ("is X allowed" vs "is X not allowed" sit very close). Tight threshold → low hit rate. The whole game is threshold tuning. Great for FAQ/bounded domains, dangerous for high-stakes specifics.</p></div>
+
+    <h4>Prompt caching — NOT a consistency tool</h4>
+    <p>Caches the <strong>KV cache of a shared prefix</strong> (intermediate computation), not the output. After loading the prefix, the model still samples and decodes fresh → with temp&gt;0, two requests on the same cached prefix can still diverge. It buys latency &amp; cost, nothing about output sameness.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Lever</th><th>Fixes</th></tr></thead>
+      <tbody>
+        <tr><td>Exact-match cache (hash full prompt)</td><td>identical inputs → same output · the only true determinism guarantee</td></tr>
+        <tr><td>Semantic cache</td><td>similar inputs → same output</td></tr>
+        <tr><td>temperature=0</td><td>reduces (not eliminates) variance</td></tr>
+        <tr><td>Structured output / schema</td><td>format consistency</td></tr>
+      </tbody>
+    </table>
+    <div class="insight"><span class="lbl">Subtle point</span><p>temp=0 ≠ deterministic on real stacks — batched GPU matmuls aren't associative, MoE routing depends on batch composition → tiny logit diffs flip the argmax. Exact-match caching is the only hard guarantee.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Semantic caching enforces consistency by returning a stored output for similar inputs (watch negation/false-hits, tune threshold); prompt caching only caches prefix KV computation for latency/cost while generation still runs fresh — for true determinism use exact-match caching.</p></div>
+  </article>
+
+  <!-- ===================== CLUSTER C ===================== -->
+  <section class="cluster-banner" id="clC">
+    <div class="ix">Cluster C</div>
+    <h2>LLM Internals &amp; Prompting</h2>
+    <p class="cl-desc">How models acquire structured-output/tool-calling behavior, and the reasoning "shapes" you steer them with.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T10 -->
+  <article class="topic" id="t10">
+    <h3>10 · Training Structured Output &amp; Tool Calling</h3>
+    <div class="tagline">not a new capability — text generation shaped by data + constraints</div>
+    <div class="insight"><span class="lbl">The reframe</span><p>A tool call is just <strong>text in a specific format</strong> the model emits, which your runtime intercepts and executes. The training problem isn't "teach a new skill" — it's "reliably produce well-formed, schema-valid format-text instead of prose."</p></div>
+
+    <table class="tbl">
+      <thead><tr><th>Stage</th><th>Contribution</th></tr></thead>
+      <tbody>
+        <tr><td>Pretraining</td><td>Raw JSON/code syntax literacy (emerges free from code in corpus)</td></tr>
+        <tr><td>Special tokens + chat template</td><td>Standardized parseable structure: tool-call markers, <code>tool</code> role, result separators</td></tr>
+        <tr><td><strong>SFT</strong> (the core)</td><td>Format + argument extraction + when-to-call, from synthetic <em>verified</em> traces. Includes negatives (don't over-call), ambiguity, parallel calls, error-recovery. Data is heavily synthetic, filtered for: does JSON parse? args match schema? right function?</td></tr>
+        <tr><td>RL (esp. verifiable rewards)</td><td>Sharpens selection, arg accuracy, restraint. Tool correctness is <em>programmatically checkable</em> → clean reward (big reason agentic models improved fast)</td></tr>
+        <tr><td>Constrained decoding (inference, not training)</td><td>Guarantees syntactic validity by <em>masking</em> tokens that violate the schema at each step (Outlines/XGrammar, GBNF)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight"><span class="lbl">Division of labor</span><p>Training makes the model <em>want</em> the right structure &amp; content (which tool, what args); constrained decoding <em>guarantees</em> the output parses. You need both — perfect JSON with wrong args is useless, and right call with broken JSON is useless.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Same next-token engine: pretraining gives JSON literacy, SFT on synthetic verified tool-call traces teaches format + when-to-use, RL with execution-checkable rewards sharpens correctness, and constrained decoding guarantees the output parses. No new architecture.</p></div>
+  </article>
+
+  <!-- T11 -->
+  <article class="topic" id="t11">
+    <h3>11 · Prompting: Chain-of-Thought · Self-Reflection · ReAct</h3>
+    <div class="tagline">three different shapes of reasoning</div>
+    <table class="tbl">
+      <thead><tr><th>Technique</th><th>Shape</th><th>Core idea</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Chain of Thought</strong></td><td>linear reasoning</td><td>Generate intermediate steps before the answer. More tokens = more compute; each step conditions the next. <em>2026 note: now largely trained-IN via RL (o-series, R1, extended thinking) — shifted from prompt trick to built-in behavior.</em></td></tr>
+        <tr><td><strong>Self-reflection</strong> (Self-Refine / Reflexion)</td><td>critique loop</td><td>Generate → critique own output → revise. Works because verification &lt; generation. Reflexion adds memory of past failures. Risk: reinforces its own mistakes if the critique is also wrong.</td></tr>
+        <tr><td><strong>ReAct</strong> (Reason + Act)</td><td>action loop</td><td>Thought → Action(tool) → Observation → Thought → … The foundation of most <em>agents</em>; grounds reasoning in real observations → less hallucination. CoT is reasoning-only; ReAct is reasoning + acting on the world.</td></tr>
+      </tbody>
+    </table>
+    <div class="summary"><span class="lbl">One line</span><p>CoT = think step-by-step (now often trained-in); self-reflection = generate, critique, revise; ReAct = think-act-observe loop that powers agents.</p></div>
+  </article>
+
+  <!-- T12 -->
+  <article class="topic" id="t12">
+    <h3>12 · DSPy — Programming, Not Prompting</h3>
+    <div class="tagline">treat prompts as optimizable parameters</div>
+    <p class="lead">Not a prompting technique — a <strong>framework for <em>programming</em> LLMs</strong>. Define your pipeline as modules with input/output <strong>signatures</strong> (<code>question → answer</code>) and let DSPy compile/optimize the actual prompts against a metric.</p>
+
+    <h4>How the optimization works</h4>
+    <p>Give it (1) program structure, (2) a small training set, (3) a metric. Optimizers (BootstrapFewShot, MIPRO) <strong>search over prompt configurations</strong> to maximize the metric:</p>
+    <ul>
+      <li><strong>Bootstrap few-shot</strong>: run the pipeline on training data, keep high-scoring traces, auto-insert them as demonstrations — <em>learns which examples to include</em>.</li>
+      <li><strong>Optimize instructions</strong>: MIPRO uses a model to propose candidate instructions, then evaluates them.</li>
+      <li>Prompt optimization as guided <em>search</em> (not gradient descent — weights stay frozen; it optimizes the text <em>around</em> the model). Mental model: "compiler for prompts."</li>
+    </ul>
+    <p><strong>Popularity (2026):</strong> rising in credibility among serious LLM engineers tired of brittle hand-tuned prompts; respected (Stanford NLP); still niche vs LangChain/LlamaIndex name-recognition due to a learning curve. Worth knowing because mentioning it signals you think of prompting as an optimization problem.</p>
+    <div class="summary"><span class="lbl">One line</span><p>DSPy treats prompts as optimizable parameters and auto-compiles few-shot examples + instructions against a metric via guided search; rising among sophisticated builders, still niche vs mainstream tooling.</p></div>
+  </article>
+
+  <!-- ===================== CLUSTER D ===================== -->
+  <section class="cluster-banner" id="clD">
+    <div class="ix">Cluster D</div>
+    <h2>Retrieval &amp; RAG</h2>
+    <p class="cl-desc">Distance metrics, the ANN index families, the query pipeline, and the specific pain of tables.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T13 -->
+  <article class="topic" id="t13">
+    <h3>13 · Vector Distance Metrics</h3>
+    <div class="tagline">L1→L∞ are one formula with a knob · cosine sits outside it</div>
+    <div class="formula">Minkowski:  L_p(x,y) = ( Σ |xᵢ − yᵢ|ᵖ )^(1/p)
+<span class="cmt">  p=1  → L1 (Manhattan): sum of absolute diffs
+  p=2  → L2 (Euclidean): straight-line, squared penalty
+  p=∞  → L∞ (Chebyshev): max|xᵢ−yᵢ|, only the worst dim</span></div>
+    <p>As <code>p</code> rises, you weight the largest coordinate diff more and ignore small ones. <strong>Low p spreads attention across all dims; high p focuses on the worst.</strong> Cosine is separate — measures angle only, magnitude-blind.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Metric</th><th>Penalizes</th><th>Use when</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Cosine</strong></td><td>angle only (magnitude-blind)</td><td>direction = meaning, magnitude irrelevant — <em>almost all embeddings</em></td></tr>
+        <tr><td><strong>L2</strong></td><td>large deviations (squared)</td><td>magnitude matters; smooth geometric space</td></tr>
+        <tr><td><strong>L1</strong></td><td>all deviations linearly</td><td>outlier robustness; high dimensions</td></tr>
+        <tr><td><strong>L∞</strong></td><td>only the worst dim</td><td>any single dim out of tolerance (constraints)</td></tr>
+        <tr><td><strong>Dot product</strong></td><td>alignment + magnitude</td><td>magnitude is meaningful (popularity/confidence)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="insight"><span class="lbl">The crucial AI reality</span><p>For embeddings, <strong>use the metric the model was trained under</strong> (usually cosine or dot product) — this overrides taste. On <em>normalized</em> vectors, cosine and L2 give identical rankings (<code>‖a−b‖² = 2 − 2·cos</code> for unit vectors), so the real decision is "do I normalize?" L1/L∞ rarely suit dense neural embeddings. High-D distance concentration is why cosine/normalized-dot wins (angle stays discriminative when raw distances concentrate).</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>L1/L2/L∞ are one Minkowski formula tuned by p (all-dims → worst-dim); cosine measures direction only. For embeddings use what the model trained under (usually cosine/dot), remember normalized cosine≡L2 ranking, and reach for L1/L∞ in classical ML/constraints.</p></div>
+  </article>
+
+  <!-- T14 -->
+  <article class="topic" id="t14">
+    <h3>14 · ANN Indexes — HNSW · Annoy · ScaNN</h3>
+    <div class="tagline">three families: graph · tree · quantization</div>
+    <table class="tbl">
+      <thead><tr><th></th><th>HNSW</th><th>Annoy</th><th>ScaNN</th></tr></thead>
+      <tbody>
+        <tr><td>Family</td><td>Graph (navigable small world)</td><td>Tree forest (random hyperplanes)</td><td>Quantization + partition</td></tr>
+        <tr><td>Recall/latency</td><td><strong>Best overall</strong></td><td>Lower</td><td>SOTA at scale (esp. MIPS)</td></tr>
+        <tr><td>Memory</td><td>High (full graph in RAM)</td><td>Low-ish (mmap, on-disk)</td><td>Low (quantized)</td></tr>
+        <tr><td>Updates</td><td>Incremental OK, deletes degrade</td><td>Immutable (rebuild)</td><td>Limited/batch</td></tr>
+        <tr><td>2026 status</td><td>Dominant default</td><td>Dated/legacy</td><td>Strong at scale, needs tuning</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>How they work:</strong> HNSW = multi-layer graph, greedily hop toward query, descend layers (skip-list for vectors). Annoy = forest of random-hyperplane trees, traverse + merge leaves; mmap'd so loads instantly &amp; shares across processes. ScaNN = <em>anisotropic</em> quantization (preserves components that matter for inner-product ranking, not raw reconstruction) + partition + rerank.</p>
+
+    <div class="insight"><span class="lbl">Decision rule</span><p>Default to HNSW. Drop to quantization (ScaNN / IVF-PQ) when vectors won't fit in RAM. Annoy only for static read-only/legacy. At real scale, production <em>composes</em>: graph navigation + quantization compression, not one pure algorithm.</p></div>
+
+    <h4>The two "are these the same?" clarifications</h4>
+    <ul>
+      <li><strong>Annoy vs KD-tree</strong>: same tree family, different split. KD-tree = <em>axis-aligned</em>, one tree, dies past ~20 dims. Annoy = <em>random hyperplanes</em>, a forest, redesigned to survive high-D embeddings.</li>
+      <li><strong>ScaNN vs Product Quantization</strong>: ScaNN <em>uses</em> the PQ family but optimizes for <em>ranking accuracy</em> (anisotropic) rather than <em>reconstruction accuracy</em>. "Smarter PQ for ranking," wrapped in partition+rerank — not plain PQ.</li>
+    </ul>
+
+    <div class="summary"><span class="lbl">One line</span><p>HNSW (graph) = high-recall RAM-hungry default; Annoy (random-hyperplane tree forest) = simple mmap-friendly lower-recall legacy; ScaNN (anisotropic quantization) = memory-efficient scale/MIPS choice. Default HNSW, switch to quantization when RAM-bound, and production composes the two.</p></div>
+  </article>
+
+  <!-- T15 -->
+  <article class="topic" id="t15">
+    <h3>15 · Query Rewriting &amp; Post-Retrieval Best Practices</h3>
+    <div class="tagline">rewriting is PRE-retrieval · reranking is the real post-retrieval win</div>
+    <div class="formula">Query → [PRE: rewrite/expand/decompose] → Retrieve → [POST: rerank/compress/filter] → LLM</div>
+
+    <h4>Pre-retrieval (fix the query before it hits the retriever)</h4>
+    <ul>
+      <li><strong>Conversational rewrite</strong> — resolve pronouns into standalone queries ("what about its pricing?" → "Qdrant's pricing"). <em>Non-negotiable for chat</em> — retrieval is stateless.</li>
+      <li><strong>Multi-query</strong> — generate paraphrases, retrieve each, merge with Reciprocal Rank Fusion. Highest-ROI for ambiguous queries.</li>
+      <li><strong>Decomposition</strong> — break multi-part questions into sub-queries (multi-hop/comparative).</li>
+      <li><strong>HyDE</strong> — write a fake answer, embed <em>that</em> (closer to answer-docs than the question).</li>
+      <li>Route by complexity (don't over-rewrite simple queries — latency tax); keep the original as a fallback.</li>
+    </ul>
+
+    <h4>Post-retrieval (what to actually do after)</h4>
+    <ul>
+      <li><strong>Reranking — the highest-value step.</strong> Retrieve wide (top 50–100 via cheap bi-encoder), <strong>rerank to narrow (top 3–5) with a cross-encoder</strong> that scores (query,doc) jointly for precision. The recall-then-precision funnel.</li>
+      <li><strong>Contextual compression</strong> — trim chunks to query-relevant sentences (reduces "lost in the middle").</li>
+      <li><strong>Dedupe + MMR diversity</strong>.</li>
+      <li><strong>Ordering</strong> — LLMs attend best to start &amp; end → put best chunks at the edges, not buried in the middle.</li>
+      <li><strong>Relevance gating</strong> — if top reranked result is below threshold, abstain ("I don't have that") rather than hallucinate.</li>
+    </ul>
+
+    <div class="summary"><span class="lbl">One line</span><p>Rewriting is pre-retrieval (conversational de-referencing mandatory, then route into expand/multi-query/decompose/HyDE); the true post-retrieval wins are retrieve-wide-then-cross-encoder-rerank-narrow, compress/dedupe, edge-ordering to dodge lost-in-the-middle, and relevance-gating to abstain on weak context.</p></div>
+    <div class="chips"><span class="chip">links to → <b>cross-encoder (Microsoft reranking work)</b></span></div>
+  </article>
+
+  <!-- T16 -->
+  <article class="topic" id="t16">
+    <h3>16 · Tabular Data in RAG</h3>
+    <div class="tagline">naive RAG flattens the 2D grid and chunks rows away from headers</div>
+    <h4>Why naive RAG mangles tables</h4>
+    <ul>
+      <li><strong>Flattens 2D → 1D</strong>: the meaning lives in the grid (cell ↔ column header ↔ row label); linear parsing destroys the association — "120" floats free of "Revenue, Q2, 2025".</li>
+      <li><strong>Chunking splits mid-grid</strong>: headers land in chunk A, data in chunk B → headerless, uninterpretable numbers.</li>
+    </ul>
+
+    <h4>Good loading techniques (worst → best)</h4>
+    <ul>
+      <li><strong>Structure-aware extraction</strong> → HTML (complex/merged cells) or Markdown (simple). Use layout parsers (unstructured, LlamaParse, Docling, Azure DI).</li>
+      <li><strong>Keep tables atomic</strong>; if splitting, <em>repeat the header row in every sub-chunk</em>.</li>
+      <li><strong>Row-level serialization (highest-leverage for retrieval)</strong>: turn each row into a self-describing sentence — <code>"In Q2 2025, Revenue was 120."</code> Now the value is glued to its meaning and the embedding captures it.</li>
+      <li><strong>Table summarization / multi-vector</strong>: embed a clean summary, store/return the full table.</li>
+      <li><strong>Preserve caption + link</strong> to the surrounding narrative.</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">The deeper fork: retrieval vs computation</span><p><strong>(A) Semantic lookup</strong> ("Q2 2025 revenue?") → row-serialization solves it, the answer is retrievable. <strong>(B) Aggregation/computation</strong> ("average across quarters?") → RAG <em>cannot</em> do this reliably; the answer isn't in any chunk. Route to <strong>Text-to-SQL</strong>: load the table into SQL/DataFrame, have the LLM write a query, let the database do the math. So the real best practice is a <em>router</em>: lookup → vector retrieval; analytical → Text-to-SQL.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Good loaders parse tables structure-aware, keep them atomic with headers repeated in any split, and (key) serialize each row into header-injected sentences so values stay glued to meaning; for aggregation queries don't retrieve at all — route to Text-to-SQL.</p></div>
+  </article>
+
+  <!-- ===================== CLUSTER E ===================== -->
+  <section class="cluster-banner" id="clE">
+    <div class="ix">Cluster E</div>
+    <h2>Evaluation</h2>
+    <p class="cl-desc">From classic n-gram metrics to model-vs-model Elo to the messy, gamed reality of 2026 benchmarks.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T17 -->
+  <article class="topic" id="t17">
+    <h3>17 · BLEU · ROUGE · Beam Search</h3>
+    <div class="tagline">BLEU = precision (translation) · ROUGE = recall (summarization)</div>
+
+    <h4>BLEU</h4>
+    <p>Modified n-gram <strong>precision</strong> (n=1..4, geometric mean). <em>Clipped</em> precision stops "the the the the" gaming (clip count to max in reference). <strong>Brevity penalty</strong> punishes too-short outputs (its backdoor way of caring about recall).</p>
+    <div class="formula">BLEU = BP × exp( Σ wₙ · log precisionₙ )
+<span class="cmt">denominator = CANDIDATE n-grams (precision)</span></div>
+
+    <h4>ROUGE</h4>
+    <p>N-gram <strong>recall</strong> (denominator = <em>reference</em> n-grams — that single swap is the core BLEU/ROUGE distinction). ROUGE-N = n-gram recall; <strong>ROUGE-L</strong> = Longest Common Subsequence F-measure. Reports P/R/F1 in practice. Clean framing: <em>BLEU designed precision-first, ROUGE recall-first.</em></p>
+    <p>Both do surface n-gram matching → blind to synonyms/paraphrase/meaning → the field moved to <strong>BERTScore</strong> (embedding cosine) and <strong>LLM-as-judge</strong>.</p>
+
+    <h4>Beam search</h4>
+    <p>Turns per-step token distributions into a sequence. <strong>Greedy</strong> = pick top token each step (myopic). <strong>Beam search</strong> = keep top <em>k</em> sequences each step, expand all, keep best k, repeat. Greedy = beam with k=1.</p>
+    <ul>
+      <li>Catches: k× cost; <strong>length bias</strong> (longer = more sub-1 probs multiplied → fix with length normalization); <strong>blandness</strong> (optimizes for high probability → safe/generic).</li>
+      <li><strong>Beam for target-answer tasks (translation/summarization); sampling (temperature/top-k/top-p) for open-ended generation</strong> — which is why chat LLMs use sampling, not beam.</li>
+    </ul>
+
+    <div class="summary"><span class="lbl">One line</span><p>BLEU = clipped n-gram precision + brevity penalty (translation); ROUGE = n-gram/LCS recall, F1 in practice (summarization); both surface-level and being replaced by BERTScore/LLM-judge. Beam search keeps top-k sequences for target tasks; sampling for creative generation.</p></div>
+  </article>
+
+  <!-- T18 -->
+  <article class="topic" id="t18">
+    <h3>18 · Elo Scoring for Model Comparison</h3>
+    <div class="tagline">sigmoid expectation + SGD update · tie = 0.5</div>
+    <p class="lead">Elo converts a <strong>rating difference</strong> into an <strong>expected win probability</strong>, then nudges ratings by the <em>surprise</em> (actual − expected). Big surprise → big change; expected result → tiny change.</p>
+
+    <div class="formula">Expected:  E_A = 1 / (1 + 10^((R_B − R_A)/400))
+<span class="cmt">  every 400 points = 10× the odds · equal ratings = 0.5</span>
+
+Update:    R_A_new = R_A + K · (S_A − E_A)
+<span class="cmt">  S_A: win=1, loss=0, TIE=0.5 · K = learning rate (step size)
+  (S_A − E_A) = the surprise term · Elo is zero-sum</span></div>
+
+    <p>Worked: both at 1500, K=32, A beats B → E_A=0.5, R_A=1516, R_B=1484 (A gains 16, B loses 16). A 1700 model <em>tying</em> a 1300 model <em>loses</em> points (was expected to win, scored only 0.5).</p>
+
+    <div class="insight"><span class="lbl">Applying to offline eval (the wrinkles)</span><p>Sequential Elo is <em>order-dependent</em> — bad for a fixed test set. Fix: shuffle &amp; average over many orderings (what LMSYS Arena does), or use <strong>Bradley-Terry / logistic regression</strong> (the order-independent batch MLE of the same model). <em>Elo is the online SGD approximation; Bradley-Terry is the closed-form MLE.</em> With only 2 models, Elo is overkill — just report win-rate + CI; Elo earns its keep with many models. Watch LLM-judge bias (position/length/self-preference) — Elo faithfully propagates it.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Elo = sigmoid expectation on rating gap + one SGD step on the surprise (tie scores 0.5); for offline test sets average over orderings or use Bradley-Terry (order-invariant MLE), and beware judge bias contaminating the win/loss labels.</p></div>
+  </article>
+
+  <!-- T19 -->
+  <article class="topic" id="t19">
+    <h3>19 · 2026 Benchmarks &amp; the Gaming Problem</h3>
+    <div class="tagline">old benchmarks are dead · four distinct gaming mechanisms</div>
+    <p class="lead">The structural shift: benchmarks the industry relied on two years ago are <strong>saturated</strong>. MMLU went GPT-3 ~35% (2021) → 99% (2026) → measures nothing. GSM8K, HumanEval, basic MMLU are in the graveyard.</p>
+
+    <h4>What still carries signal</h4>
+    <table class="tbl">
+      <thead><tr><th>Domain</th><th>Live benchmarks</th></tr></thead>
+      <tbody>
+        <tr><td>Reasoning/knowledge</td><td><strong>GPQA Diamond</strong> (grad science), <strong>HLE</strong> (Humanity's Last Exam — built to stay unsaturated, &lt;50%, damning calibration: confident when wrong), ARC-AGI-2/3</td></tr>
+        <tr><td>Coding</td><td><strong>SWE-bench Verified</strong> (real GitHub issues, ~80% frontier), <strong>LiveCodeBench</strong> (contamination-resistant via post-cutoff date-stamping)</td></tr>
+        <tr><td>Math</td><td>AIME 2025/2026</td></tr>
+        <tr><td>Human preference</td><td>Arena Elo (LMSYS)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Agent benchmarks (distinct category)</h4>
+    <ul>
+      <li><strong>GAIA</strong> — general assistant, multi-step web/file/reasoning (~75% top agents)</li>
+      <li><strong>τ²-bench</strong> — tool-agent-user with policy adherence; the <em>reliability</em> benchmark (even top models &lt;50%, pass^8 &lt;25%)</li>
+      <li><strong>OSWorld</strong> — real desktop computer use · <strong>WebArena</strong> — browser · <strong>Terminal-Bench</strong> — DevOps</li>
+      <li><strong>METR HCAST / Time Horizons</strong> — longest task an agent finishes 50% of the time</li>
+    </ul>
+
+    <h4>The four gaming mechanisms (don't conflate)</h4>
+    <ul>
+      <li><strong>1 · Contamination</strong> — test set leaks into training (removing contaminated GSM8K dropped accuracy up to 13%). Defense: post-cutoff/held-out benchmarks.</li>
+      <li><strong>2 · Scaffold/harness inflation</strong> — same model swings 30+ points by orchestration (Opus 4.5: 80.9% Verified vs 45.9% Pro/SEAL — same model, the harness differs). Vendor numbers aren't directly comparable.</li>
+      <li><strong>3 · Benchmark design flaws</strong> — Berkeley got ~100% on several by exploiting validation infra (public answers on HuggingFace, agent code runs in the evaluator's environment). SWE-bench-Verified: a wrong patch can still pass tests.</li>
+      <li><strong>4 · Selective reporting</strong> — best-of-N, best scaffold, single favorable runs inflate by 5–15 points.</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">How to read them</span><p>Benchmarks are diagnostic tests, not verdicts (a cholesterol test doesn't predict blood pressure). No single benchmark — use a <em>portfolio</em>, and the only one that matters for you is a <strong>custom eval of 100–200 cases from your real workload</strong>. Extra traps: effective context is only 50–65% of advertised (RULER); single-run success ≠ reliability (pass^k collapse).</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>Old benchmarks saturated &amp; dead; live ones (GPQA/HLE/SWE-bench Verified/LiveCodeBench + agentic GAIA/τ²/OSWorld) carry signal but are distorted by contamination, scaffold inflation, design flaws, and selective reporting — use public benchmarks to shortlist and a custom multi-run domain eval to decide. Progress is real; the magnitude in any launch is inflated.</p></div>
+  </article>
+
+  <!-- ===================== CLUSTER F ===================== -->
+  <section class="cluster-banner" id="clF">
+    <div class="ix">Cluster F</div>
+    <h2>Reasoning &amp; Planning</h2>
+    <p class="cl-desc">The contested, fast-moving question of whether foundation models can actually plan.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T20 -->
+  <article class="topic" id="t20">
+    <h3>20 · The Planning Capabilities Debate</h3>
+    <div class="tagline">went from "can't plan" to "can plan with scaffolding + verifiers"</div>
+    <h4>The timeline</h4>
+    <ul>
+      <li><strong>2022–23</strong>: "LLMs can't plan." Kambhampati/ASU PlanBench/Blocksworld — GPT-4 abysmal, success drops as complexity rises. Framing: "approximate retrieval, not principled reasoning." Self-critique didn't rescue it.</li>
+      <li><strong>2024</strong>: the LLM-Modulo compromise — even skeptics: "LLMs can't plan, but can <em>help</em> planning." Use LLM as idea-generator/translator/critic + an external verifier or classical planner for guarantees.</li>
+      <li><strong>Late 2024–25</strong>: reasoning models (o1/o3, R1) shift the ground — skeptics' own re-runs call o1 "a quantum improvement... still far from saturating." This is the jump you sensed; it's real.</li>
+      <li><strong>2025–26</strong>: line moved, gap persists — still lag classical planners on hard combinatorial problems; new long-horizon/spatial benchmarks show failures moved to harder regimes ("systemic deficiency in long-term action representation").</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">Where consensus sits</span><p>(1) Capability is real but <strong>degrades with horizon &amp; complexity</strong> — the most robust finding. (2) Split: <em>autonomous one-shot planning</em> = weak; <em>plan-with-scaffolding</em> (ReAct, verifiers, replanning) = where wins are. (3) <strong>The verifier insight</strong>: planning works reliably when there's a sound verifier to check the plan (why coding/math advanced faster — cheap to verify); unreliable when correctness rests on the model's own judgment. (4) Unresolved: "real reasoning vs sophisticated retrieval" is partly empirical, partly definitional.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>From "can't plan" to "plans well on short-horizon &amp; verifiable tasks with the right scaffolding," but autonomous long-horizon planning with guarantees is still unsolved — so production agents pair reasoning models with verifiers + replanning loops rather than trusting one-shot plans.</p></div>
+  </article>
+
+  <!-- ===================== CLUSTER G ===================== -->
+  <section class="cluster-banner" id="clG">
+    <div class="ix">Cluster G</div>
+    <h2>AI Security</h2>
+    <p class="cl-desc">Guardrails &amp; the metrics that keep them honest, the 2026 attack landscape, and a foresight on where it's all heading.</p>
+    <div class="cluster-rule"></div>
+  </section>
+
+  <!-- T21 -->
+  <article class="topic" id="t21">
+    <h3>21 · Guardrails &amp; Safety Metrics</h3>
+    <div class="tagline">guardrails are a model-independent pipeline · track BOTH sides of the tension</div>
+    <div class="formula">Input → [INPUT GUARDS] → LLM → [OUTPUT GUARDS] → User
+         ↓                          ↓
+   block/flag/sanitize    block/regenerate/redact</div>
+
+    <h4>Input guards</h4>
+    <p>Prompt-injection/jailbreak detection · PII redaction (Presidio) · topic/scope enforcement · content moderation.</p>
+    <h4>Output guards</h4>
+    <p>Content safety re-check · <strong>hallucination/groundedness</strong> (often highest-value for factual RAG) · schema validation · PII leakage · brand/business rules.</p>
+
+    <h4>Implementation (cheap → expensive, run cheap first)</h4>
+    <table class="tbl">
+      <thead><tr><th>Technique</th><th>For</th></tr></thead>
+      <tbody>
+        <tr><td>Regex/rules</td><td>PII patterns, banned terms, format</td></tr>
+        <tr><td>Small classifiers</td><td>toxicity, injection, topic</td></tr>
+        <tr><td>Guard models (Llama Guard, ShieldGemma, NeMo)</td><td>multi-category safety</td></tr>
+        <tr><td>LLM-as-judge</td><td>nuanced groundedness/policy (expensive)</td></tr>
+      </tbody>
+    </table>
+    <p>Run in <strong>parallel</strong> not serial; tier by risk. <strong>Streaming dilemma</strong>: full-response guards conflict with token streaming → buffered streaming, optimistic+retract, or block-then-release by risk tolerance. <strong>Failure policy</strong>: block+fallback / regenerate / redact / escalate / degrade / <em>shadow-mode log</em> (deploy new guards monitor-only first).</p>
+
+    <div class="insight"><span class="lbl">The metric discipline — both sides</span><p>Security and experience are in <em>direct tension</em>. Frame as a confusion matrix on "should this have been blocked?":</p></div>
+    <table class="tbl">
+      <thead><tr><th></th><th>Actually harmful</th><th>Actually benign</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Blocked</strong></td><td>True Positive ✓</td><td style="color:var(--rose)">False Positive = <strong>false refusal</strong></td></tr>
+        <tr><td><strong>Allowed</strong></td><td style="color:var(--rose)">False Negative = <strong>security failure</strong></td><td>True Negative ✓</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li><strong>Security (min false neg)</strong>: attack-success/jailbreak-bypass rate, harmful-output rate, PII-leakage, groundedness-failure.</li>
+      <li><strong>Experience (min false pos)</strong>: <strong>false refusal rate</strong> (the UX killer — over-blocking benign requests; the "how do I kill a Python process" type), false-refusal by category, user-reported false blocks.</li>
+      <li>Pick the threshold per domain as a <em>product decision</em> (healthcare → tolerate more false refusals; creative tool → tolerate slightly more risk). Maintain a dual eval set (attacks + benign-borderline); red-team continuously.</li>
+    </ul>
+
+    <div class="summary"><span class="lbl">One line</span><p>Guardrails = model-independent input/output pipeline (rules→classifiers→guard-models→LLM-judge, parallel + tiered, each wired to a failure policy), and the non-negotiable is tracking both security failures (false negatives) AND false refusals (false positives) since tightening one worsens the other — tune the threshold per domain, shadow-deploy first.</p></div>
+  </article>
+
+  <!-- T22 -->
+  <article class="topic" id="t22">
+    <h3>22 · Attack Landscape &amp; the Frontier</h3>
+    <div class="tagline">prompt injection is architecturally unsolved · defenses must be structural</div>
+    <div class="insight"><span class="lbl">The root</span><p>LLMs cannot reliably distinguish trusted instructions from untrusted data — to a model, system prompt, user message, retrieved doc, and tool output are all just tokens. There's no hardware instruction/data boundary. Best-defended models still bypassed ~50% of the time with 10 attempts (Intl AI Safety Report 2026).</p></div>
+
+    <h4>The 2026 attack surfaces (OWASP Agentic Top: injection · memory poisoning · tool misuse · supply chain · exfiltration)</h4>
+    <ul>
+      <li><strong>Indirect prompt injection</strong> — malicious instructions hidden in retrieved/processed content (not typed by user). Real: hidden in PR descriptions → RCE in Copilot (CVE-2025-53773, CVSS 9.6); EchoLeak zero-click exfiltration in M365 Copilot; a PDF with white-on-white base64 instructions drove Claude to write to a SCADA system and trip a pump. Hiding: white-on-white, zero-width Unicode, base64, image alt-text, HTML comments.</li>
+      <li><strong>Supply chain</strong> — Axios npm (100M weekly downloads) got two poisoned versions deploying a RAT in a 39-min window; a coordinated campaign hit Claude Code/Cursor via 30+ malicious skills; 13.4% of agent skills had critical issues. Agentic supply chains are <em>dynamic</em> (fetch &amp; execute at runtime, no review); a poisoned plugin looks like a feature update. <strong>Tool/skill description poisoning</strong> = the "agent installs by description" vector you flagged.</li>
+      <li><strong>MCP exploits</strong> — 8,000+ MCP servers scanned, many with open admin/no-auth; once wired to tools, injection becomes a code-execution primitive (Semantic Kernel RCE).</li>
+      <li><strong>Memory poisoning · config-file injection</strong> (CLAUDE.md, .cursorrules) · secret leakage (3 coding agents leaked secrets via one injection).</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">Why "use AI to defend AI" fails (Willison)</span><p>"You can't solve AI security problems with more AI." Guardrail classifiers are probabilistic (train on yesterday's attacks; attacker needs one bypass). Web security learned this — we use parameterization, sandboxing, least privilege. <strong>Structural defenses, not predictive ones.</strong> If the model is part of the attack surface, you can't trust it to enforce its own security.</p></div>
+
+    <h4>The defensive frontier (architectural)</h4>
+    <ul>
+      <li><strong>Dual-LLM pattern</strong> — Privileged LLM plans &amp; uses tools but never sees untrusted content; Quarantined LLM reads untrusted content but has <em>no</em> tools. Breaks the path injection needs to reach the actor.</li>
+      <li><strong>CaMeL (DeepMind) — current SOTA</strong> — custom interpreter tracks <em>data provenance</em> via capability tags, enforces policy on tool calls by trust level (control-flow integrity + access control). Mitigates 67–100% of injections on AgentDojo. Treats data trust as first-class (taint tracking).</li>
+      <li><strong>Constrain the action space</strong> — general agents are unsecurable; application-specific agents with intentional capability limits are secure today.</li>
+    </ul>
+    <h4>Non-negotiable operational defenses</h4>
+    <ul>
+      <li><strong>Least privilege at the gateway, not the prompt</strong> (the agent should be <em>incapable</em> of the catastrophic action) · human-in-the-loop for high-impact/irreversible actions · sandboxed execution · action-screening vs original intent · behavioral monitoring ("valid auth, wrong action") · token/session binding · pin/scan/inventory every dependency &amp; MCP server · no standing secret access.</li>
+    </ul>
+
+    <h4>The frontier foresight</h4>
+    <p>Attacks evolve along two axes — <strong>wider untrusted channels</strong> and <strong>higher-consequence actions</strong>:</p>
+    <ul>
+      <li><strong>Trust-graph / consensus poisoning</strong> — manufacture reputation (fleets of cross-citing sources) so the AI retrieves &amp; trusts the backdoor; SEO-for-LLMs weaponized.</li>
+      <li><strong>Agent-to-agent injection</strong> — multi-agent seams reintroduce everything; injection laundering, confused-deputy, self-propagating prompt-injection <em>worms</em>, cascade failures via poisoned shared memory.</li>
+      <li><strong>Vibe-coding monoculture</strong> — shared model mistakes = vulnerability monoculture (one flaw across thousands of apps); <em>slopsquatting</em> (pre-register hallucinated package names); sleeper code trained to look normal to AI review.</li>
+      <li><strong>Cyber-physical</strong> — air-gaps dissolved by convenience; multimodal injection via the physical sensorium (adversarial stickers, inaudible audio, QR codes in view — you can't sanitize reality); irreversible/lethal consequences. <em>The highest-stakes near-term frontier.</em></li>
+      <li><strong>AI-vs-AI speed war</strong> — autonomous attack/defense outruns human oversight.</li>
+    </ul>
+
+    <div class="insight"><span class="lbl">What this means for adoption</span><p>AI's value (autonomy + broad access) <em>is</em> its danger — every increment of capability is an increment of attack surface. <strong>Risk ≈ untrusted-exposure × consequence × reversibility⁻¹ × oversight-gap.</strong> Refuse deployments where high untrusted-exposure + high-consequence + low-reversibility stack faster than you can audit. For vibe-coding: <em>don't deploy what you can't audit</em>; separate prototyping from production; be suspicious of AI-recommended dependencies and AI-suggested security patterns.</p></div>
+
+    <div class="summary"><span class="lbl">One line</span><p>The attack surface expanded from "trick the chatbot" to "weaponize the agent's tools, memory &amp; supply chain"; since LLMs structurally can't separate instructions from data, durable defenses are the boring CS fundamentals — least privilege, sandboxing, provenance tracking, and isolating tool-access from untrusted-content (Dual-LLM/CaMeL) — with classifiers as a probabilistic outer layer only. The frontier moves toward agent-to-agent worms and irreversible cyber-physical harm.</p></div>
+  </article>
+
+  <footer>
+    <p>AI ENGINEERING SESSION REFERENCE · 22 TOPICS ACROSS 7 CLUSTERS · COMPILED <b>27 MAY 2026</b></p>
+    <p style="margin-top:8px;">Systems → Serving → LLM Internals → Retrieval → Evaluation → Planning → Security</p>
+  </footer>
+
+  </main>
+</div>
+
+<script>
+  // Scroll-spy: highlight active TOC link
+  const links = [...document.querySelectorAll('nav.toc a[href^="#t"]')];
+  const map = {};
+  links.forEach(l => { const id = l.getAttribute('href').slice(1); map[id] = l; });
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.style.color = '');
+        const active = map[e.target.id];
+        if (active) { active.style.color = 'var(--amber-bright)'; active.style.borderLeftColor='var(--amber)'; }
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  document.querySelectorAll('article.topic').forEach(a => obs.observe(a));
+</script>
+
+</body>
+</html>

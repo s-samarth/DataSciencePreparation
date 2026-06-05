@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Session Notes — LangGraph, Agents & Protocols</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0d0b;
+    --bg-soft:#16140f;
+    --panel:#1b1812;
+    --panel-2:#211d15;
+    --line:#322c20;
+    --ink:#ece6d8;
+    --ink-soft:#bdb4a0;
+    --ink-faint:#8a8170;
+    --amber:#e0a64b;
+    --amber-bright:#f4c06a;
+    --teal:#6fb3a8;
+    --rose:#cf7a6a;
+    --violet:#a892c4;
+    --code-bg:#100e0a;
+    --radius:14px;
+    --maxw:880px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:"IBM Plex Sans",sans-serif;font-weight:400;font-size:16.5px;line-height:1.68;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 500px at 85% -5%, rgba(224,166,75,0.07), transparent 60%),radial-gradient(700px 600px at -5% 20%, rgba(111,179,168,0.05), transparent 55%);
+    background-attachment:fixed;
+  }
+  /* layout */
+  .wrap{display:flex;max-width:1300px;margin:0 auto;gap:0;}
+  nav.toc{
+    width:300px;flex:0 0 300px;position:sticky;top:0;height:100vh;overflow-y:auto;
+    padding:34px 22px 60px 30px;border-right:1px solid var(--line);
+    background:linear-gradient(180deg,var(--bg-soft),var(--bg));
+  }
+  nav.toc::-webkit-scrollbar{width:8px;}
+  nav.toc::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+  .toc .brand{font-family:"Fraunces",serif;font-weight:600;font-size:19px;color:var(--amber-bright);letter-spacing:.2px;line-height:1.25;margin-bottom:4px;}
+  .toc .brand small{display:block;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);font-weight:400;letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
+  .toc .part{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--amber);margin:26px 0 8px;font-weight:600;}
+  .toc a{display:block;color:var(--ink-soft);text-decoration:none;font-size:13.5px;padding:4px 10px;border-radius:7px;line-height:1.4;border-left:2px solid transparent;transition:all .15s;}
+  .toc a:hover{color:var(--ink);background:var(--panel);}
+  .toc a.active{color:var(--amber-bright);border-left-color:var(--amber);background:var(--panel);}
+  main{flex:1;min-width:0;padding:0 0 120px;}
+  .inner{max-width:var(--maxw);margin:0 auto;padding:0 38px;}
+
+  /* hero */
+  header.hero{padding:78px 0 40px;border-bottom:1px solid var(--line);margin-bottom:10px;}
+  .hero .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:18px;}
+  .hero h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 18px;color:var(--ink);letter-spacing:-.5px;}
+  .hero p{font-size:18px;color:var(--ink-soft);max-width:640px;margin:0;}
+  .hero .meta{margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-faint);display:flex;gap:22px;flex-wrap:wrap;}
+  .hero .meta b{color:var(--teal);font-weight:500;}
+
+  /* sections */
+  section{padding-top:54px;margin-top:6px;}
+  .part-head{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--bg);background:var(--amber);display:inline-block;padding:5px 14px;border-radius:6px;margin:60px 0 6px;font-weight:600;}
+  h2{font-family:"Fraunces",serif;font-weight:600;font-size:29px;color:var(--amber-bright);margin:14px 0 6px;letter-spacing:-.3px;line-height:1.15;}
+  h2 .num{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink-faint);margin-right:10px;font-weight:400;vertical-align:middle;}
+  h3{font-family:"IBM Plex Sans",sans-serif;font-weight:600;font-size:18px;color:var(--ink);margin:30px 0 4px;}
+  p{margin:13px 0;}
+  strong{color:var(--amber-bright);font-weight:600;}
+  em{color:var(--teal);font-style:italic;}
+  a.inline{color:var(--teal);}
+  ul,ol{margin:13px 0;padding-left:22px;}
+  li{margin:8px 0;}
+  li::marker{color:var(--amber);}
+
+  /* code */
+  code{font-family:"IBM Plex Mono",monospace;font-size:13.5px;background:var(--code-bg);border:1px solid var(--line);padding:1.5px 6px;border-radius:5px;color:var(--amber-bright);}
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;overflow-x:auto;margin:18px 0;position:relative;}
+  pre::before{content:attr(data-lang);position:absolute;top:0;right:0;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-faint);background:var(--panel-2);padding:3px 10px;border-bottom-left-radius:8px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);}
+  pre code{background:none;border:none;padding:0;color:var(--ink);font-size:13px;line-height:1.6;display:block;}
+  .c-key{color:var(--violet);}
+  .c-str{color:var(--teal);}
+  .c-com{color:var(--ink-faint);font-style:italic;}
+  .c-fn{color:var(--amber-bright);}
+
+  /* callout boxes */
+  .box{border-radius:var(--radius);padding:16px 20px;margin:20px 0;border:1px solid var(--line);background:var(--panel);}
+  .box .label{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:7px;}
+  .box.compress{background:linear-gradient(180deg,rgba(224,166,75,0.08),rgba(224,166,75,0.02));border-color:rgba(224,166,75,0.35);}
+  .box.compress .label{color:var(--amber);}
+  .box.interview{background:linear-gradient(180deg,rgba(111,179,168,0.08),rgba(111,179,168,0.02));border-color:rgba(111,179,168,0.35);}
+  .box.interview .label{color:var(--teal);}
+  .box.trap{background:linear-gradient(180deg,rgba(207,122,106,0.09),rgba(207,122,106,0.02));border-color:rgba(207,122,106,0.38);}
+  .box.trap .label{color:var(--rose);}
+  .box.compress p,.box.interview p,.box.trap p{margin:0;}
+  .box.interview p{font-style:italic;color:var(--ink);}
+
+  /* tables */
+  .tbl{overflow-x:auto;margin:20px 0;border-radius:var(--radius);border:1px solid var(--line);}
+  table{border-collapse:collapse;width:100%;font-size:14px;}
+  th{background:var(--panel-2);color:var(--amber);font-weight:600;text-align:left;padding:11px 14px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--line);}
+  td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-soft);}
+  tr:last-child td{border-bottom:none;}
+  td strong{color:var(--ink);}
+
+  /* svg figure */
+  figure{margin:26px 0;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px 14px;}
+  figure svg{display:block;width:100%;height:auto;}
+  figcaption{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-faint);text-align:center;margin-top:12px;letter-spacing:.3px;}
+  .svg-label{font-family:"IBM Plex Mono",monospace;font-size:11px;fill:var(--ink-soft);}
+  .svg-title{font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:600;fill:var(--ink);}
+  .svg-sub{font-family:"IBM Plex Mono",monospace;font-size:9.5px;fill:var(--ink-faint);}
+
+  hr.div{border:none;border-top:1px solid var(--line);margin:44px 0 0;}
+
+  /* footer */
+  footer{max-width:var(--maxw);margin:60px auto 0;padding:30px 38px 0;border-top:1px solid var(--line);color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+
+  /* mobile */
+  .menu-btn{display:none;}
+  @media(max-width:980px){
+    nav.toc{position:fixed;left:0;top:0;z-index:50;transform:translateX(-105%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.6);}
+    nav.toc.open{transform:translateX(0);}
+    .menu-btn{display:flex;position:fixed;top:16px;right:16px;z-index:60;background:var(--amber);color:var(--bg);border:none;width:46px;height:46px;border-radius:12px;font-size:20px;align-items:center;justify-content:center;cursor:pointer;font-family:"IBM Plex Mono",monospace;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+    .inner{padding:0 22px;}
+    footer{padding:30px 22px 0;}
+    body{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<button class="menu-btn" onclick="document.querySelector('.toc').classList.toggle('open')">☰</button>
+<div class="wrap">
+
+<nav class="toc">
+  <div class="brand">Session Notes
+    <small>LangGraph · Agents · MCP · A2A</small>
+  </div>
+
+  <div class="part">I · LangGraph Internals</div>
+  <a href="#pydantic">1 · Pydantic</a>
+  <a href="#typeddict">2 · TypedDict</a>
+  <a href="#tool-exec">3 · How LLMs "run" code</a>
+  <a href="#annotated">4 · Annotated &amp; reducers</a>
+  <a href="#reducer-name">5 · Why "reducer" + operator</a>
+  <a href="#serial">6 · Serialization &amp; state</a>
+  <a href="#send">7 · Send &amp; dynamic map-reduce</a>
+  <a href="#command">8 · Command vs conditional edges</a>
+  <a href="#functional">9 · Functional API</a>
+  <a href="#errors">10 · Tool error handling</a>
+
+  <div class="part">II · Agent Memory</div>
+  <a href="#episodic">11 · Episodic memory</a>
+  <a href="#procedural">12 · Procedural vs episodic</a>
+  <a href="#dreaming">13 · Claude Dreaming</a>
+
+  <div class="part">III · Routing &amp; Tool Calls</div>
+  <a href="#routing">14 · Classifier vs cross-encoder</a>
+  <a href="#native-tool">15 · Native tool calling</a>
+
+  <div class="part">IV · MCP</div>
+  <a href="#host">16 · "Host" &amp; portability</a>
+  <a href="#protocols">17 · REST/gRPC/GraphQL/JSON-RPC</a>
+  <a href="#json-rpc">18 · JSON-RPC &amp; transports</a>
+  <a href="#rest-pitch">19 · Why MCP, plain words</a>
+  <a href="#discovery">20 · tools/list discovery</a>
+  <a href="#notify">21 · Change notifications</a>
+  <a href="#bloat">22 · Context bloat vs CLI</a>
+  <a href="#cli-mech">23 · What a CLI actually is</a>
+  <a href="#governance">24 · MCP governance/auth</a>
+  <a href="#build-server">25 · Building &amp; hosting servers</a>
+  <a href="#resources">26 · Resources vs tools</a>
+  <a href="#oauth">27 · OAuth 2.1 + PKCE</a>
+
+  <div class="part">V · Agent-to-Agent</div>
+  <a href="#a2a">28 · The A2A protocol</a>
+</nav>
+
+<main>
+<div class="inner">
+<header class="hero">
+  <div class="kicker">Study Reference</div>
+  <h1>LangGraph internals, agent memory &amp; the protocol stack</h1>
+  <p>A complete capture of one deep-dive session — the mechanics under LangGraph &amp; LangChain, how agent memory actually works, and the full MCP / CLI / A2A protocol landscape as of 2026.</p>
+  <div class="meta">
+    <span>28 concepts</span>
+    <span>5 parts</span>
+    <span>Built for <b>active recall</b></span>
+  </div>
+</header>
+
+<!-- ============ PART I ============ -->
+<div class="part-head">Part I — LangGraph &amp; LangChain Internals</div>
+
+<section id="pydantic">
+<h2><span class="num">01</span>Pydantic — the runtime contract</h2>
+<p><strong>Pydantic is a data-validation library.</strong> Plain Python type hints (<code>x: int</code>) are decoration — ignored at runtime. Pydantic makes them <em>load-bearing</em>: data crossing a boundary must match the declared shape, or it fails loudly.</p>
+<pre data-lang="python"><code><span class="c-key">from</span> pydantic <span class="c-key">import</span> BaseModel
+<span class="c-key">class</span> <span class="c-fn">User</span>(BaseModel):
+    name: <span class="c-key">str</span>
+    age: <span class="c-key">int</span>
+User(name=<span class="c-str">"Sam"</span>, age=<span class="c-str">"25"</span>)   <span class="c-com"># coerced → 25</span>
+User(name=<span class="c-str">"Sam"</span>, age=<span class="c-str">"old"</span>)  <span class="c-com"># ValidationError</span></code></pre>
+<p>It was never <em>the</em> way LangGraph stored state. You saw it everywhere 10 months ago for two reasons: LangChain's own internals are built on it, and the <strong>v1 → v2 migration</strong> (v2 core rewritten in Rust) caused churn. That awkwardness is gone now — everything's on v2.</p>
+<h3>The three places it genuinely belongs</h3>
+<ul>
+<li><strong>Tool / function-call schemas</strong> — the cleanest way to describe tool arguments. <code>Field(description=...)</code> text goes <em>straight into the schema the model reads</em>, so it's effectively prompt engineering.</li>
+<li><strong>Structured output</strong> — <code>model.with_structured_output(SomeModel)</code> forces the LLM to return validated data matching your class. Replaces brittle "parse the prose and pray" code.</li>
+<li><strong>Graph state (optional)</strong> — supported, but the community default is <code>TypedDict</code>, not Pydantic.</li>
+</ul>
+<div class="tbl"><table>
+<tr><th></th><th>TypedDict</th><th>Pydantic BaseModel</th></tr>
+<tr><td><strong>Runtime validation</strong></td><td>No</td><td>Yes</td></tr>
+<tr><td><strong>Overhead</strong></td><td>Lighter</td><td>Slightly heavier</td></tr>
+<tr><td><strong>Defaults &amp; validators</strong></td><td>No</td><td>Yes</td></tr>
+<tr><td><strong>Docs default</strong></td><td>Yes</td><td>Less common</td></tr>
+<tr><td><strong>Catches bad node returns</strong></td><td>No (fails later, weirdly)</td><td>Yes (fails at the boundary)</td></tr>
+</table></div>
+<div class="box compress"><div class="label">◆ Compression</div><p>Pydantic isn't deprecated and was never the state mechanism. Use it where a runtime contract earns its cost: <strong>always</strong> for tool schemas and structured output; <strong>TypedDict by default</strong> for graph state, upgrading to Pydantic only when you want validation guarantees (e.g. multi-author production graphs). The <code>Annotated[...]</code> reducer pattern works with both — it's an orthogonal axis.</p></div>
+</section>
+
+<section id="typeddict">
+<h2><span class="num">02</span>TypedDict — typed hints on a dict</h2>
+<p>A <code>TypedDict</code> is a regular dict with declared keys and value types. Just type hints on a dictionary — nothing more.</p>
+<pre data-lang="python"><code><span class="c-key">from</span> typing <span class="c-key">import</span> TypedDict
+<span class="c-key">class</span> <span class="c-fn">State</span>(TypedDict):
+    messages: <span class="c-key">list</span>
+    count: <span class="c-key">int</span></code></pre>
+<p>Checking is <strong>compile-time only</strong> (IDE / mypy) — autocomplete, typo-catching. At runtime it's an ordinary dict; Python won't stop you putting a string in <code>count</code>. That's exactly why LangGraph picked it as the default state container: it behaves like the dict everything already passes around, but gives a typed contract for free.</p>
+<div class="box compress"><div class="label">◆ Compression</div><p>TypedDict = "hints for the developer," enforced by the type-checker, plain dict at runtime. Pydantic = "enforced at runtime."</p></div>
+</section>
+
+<section id="tool-exec">
+<h2><span class="num">03</span>How an LLM "runs" Python (it doesn't)</h2>
+<p>The key insight: <strong>the LLM never executes anything.</strong> It only emits structured output. The execution is plain Python calling plain Python.</p>
+<figure>
+<svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#e0a64b"/></marker></defs>
+  <rect x="20" y="95" width="150" height="60" rx="10" fill="#211d15" stroke="#a892c4" stroke-width="1.5"/>
+  <text x="95" y="120" text-anchor="middle" class="svg-title">LLM</text>
+  <text x="95" y="138" text-anchor="middle" class="svg-sub">emits name + args</text>
+  <rect x="240" y="95" width="160" height="60" rx="10" fill="#211d15" stroke="#e0a64b" stroke-width="1.5"/>
+  <text x="320" y="120" text-anchor="middle" class="svg-title">ToolNode</text>
+  <text x="320" y="138" text-anchor="middle" class="svg-sub">dict lookup → call</text>
+  <rect x="470" y="95" width="150" height="60" rx="10" fill="#211d15" stroke="#6fb3a8" stroke-width="1.5"/>
+  <text x="545" y="120" text-anchor="middle" class="svg-title">Python fn</text>
+  <text x="545" y="138" text-anchor="middle" class="svg-sub">trusted code runs</text>
+  <rect x="640" y="40" width="100" height="48" rx="10" fill="#16140f" stroke="#322c20"/>
+  <text x="690" y="60" text-anchor="middle" class="svg-label">state</text>
+  <text x="690" y="76" text-anchor="middle" class="svg-sub">ToolMessage</text>
+  <line x1="170" y1="125" x2="234" y2="125" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="202" y="115" text-anchor="middle" class="svg-sub">{"name","args"}</text>
+  <line x1="400" y1="125" x2="464" y2="125" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="545" y1="95" x2="640" y2="78" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="610" y="100" text-anchor="middle" class="svg-sub">result</text>
+  <path d="M640 64 C 420 4, 200 4, 95 90" fill="none" stroke="#a892c4" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arr)"/>
+  <text x="370" y="22" text-anchor="middle" class="svg-sub">loop back to LLM (ReAct)</text>
+</svg>
+<figcaption>The ReAct loop — the model is the dispatcher, never the executor</figcaption>
+</figure>
+<p>Mechanically: the LLM emits <code>{"name":"search","args":{...}}</code> (just a string). Your runtime has a registry — a plain dict — mapping tool names to real callables:</p>
+<pre data-lang="python"><code>tools_by_name = {<span class="c-str">"search"</span>: search_fn, <span class="c-str">"calculator"</span>: calc_fn}
+result = tools_by_name[call[<span class="c-str">"name"</span>]].invoke(call[<span class="c-str">"args"</span>])</code></pre>
+<p>The model chose <em>which</em> function and <em>what</em> arguments — like filling out a form. Your machine ran it.</p>
+<div class="box trap"><div class="label">▲ Sandboxing trap</div><p>By default <strong>there is no sandbox</strong>. If a tool does <code>eval(llm_output)</code> or shell access, it runs with your process's full permissions. Sandboxing (Docker, Firecracker/E2B/Modal, restricted subprocess) is something <em>you</em> wrap inside the tool — it is not a LangGraph feature. The genuinely dangerous case is a <strong>code-execution tool</strong> (LLM writes Python, you run it); a search/calculator tool only risks bad arguments, not arbitrary execution.</p></div>
+<div class="box interview"><div class="label">★ Interview line</div><p>The model emits a tool name and arguments as structured output; the framework maps that name to a registered Python callable and invokes it with trusted code. The model never executes anything. Sandboxing isn't automatic — it's wrapped around tools that run untrusted or model-generated code.</p></div>
+</section>
+
+<section id="annotated">
+<h2><span class="num">04</span>Annotated &amp; reducers — the merge strategy</h2>
+<p><code>Annotated[ActualType, metadata]</code> bolts extra info onto a type without changing it. The first slot is the real type (what type-checkers see); everything after is metadata a framework reads. Python itself ignores it.</p>
+<p><strong>The problem reducers solve:</strong> when a node returns an update to a state field, does it <em>replace</em> the old value or <em>merge</em> into it? Default is <strong>replace</strong> (last write wins). For <code>messages</code> you want <strong>append</strong> instead. The instruction "how do updates combine for this field" is the <strong>reducer</strong> — a function <code>(old, new) → merged</code> — and you pin it to the field via <code>Annotated</code>.</p>
+<pre data-lang="python"><code><span class="c-key">from</span> typing <span class="c-key">import</span> Annotated, TypedDict
+<span class="c-key">from</span> langgraph.graph <span class="c-key">import</span> add_messages
+<span class="c-key">import</span> operator
+
+<span class="c-key">class</span> <span class="c-fn">State</span>(TypedDict):
+    messages: Annotated[<span class="c-key">list</span>, add_messages]  <span class="c-com"># append, handles update-by-id</span>
+    items:    Annotated[<span class="c-key">list</span>, operator.add] <span class="c-com"># concatenate</span>
+    count:    <span class="c-key">int</span>                          <span class="c-com"># no reducer → replace</span></code></pre>
+<figure>
+<svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#6fb3a8"/></marker></defs>
+  <text x="380" y="24" text-anchor="middle" class="svg-title">One super-step: parallel writes folded by the reducer</text>
+  <rect x="40" y="55" width="140" height="44" rx="9" fill="#211d15" stroke="#a892c4"/><text x="110" y="82" text-anchor="middle" class="svg-label">node A → ["a"]</text>
+  <rect x="40" y="115" width="140" height="44" rx="9" fill="#211d15" stroke="#a892c4"/><text x="110" y="142" text-anchor="middle" class="svg-label">node B → ["b"]</text>
+  <rect x="320" y="85" width="150" height="44" rx="9" fill="#16140f" stroke="#e0a64b" stroke-width="1.5"/><text x="395" y="107" text-anchor="middle" class="svg-label" style="fill:#f4c06a">reducer (old,new)</text><text x="395" y="123" text-anchor="middle" class="svg-sub">add_messages</text>
+  <rect x="600" y="85" width="130" height="44" rx="9" fill="#211d15" stroke="#6fb3a8"/><text x="665" y="112" text-anchor="middle" class="svg-label">["a","b"]</text>
+  <line x1="180" y1="77" x2="316" y2="100" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="180" y1="137" x2="316" y2="114" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr2)"/>
+  <line x1="470" y1="107" x2="596" y2="107" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr2)"/>
+  <text x="665" y="150" text-anchor="middle" class="svg-sub">next state</text>
+</svg>
+<figcaption>The reducer folds parallel writes from a super-step into the next state</figcaption>
+</figure>
+<h3>Other common <code>typing</code> imports</h3>
+<ul>
+<li><code>List/Dict/Tuple/Set</code> — capitalized generics; modern Python allows lowercase <code>list[int]</code>.</li>
+<li><code>Optional[X]</code> — "X or None" (= <code>Union[X, None]</code>).</li>
+<li><code>Union[A,B]</code> — "A or B" (modern: <code>A | B</code>).</li>
+<li><code>Literal["a","b"]</code> — restricts to specific values; enum-like, big in tool args &amp; structured output.</li>
+<li><code>Callable[[int],str]</code> — "a function taking int, returning str."</li>
+<li><code>Any</code>, <code>Sequence</code>, <code>Mapping</code> — escape hatch / abstract list-like / dict-like.</li>
+</ul>
+<div class="box compress"><div class="label">◆ Compression</div><p><code>Annotated[T, meta]</code> = "type T, plus a note for the framework." In LangGraph that note is the reducer — the per-field merge strategy that combines updates during a super-step. No <code>Annotated</code> → field defaults to overwrite. The two you'll <em>write</em> constantly: <code>Annotated</code> (reducers) and <code>Literal</code> (constrained values).</p></div>
+</section>
+
+<section id="reducer-name">
+<h2><span class="num">05</span>Why "reducer"? + the operator library</h2>
+<p>"Reducer" comes from functional programming's <code>reduce</code> — folding many values into one by repeatedly applying a two-arg function (<code>reduce(add,[1,2,3,4]) → 10</code>). LangGraph borrows the name because it folds the stream of updates to a field into one merged value — same <code>(accumulator, new) → accumulator</code> shape.</p>
+<p><code>operator</code> is Python's stdlib exposing built-in operators <em>as functions you can pass around</em> — you can't pass the <code>+</code> symbol, but you can pass <code>operator.add</code>. Common in state: <code>operator.add</code> (concatenate lists / sum numbers — by far the most used), occasionally <code>operator.or_</code> (merge dicts/sets). For anything else, write your own <code>(old, new) → merged</code>.</p>
+</section>
+
+<section id="serial">
+<h2><span class="num">06</span>Serialization — why "JSON-compatible state"</h2>
+<p><strong>Serialize</strong> = turn a live in-memory object into a flat representation (usually JSON) you can save, send, and reconstruct. LangGraph cares because <strong>checkpointers serialize state every super-step</strong> to make it durable, resumable, and time-travelable. A non-serializable value breaks the checkpoint write.</p>
+<p>The clean test: <em>"If I save this to a file and load it on a different machine tomorrow, does it still mean anything?"</em> Data <strong>describes</strong> (a name is true anywhere). Resources <strong>do</strong> (an open socket is action-in-progress, true only here, now, in this process). JSON carries facts, not action-in-progress.</p>
+<div class="tbl"><table>
+<tr><th>Serializable (data)</th><th>NOT serializable (live resource)</th></tr>
+<tr><td>strings, numbers, booleans, lists, dicts</td><td>DB connection / network socket</td></tr>
+<tr><td>messages (LangChain has a recipe)</td><td>open file handle</td></tr>
+<tr><td>Pydantic models, datetimes</td><td>thread / lock / running coroutine</td></tr>
+<tr><td>structured tool output</td><td>function / lambda (JSON has no "code")</td></tr>
+<tr><td></td><td><strong>LLM client object</strong> (wraps HTTP client/config)</td></tr>
+</table></div>
+<div class="box trap"><div class="label">▲ The one that bites</div><p>Never put the <strong>model object</strong> in state — it wraps a live HTTP client; it's a tool, not data. Put the model's <em>output</em> in state. Create clients/connections fresh inside nodes when needed.</p></div>
+<div class="box compress"><div class="label">◆ Compression</div><p>"JSON-compatible" is the safe rule; the real rule is "anything with a known serialize/deserialize recipe." A live socket can never have one — there's nothing to write down that brings it back. State = facts the graph gathered, not live machinery.</p></div>
+</section>
+
+<section id="send">
+<h2><span class="num">07</span>Send &amp; dynamic map-reduce</h2>
+<p><strong>Map-reduce</strong> = a fan-out then a fan-in. <strong>Map:</strong> apply the same op to every item, independently, in parallel (one→many). <strong>Reduce:</strong> fold all per-item results into one (many→one). Classic: count words per document (map), sum the counts (reduce).</p>
+<p><strong>Why LangGraph needed <code>Send</code>:</strong> a normal edge hardcodes structure at <em>build time</em>. Map-reduce needs the <em>number</em> of parallel branches decided at <em>runtime</em> — if node A produces 7 subtasks you need 7 copies of B; if 200, then 200. You can't draw that edge ahead of time.</p>
+<figure>
+<svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#e0a64b"/></marker></defs>
+  <rect x="30" y="100" width="120" height="50" rx="10" fill="#211d15" stroke="#a892c4" stroke-width="1.5"/>
+  <text x="90" y="122" text-anchor="middle" class="svg-title">node A</text><text x="90" y="138" text-anchor="middle" class="svg-sub">returns [Send,…]</text>
+  <g>
+  <rect x="300" y="30" width="150" height="38" rx="8" fill="#16140f" stroke="#6fb3a8"/><text x="375" y="54" text-anchor="middle" class="svg-label">process({item:x1})</text>
+  <rect x="300" y="106" width="150" height="38" rx="8" fill="#16140f" stroke="#6fb3a8"/><text x="375" y="130" text-anchor="middle" class="svg-label">process({item:x2})</text>
+  <rect x="300" y="182" width="150" height="38" rx="8" fill="#16140f" stroke="#6fb3a8"/><text x="375" y="206" text-anchor="middle" class="svg-label">process({item:xN})</text>
+  </g>
+  <rect x="600" y="106" width="140" height="50" rx="10" fill="#211d15" stroke="#e0a64b" stroke-width="1.5"/>
+  <text x="670" y="128" text-anchor="middle" class="svg-title">reducer</text><text x="670" y="144" text-anchor="middle" class="svg-sub">operator.add</text>
+  <line x1="150" y1="118" x2="296" y2="49" stroke="#e0a64b" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <line x1="150" y1="125" x2="296" y2="125" stroke="#e0a64b" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <line x1="150" y1="132" x2="296" y2="201" stroke="#e0a64b" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <line x1="450" y1="49" x2="596" y2="118" stroke="#6fb3a8" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <line x1="450" y1="125" x2="596" y2="128" stroke="#6fb3a8" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <line x1="450" y1="201" x2="596" y2="138" stroke="#6fb3a8" stroke-width="1.8" marker-end="url(#arr3)"/>
+  <text x="225" y="20" text-anchor="middle" class="svg-sub">MAP — dynamic fan-out (Send)</text>
+  <text x="600" y="190" text-anchor="middle" class="svg-sub">REDUCE — fan-in</text>
+</svg>
+<figcaption>Send spawns N runtime-determined branches; the reducer folds them back</figcaption>
+</figure>
+<pre data-lang="python"><code><span class="c-key">from</span> langgraph.types <span class="c-key">import</span> Send
+<span class="c-key">def</span> <span class="c-fn">fan_out</span>(state):
+    <span class="c-key">return</span> [Send(<span class="c-str">"process_item"</span>, {<span class="c-str">"item"</span>: x}) <span class="c-key">for</span> x <span class="c-key">in</span> state[<span class="c-str">"items"</span>]]
+    <span class="c-com">#            ^node to spawn        ^private state for THAT branch</span></code></pre>
+<p>If <code>items</code> has 7 elements → 7 parallel branches; 200 → 200. That's the dynamic part. Each branch is the <strong>map</strong>; the reducer on the shared field is the <strong>reduce</strong>.</p>
+<h3>Send vs Command</h3>
+<p>Both are control-flow objects you <em>return</em> from a node, but: <strong>Send(node, state)</strong> = fan-<em>out</em>, "spawn (possibly many) parallel branches each with private state" (usually a list). <strong>Command(goto=…, update=…)</strong> = "update state <em>and</em> go to that node next" (singular).</p>
+<div class="box interview"><div class="label">★ Interview line</div><p>Send is LangGraph's dynamic fan-out primitive — a node spawns a runtime-determined number of parallel branches each with its own state (the map); pairing it with a reducer on a shared field gives the reduce. That's why parallelism width is data-determined at runtime, not fixed at compile time.</p></div>
+</section>
+
+<section id="command">
+<h2><span class="num">08</span>Command vs conditional edges</h2>
+<p>Two answers to "where do I go next?" — you pick based on <strong>who needs to know the routing logic</strong>.</p>
+<p><strong>Conditional edge</strong> — routing lives <em>outside</em> the node, in the graph wiring. Topology stays visible. The default.</p>
+<pre data-lang="python"><code><span class="c-key">def</span> <span class="c-fn">route</span>(state): <span class="c-key">return</span> <span class="c-str">"node_b"</span> <span class="c-key">if</span> state[<span class="c-str">"score"</span>] > <span class="c-str">0.5</span> <span class="c-key">else</span> <span class="c-str">"node_c"</span>
+graph.add_conditional_edges(<span class="c-str">"node_a"</span>, route)</code></pre>
+<p><strong>Command</strong> — routing lives <em>inside</em> the node, returned with the update.</p>
+<pre data-lang="python"><code><span class="c-key">def</span> <span class="c-fn">node_a</span>(state):
+    <span class="c-key">return</span> Command(update={<span class="c-str">"score"</span>: s},
+                   goto=<span class="c-str">"node_b"</span> <span class="c-key">if</span> s > <span class="c-str">0.5</span> <span class="c-key">else</span> <span class="c-str">"node_c"</span>)</code></pre>
+<div class="tbl"><table>
+<tr><th>Use conditional edge when…</th><th>Use Command when…</th></tr>
+<tr><td>routing is separable from the node's work</td><td>only the node knows where to go (routing entangled with its work)</td></tr>
+<tr><td>you want topology legible in the wiring</td><td><strong>multi-agent handoffs</strong> — the target <em>is</em> the agent's output</td></tr>
+<tr><td>a router can reconstruct the decision from state</td><td>you'd otherwise dump scratch data into state just to route</td></tr>
+<tr><td>classic branching / quality gates</td><td><strong>navigating to a parent graph</strong> (<code>Command(graph=Command.PARENT)</code>) — edges can't</td></tr>
+</table></table></div>
+<div class="box trap"><div class="label">▲ Why not "together"</div><p>For a <em>single</em> decision, pick one — a node with <code>Command(goto=…)</code> shouldn't also have conditional edges, or two mechanisms fight over "what's next." The legitimate mix is at the <em>graph</em> level: different nodes use different mechanisms. Never both on one node's single decision.</p></div>
+<div class="box interview"><div class="label">★ Interview line</div><p>Conditional edges externalize routing into the topology, which keeps control flow legible — the default. Command co-locates a node's state update and its routing, right for multi-agent handoffs and parent-graph navigation, where the next step is the node's own output rather than a separable function of state.</p></div>
+</section>
+
+<section id="functional">
+<h2><span class="num">09</span>The Functional API</h2>
+<p>Same engine, imperative style. <code>@entrypoint</code> = "this function is the runnable workflow." <code>@task</code> = "this is a unit of work" (gets checkpointing/retry/parallelism). Your control flow stays plain Python.</p>
+<pre data-lang="python"><code><span class="c-key">from</span> langgraph.func <span class="c-key">import</span> entrypoint, task
+<span class="c-key">@task</span>
+<span class="c-key">def</span> <span class="c-fn">step1</span>(x): ...
+<span class="c-key">@entrypoint</span>(checkpointer=saver)
+<span class="c-key">def</span> <span class="c-fn">workflow</span>(inp):
+    a = step1(inp).result()
+    <span class="c-key">if</span> a > <span class="c-str">0.5</span>:                <span class="c-com"># plain Python if — no router, no edge</span>
+        b = step2(a).result()
+    <span class="c-key">return</span> b</code></pre>
+<div class="tbl"><table>
+<tr><th>Functional API wins when…</th><th>Graph API wins when…</th></tr>
+<tr><td>complex nested <code>if/for/while</code> logic</td><td>topology is the valuable, inspectable thing</td></tr>
+<tr><td>retrofitting existing pipeline code</td><td>genuine parallel fan-out</td></tr>
+<tr><td>structure is trivially linear, logic is gnarly</td><td>complex multi-agent topologies</td></tr>
+<tr><td>messy data-dependent iteration</td><td>human-in-the-loop interrupts at named nodes; visualization</td></tr>
+</table></div>
+<div class="box compress"><div class="label">◆ Compression</div><p>Functional API = LangGraph's durability/checkpointing/streaming over ordinary imperative Python, via <code>@entrypoint</code> + <code>@task</code>. "Rarely used" because if you reach for LangGraph you usually want what graphs give: visible topology, parallelism, interrupts, multi-agent. It's "LangGraph's runtime without LangGraph's graph."</p></div>
+</section>
+
+<section id="errors">
+<h2><span class="num">10</span>Tool error handling — and where results live</h2>
+<p><strong>Why tool output "looks far from state":</strong> the tool and the node are different layers. A tool returns a <em>naked value</em> and knows nothing about state. The <strong>ToolNode</strong> is the adapter that wraps that value into a <code>ToolMessage</code> and appends it to <code>state["messages"]</code> via <code>add_messages</code>.</p>
+<pre data-lang="python"><code><span class="c-com"># tool: just a value</span>
+<span class="c-key">@tool</span>
+<span class="c-key">def</span> <span class="c-fn">get_weather</span>(city): <span class="c-key">return</span> <span class="c-str">"72°F"</span>
+<span class="c-com"># ToolNode (simplified): wraps + writes to state</span>
+msg = ToolMessage(content=<span class="c-key">str</span>(raw), tool_call_id=call_id)
+<span class="c-key">return</span> {<span class="c-str">"messages"</span>: [msg]}</code></pre>
+<p>So error dicts (<code>{"error":…, "suggestion":…}</code>) also become a <code>ToolMessage</code> the model reads next turn. <code>ToolMessage</code> has a <code>status</code> field (<code>"success"/"error"</code>).</p>
+<div class="tbl"><table>
+<tr><th>Category</th><th>Handled where</th><th>Touches state?</th></tr>
+<tr><td><strong>Transient</strong> (rate limit, timeout, 503)</td><td>retry with backoff <em>below</em> the model (RetryPolicy / tenacity)</td><td>No — ideally invisible if retry succeeds</td></tr>
+<tr><td><strong>Permanent / bad-request</strong> (404, invalid args)</td><td>surfaced <em>to</em> the LLM as an error ToolMessage so it self-corrects</td><td><strong>Yes</strong> — this is the "error/suggestion dict" bucket</td></tr>
+<tr><td><strong>Programming</strong> (your bug)</td><td>should <em>fail loud</em>, not be laundered into the conversation</td><td>Ideally no</td></tr>
+</table></div>
+<div class="box trap"><div class="label">▲ handle_tool_errors trap</div><p>ToolNode's default <code>handle_tool_errors=True</code> catches <em>everything</em> — including your bugs — and surfaces them as error ToolMessages. Convenient, but it masks real programming errors. Many set it to <code>False</code> or pass a custom handler so bugs fail loud. If you want errors tracked separately for observability, add your own channel: <code>errors: Annotated[list, operator.add]</code> — a deliberate choice, not the default.</p></div>
+<div class="box interview"><div class="label">★ Interview line</div><p>Tools return plain values; ToolNode wraps them into ToolMessages in the messages channel — that's why tool output lands in state without the tool knowing about state. Transient errors retry beneath the model; bad-request errors become error ToolMessages the model self-corrects from; programming errors should fail loud, which means being careful with ToolNode's default error-swallowing.</p></div>
+</section>
+
+<!-- ============ PART II ============ -->
+<div class="part-head">Part II — Agent Memory</div>
+
+<section id="episodic">
+<h2><span class="num">11</span>Episodic memory — when it earns its place</h2>
+<p>The discriminator vs a log: <strong>a log is write-only (a human reads it offline); memory is read-back-at-inference (the agent reads it and acts differently).</strong> The test for every case: <em>"Will the agent look this up later and change its action?"</em> If no → it's a log with extra steps.</p>
+<p>Cases that genuinely pass:</p>
+<ul>
+<li><strong>Failure avoidance</strong> — "last time in this env, sudo failed → use <code>pip --user</code>." The agent skips known dead ends. The strongest case.</li>
+<li><strong>Cross-session personalization</strong> — learns "this user wants type hints, prefers pytest" over weeks.</li>
+<li><strong>Self-mined few-shot</strong> — stores a successful trajectory, retrieves the closest one as a dynamic in-context example for a similar task.</li>
+<li><strong>Long-horizon resumption</strong> — reconstruct "what did I already try / conclude" after context is gone.</li>
+<li><strong>Loop-breaking</strong> — "I've tried 4 things in this family, all failed → escalate."</li>
+</ul>
+<p>When <em>not</em> to: single-turn/short-session agents, when a semantic fact store suffices, when the lesson is universal (hardcode it), pure debugging (that's a log).</p>
+</section>
+
+<section id="procedural">
+<h2><span class="num">12</span>Procedural vs episodic — the pipeline</h2>
+<p><strong>Episodic</strong> = a record of a specific past event, kept as an instance, retrieved by similarity — answers <em>"what happened?"</em> <strong>Procedural</strong> = a generalized routine distilled from many events, kept as reusable know-how (prompt text, code, a skill file, fine-tuned weights) — answers <em>"how do I do this?"</em> Procedural is what you get when you compress many episodes into a skill and throw the instances away.</p>
+<figure>
+<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#e0a64b"/></marker></defs>
+  <rect x="30" y="55" width="190" height="60" rx="10" fill="#211d15" stroke="#a892c4" stroke-width="1.5"/>
+  <text x="125" y="80" text-anchor="middle" class="svg-title">Episodic</text><text x="125" y="98" text-anchor="middle" class="svg-sub">specific instances</text>
+  <rect x="290" y="55" width="170" height="60" rx="10" fill="#16140f" stroke="#e0a64b" stroke-width="1.5"/>
+  <text x="375" y="80" text-anchor="middle" class="svg-title" style="fill:#f4c06a">Consolidation</text><text x="375" y="98" text-anchor="middle" class="svg-sub">distill + prune</text>
+  <rect x="530" y="55" width="200" height="60" rx="10" fill="#211d15" stroke="#6fb3a8" stroke-width="1.5"/>
+  <text x="630" y="80" text-anchor="middle" class="svg-title">Procedural + Semantic</text><text x="630" y="98" text-anchor="middle" class="svg-sub">reusable rules &amp; facts</text>
+  <line x1="220" y1="85" x2="286" y2="85" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr4)"/>
+  <line x1="460" y1="85" x2="526" y2="85" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr4)"/>
+  <text x="375" y="140" text-anchor="middle" class="svg-sub">the value is the flow between them</text>
+</svg>
+<figcaption>Episodes are the raw material distilled into procedures</figcaption>
+</figure>
+<p>Procedural is the higher-leverage workhorse (cheap, reliable repeated work — Claude's Skills are procedural memory). But episodic is <strong>non-optional</strong> because: (1) it's the distillation source — no episodes, nothing to learn from; (2) irreducibly instance-specific recall (this user, this paused task); (3) concrete-example retrieval. Priority order: semantic facts &gt; procedural routines &gt; episodic.</p>
+<div class="box interview"><div class="label">★ Interview line</div><p>Procedural memory is distilled, generalized know-how — the workhorse for repeated work. Episodic is the record of specific instances, retrieved by similarity. The relationship is a pipeline: episodes are the raw material you distill into procedures. Episodic is non-optional because it's the distillation source and covers instance-specific recall that compresses into no general rule.</p></div>
+</section>
+
+<section id="dreaming">
+<h2><span class="num">13</span>Claude Dreaming — consolidation as a feature</h2>
+<p>Launched May 6, 2026 (research preview). A scheduled <strong>background</strong> process that reviews an agent's past sessions and rewrites its memory store — removing duplicates, replacing stale entries, surfacing new patterns. It does <em>not</em> touch model weights; it updates the external memory layer.</p>
+<p>In our vocabulary: <strong>Dreaming is not a memory type — it's the consolidation <em>operation</em> between types.</strong> Input = episodic (session transcripts, up to ~100 per dream). Process = reflection/distillation. Output = procedural + semantic (preferences, recurring task patterns, learned facts, corrected beliefs), plus pruning of the stored set.</p>
+<p>The name mirrors REM-sleep consolidation: the brain replays the day's events and turns hippocampal episodic traces into cortical semantic/procedural knowledge. It's exactly the episodic→procedural pipeline, run offline.</p>
+<div class="box compress"><div class="label">◆ Compression</div><p>Capture and consolidation are separate stages: experience <em>capture</em> is cheap and inline (sessions write episodes); experience <em>consolidation</em> is expensive and batched (the "dream" rewrites the durable store). That separation is the design lesson — and it's model-agnostic, so you can prototype the whole loop yourself.</p></div>
+<div class="box trap"><div class="label">▲ Source caveat</div><p>The concept and launch are confirmed; most specific benchmark numbers circulating come from secondary reporting, not Anthropic's own docs. Treat precise figures as "reported, not verified."</p></div>
+</section>
+
+<!-- ============ PART III ============ -->
+<div class="part-head">Part III — Routing &amp; Tool Calling</div>
+
+<section id="routing">
+<h2><span class="num">14</span>Routing: classifier vs cross-encoder</h2>
+<p>The category error to avoid: <strong>a cross-encoder <em>is</em> a classifier</strong> — a pairwise one. The real question is <em>what you score against</em>.</p>
+<ul>
+<li><strong>Classifier</strong> — scores <code>query → label</code> over a <em>fixed closed set</em>, one forward pass, jointly-trained decision boundaries.</li>
+<li><strong>Cross-encoder</strong> — scores <code>(query, candidate) → relevance</code> for <em>arbitrary candidates</em> (concatenated, full cross-attention), one forward pass <em>per candidate</em>. No fixed label set.</li>
+</ul>
+<div class="tbl"><table>
+<tr><th></th><th>Closed, small, stable destinations</th><th>Large / open / changing pool</th></tr>
+<tr><td><strong>Use</strong></td><td>Classifier (or LLM structured output)</td><td>Cross-encoder rerank (on a cheap first-stage retriever)</td></tr>
+<tr><td><strong>Example</strong></td><td>billing / tech / sales routing</td><td>tool retrieval — your Seller Copilot quote subagent</td></tr>
+<tr><td><strong>Cost</strong></td><td>1 forward pass total</td><td>1 pass per candidate (so narrow first)</td></tr>
+</table></div>
+<p>Your Seller Copilot use was <em>correct</em>: a large/changing tool catalog is a retrieval problem (retrieve-then-rerank), and a new tool is just an <em>input</em>, not a retrained class. The edge case: if routes grow large and dynamic (hundreds of specialists), routing <em>becomes</em> retrieval and the cross-encoder becomes right for routing too.</p>
+<p>The real ladder in practice: <strong>LLM structured-output router</strong> (default, flexible, <code>Literal[...]</code>) → <strong>trained lightweight classifier</strong> (cheap/fast at volume on fixed routes) → <strong>cross-encoder rerank</strong> (destinations are a large/dynamic pool).</p>
+<div class="box interview"><div class="label">★ Interview line</div><p>A cross-encoder is a pairwise classifier scoring (query, candidate) for arbitrary candidates — it shines when destinations are large/open/changing, which is why tool selection is retrieve-then-rerank. Routing among a small fixed set is closed-set classification: one-forward-pass softmax with jointly-trained boundaries. Rule: closed-set → classifier, open/dynamic → cross-encoder; routing flips to the cross-encoder only once it has effectively become retrieval.</p></div>
+</section>
+
+<section id="native-tool">
+<h2><span class="num">15</span>Native tool calling vs text-parsing ReAct</h2>
+<p>Same ReAct loop; only the <em>transport of the tool call</em> changed.</p>
+<div class="tbl"><table>
+<tr><th>2022 — text-parsing</th><th>2026 — native tool calling</th></tr>
+<tr><td>model <em>types</em> <code>Action: get_weather</code> as free text</td><td>model <em>emits</em> a structured <code>tool_calls</code> object</td></tr>
+<tr><td>you regex/parse the string</td><td>already a parsed dict: <code>{"name","args","id"}</code></td></tr>
+<tr><td>args are unstructured text → malformed JSON</td><td>args arrive schema-validated as a real object</td></tr>
+<tr><td>brittle, no type safety, burns prompt tokens teaching format</td><td>model fine-tuned to produce valid calls; parallel calls as a clean list</td></tr>
+</table></div>
+<p>You give the API a tool list with JSON schemas up front; the model returns calls in a dedicated field; you do a dict lookup (§3) and return a <code>ToolMessage</code>. Modern LangChain: <code>model.bind_tools([...])</code> + <code>ToolNode</code> — the text-parsing layer is gone.</p>
+<div class="box compress"><div class="label">◆ Compression</div><p>The model's "I want to call a tool" intent moved from <em>typed-as-text-you-parse</em> to <em>emitted-as-schema-validated-JSON in a dedicated field</em>. Don't hand-roll the 2022 mechanism in 2026.</p></div>
+</section>
+
+<!-- ============ PART IV ============ -->
+<div class="part-head">Part IV — Model Context Protocol (MCP)</div>
+
+<section id="host">
+<h2><span class="num">16</span>"Host" &amp; the portability problem</h2>
+<p>"Host" here = the <strong>LLM provider</strong> (OpenAI, Anthropic, Google). Each built its own tool-calling format, and they didn't match — so the same tool needed three different shapes:</p>
+<pre data-lang="json"><code><span class="c-com">// OpenAI</span>   {"type":"function","function":{"name":...,"parameters":{...}}}
+<span class="c-com">// Anthropic</span> {"name":...,"input_schema":{...}}
+<span class="c-com">// Gemini</span>    {"function_declarations":[{"name":...,"parameters":{...}}]}</code></pre>
+<p>And responses differ too (args as a JSON <em>string</em> vs a real object). So a tool was welded to one provider — swap models, redo the plumbing.</p>
+<p><strong>Two layers of fix:</strong> (1) <strong>Framework adapters</strong> — LangChain's <code>bind_tools</code> defines a tool once and translates to each provider's shape. Solves portability for <em>your own</em> tools in your codebase. (2) <strong>MCP</strong> — one standard protocol so independently-built tool <em>servers</em> plug into any agent on any provider, written once. The USB-C of tools.</p>
+</section>
+
+<section id="protocols">
+<h2><span class="num">17</span>REST / gRPC / GraphQL / JSON-RPC — and why MCP</h2>
+<div class="tbl"><table>
+<tr><th>Protocol</th><th>One defining idea</th></tr>
+<tr><td><strong>REST</strong></td><td>act on noun-URLs with HTTP verbs (<code>GET /users/42</code>); stateless, one-shot. OpenAPI = its instruction manual.</td></tr>
+<tr><td><strong>gRPC</strong></td><td>call remote functions like local; compact binary (Protocol Buffers); fast; internal microservices.</td></tr>
+<tr><td><strong>GraphQL</strong></td><td>client requests exactly the fields it wants from one flexible endpoint.</td></tr>
+<tr><td><strong>JSON-RPC</strong></td><td>minimal "call this method with these params" as tiny JSON; transport-agnostic.</td></tr>
+</table></div>
+<p>Two things plain web protocols didn't natively give for this job: (1) a <strong>standard runtime capability-discovery</strong> convention shaped for "LLM-callable tool" (REST/OpenAPI describes APIs to humans at build time, with no agreed runtime "enumerate your tools" endpoint); (2) <strong>bidirectional, stateful, streaming</strong> interaction (REST is stateless + one-directional + one-shot).</p>
+<p>MCP picked <strong>JSON-RPC 2.0 over pluggable transports</strong> (stdio local, Streamable HTTP remote) — composing existing boring pieces rather than inventing new networking.</p>
+</section>
+
+<section id="json-rpc">
+<h2><span class="num">18</span>JSON-RPC &amp; transports — where the properties come from</h2>
+<p>The crucial correction: <strong>JSON-RPC by itself does NOT provide statefulness, bidirectionality, or streaming.</strong> It's just a message format. Those properties come from the <em>transport</em> — and JSON-RPC's one useful trait is being transport-agnostic, so you pick a transport that has them.</p>
+<figure>
+<svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg">
+  <rect x="180" y="30" width="400" height="46" rx="9" fill="#16140f" stroke="#e0a64b" stroke-width="1.5"/>
+  <text x="380" y="50" text-anchor="middle" class="svg-title" style="fill:#f4c06a">Message layer — JSON-RPC 2.0</text>
+  <text x="380" y="67" text-anchor="middle" class="svg-sub">uniform: request (has id) · notification (no id) · result</text>
+  <rect x="80" y="120" width="270" height="62" rx="9" fill="#211d15" stroke="#6fb3a8"/>
+  <text x="215" y="143" text-anchor="middle" class="svg-title">stdio (local)</text>
+  <text x="215" y="162" text-anchor="middle" class="svg-sub">persistent pipe → stateful, 2-way, stream</text>
+  <rect x="410" y="120" width="270" height="62" rx="9" fill="#211d15" stroke="#6fb3a8"/>
+  <text x="545" y="143" text-anchor="middle" class="svg-title">Streamable HTTP (remote)</text>
+  <text x="545" y="162" text-anchor="middle" class="svg-sub">HTTP + SSE → server pushes a stream</text>
+  <line x1="280" y1="76" x2="215" y2="118" stroke="#322c20" stroke-width="2"/>
+  <line x1="480" y1="76" x2="545" y2="118" stroke="#322c20" stroke-width="2"/>
+  <text x="380" y="105" text-anchor="middle" class="svg-sub">pluggable transports — same messages, different pipe</text>
+</svg>
+<figcaption>Message format and transport are independent layers</figcaption>
+</figure>
+<ul>
+<li><strong>Bidirectionality</strong> — JSON-RPC has <em>notifications</em> (no <code>id</code>, no response expected), and <em>either side</em> can send them. Over a persistent two-way pipe, the server can push "resource changed" unprompted.</li>
+<li><strong>Statefulness</strong> — the transport holds one connection open across many messages; the first exchange is a capability-negotiation handshake; everything after lives in that remembered session.</li>
+<li><strong>Streaming</strong> — entirely the transport's job: a stdio pipe you keep writing to, or <strong>SSE</strong> (Server-Sent Events) holding the HTTP response open to push event after event.</li>
+</ul>
+<p>Why JSON-RPC <em>at all</em>, then? You still need a uniform message format both sides agree on, regardless of transport. JSON-RPC is the smallest such format, transport-agnostic, with the request/notification split bidirectionality needs.</p>
+<div class="box compress"><div class="label">◆ Compression</div><p>JSON-RPC = tiny uniform message format with a request-vs-notification distinction. Statefulness / bidirectionality / streaming come from the <em>transport</em> (persistent stdio pipe, or HTTP+SSE where SSE streams server→client). "Pluggable transports" = the same messages ride whichever pipe fits the deployment.</p></div>
+</section>
+
+<section id="rest-pitch">
+<h2><span class="num">19</span>Why not REST — the plain-words pitch</h2>
+<p>REST is built for a human to read docs, write code against fixed endpoints, ship. Stateless, one-directional. Wrong for agents three ways:</p>
+<ol>
+<li>An agent needs to connect to an unseen server and ask <em>at runtime</em> "what can you do?" and get a machine-readable tool list. REST has no standard for that → custom glue per server.</li>
+<li>The server sometimes needs to talk back on its own ("data changed") or stream a long tool's progress. Plain REST can't do server-initiated or streaming.</li>
+<li>The real point: even if you bolted all that on, everyone would do it <em>differently</em> → back to per-pairing integration. <strong>The problem isn't capability, it's the lack of a shared standard.</strong> Like USB-C — not electrically superior, just universally agreed, so any tool plugs into any agent. Turns N×M into N+M.</li>
+</ol>
+<div class="box interview"><div class="label">★ One-breath version</div><p>REST is stateless, one-directional, and has no standard runtime tool-discovery — agents need stateful, two-way, streaming connections plus auto-discovery, but mostly they need everyone using one standard so any agent works with any tool. MCP is that standard; the USB-C of tools.</p></div>
+</section>
+
+<section id="discovery">
+<h2><span class="num">20</span>tools/list — runtime discovery</h2>
+<p>Every MCP server answers one standard question the same way:</p>
+<pre data-lang="text"><code>Agent → server:  {"method":"tools/list"}        <span class="c-com"># "what can you do?"</span>
+Server → agent:  [{"name":"create_issue",
+                   "description":"Open a new issue",
+                   "input_schema":{"repo":"string","title":"string"}}, …]</code></pre>
+<p>The agent now knows, at runtime, what it can call and with what args — no GitHub-specific code. Swap to a Slack server tomorrow: same <code>tools/list</code> call, Slack's tools back, zero new glue. With REST you'd read each API's docs and hand-code an integration per service. <code>tools/list</code> is exactly what REST never standardized.</p>
+</section>
+
+<section id="notify">
+<h2><span class="num">21</span>Change notifications — narrow but real</h2>
+<p><code>notifications/tools/list_changed</code> only matters during a <strong>persistent open session</strong>. Example: an IDE agent (Claude Code, Cursor) you keep open for hours; mid-session you enable a new integration; the server pings <code>list_changed</code>; the agent re-runs <code>tools/list</code> and can use the new tool without a restart.</p>
+<p>For typical request-response agents (fire query → run → finish → close), there's no one listening, so it rarely fires. It's a feature for long-lived sessions, not one-shot calls — which is why it felt obscure.</p>
+</section>
+
+<section id="bloat">
+<h2><span class="num">22</span>Context bloat — MCP vs CLI (2026)</h2>
+<p><strong>Why MCP bloats context:</strong> the protocol declares <em>every</em> tool's full schema up front (via <code>tools/list</code>) before the agent reads your request — and that payload is often re-sent <em>every turn</em>. Reported: tool definitions burning 55,000+ tokens before a single user message; Perplexity's CTO cited up to <strong>72%</strong> of the window consumed pre-input. It also degrades reasoning by crowding the high-attention part of the window.</p>
+<figure>
+<svg viewBox="0 0 760 180" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="30" width="320" height="120" rx="10" fill="#16140f" stroke="#cf7a6a"/>
+  <text x="200" y="52" text-anchor="middle" class="svg-title" style="fill:#cf7a6a">MCP — EAGER</text>
+  <rect x="60" y="66" width="280" height="14" rx="4" fill="#cf7a6a" opacity="0.7"/>
+  <rect x="60" y="84" width="280" height="14" rx="4" fill="#cf7a6a" opacity="0.7"/>
+  <rect x="60" y="102" width="280" height="14" rx="4" fill="#cf7a6a" opacity="0.7"/>
+  <rect x="60" y="120" width="90" height="14" rx="4" fill="#6fb3a8"/>
+  <text x="200" y="170" text-anchor="middle" class="svg-sub">all schemas upfront · little room to reason</text>
+  <rect x="400" y="30" width="320" height="120" rx="10" fill="#16140f" stroke="#6fb3a8"/>
+  <text x="560" y="52" text-anchor="middle" class="svg-title" style="fill:#6fb3a8">CLI — LAZY</text>
+  <rect x="420" y="66" width="40" height="14" rx="4" fill="#e0a64b"/>
+  <rect x="420" y="84" width="280" height="14" rx="4" fill="#6fb3a8"/>
+  <rect x="420" y="102" width="280" height="14" rx="4" fill="#6fb3a8"/>
+  <rect x="420" y="120" width="280" height="14" rx="4" fill="#6fb3a8"/>
+  <text x="560" y="170" text-anchor="middle" class="svg-sub">~80-token entry · --help on demand · room to reason</text>
+</svg>
+<figcaption>Eager (declare everything) vs lazy (discover on demand) tool exposure</figcaption>
+</figure>
+<p><strong>Why CLI wins:</strong> (1) near-zero upfront context — an ~80-token prompt + progressive disclosure via <code>--help</code>; (2) the model <em>already knows</em> common CLIs (<code>git</code>, <code>grep</code>, <code>jq</code>, <code>curl</code>, <code>aws</code>, <code>psql</code>) from training, so it needs <em>no schema at all</em> and can one-shot them.</p>
+<div class="box trap"><div class="label">▲ Don't overcorrect to "MCP is dead"</div><p>CLI has its <em>own</em> bloat — on the <strong>output</strong> side (raw <code>git log</code> can dump 10k unstructured lines; MCP returns bounded, structured output). The CLI edge narrows on complex chained writes. And MCP's overhead buys governance for multi-tenant, compliance-sensitive, customer-facing systems. Switching transport doesn't fix the threat model (prompt injection survives). 2026 consensus: CLI for dev workflows, MCP where typed structure &amp; governance matter.</p></div>
+<div class="box interview"><div class="label">★ Interview insight</div><p>The real axis is <strong>eager vs lazy</strong> tool exposure: MCP declares everything upfront (pay in tokens), CLI discovers on demand. Second-order point most candidates miss: CLIs exploit the model's pretraining prior on Unix tools — no schema needed because the composability grammar is in the weights.</p></div>
+</section>
+
+<section id="cli-mech">
+<h2><span class="num">23</span>What a CLI actually is, mechanically</h2>
+<p>A CLI is just an installed program you run by typing a command; it takes text args, prints text. The trick: <strong>the agent uses ALL CLIs through ONE generic <code>bash</code>/shell tool</strong> — one tool, not N typed tools.</p>
+<pre data-lang="text"><code>Agent emits:  bash(command="slack-cli send --channel general --text 'hi'")
+Runtime runs that string in a real shell → stdout/stderr text back to agent</code></pre>
+<p>How it knows what to type, without schemas: (1) the model already knows the command from training; (2) <code>--help</code> — it runs help <em>as a bash call</em> to learn syntax lazily, only for the tool it's using, only when needed; (3) an ~80-token system-prompt hint.</p>
+<p><strong>"How do you inject it?"</strong> — two steps, no per-tool registration: install the binary on the box (so it's on PATH) + give the agent a shell tool. Claude Code has a bash tool built in, which is exactly why "Claude Code + CLIs" is the popular combo — every installed CLI is instantly usable with zero registration.</p>
+<p><strong>And yes — a Slack CLI can exist.</strong> The choice was never "does a CLI exist" (one usually can). It's: model already knows it / you just want cheap access → CLI; you need typed structure, auth scoping, bounded output, audit, cross-agent reuse → MCP.</p>
+</section>
+
+<section id="governance">
+<h2><span class="num">24</span>MCP governance &amp; auth — the multi-tenant case</h2>
+<p>Setup: a SaaS agent serving 100 customers; Customer A must only touch A's Slack. Raw CLI vs MCP:</p>
+<div class="tbl"><table>
+<tr><th></th><th>Raw CLI (bash tool)</th><th>MCP (typed tool)</th></tr>
+<tr><td><strong>What's the boundary</strong></td><td>the LLM-generated command <em>string</em></td><td>your trusted <em>server</em></td></tr>
+<tr><td><strong>Auth scoping</strong></td><td>a token sits in env; which customer's? injection can hit wrong workspace</td><td>server attaches the right customer's token &amp; checks the channel — LLM never sees the credential</td></tr>
+<tr><td><strong>Args</strong></td><td>arbitrary string → shell injection risk</td><td>typed <code>channel</code>, <code>text</code> only — a schema cage</td></tr>
+<tr><td><strong>Output</strong></td><td><code>read</code> may dump 5,000 messages</td><td>server caps &amp; shapes it (e.g. latest 20, JSON)</td></tr>
+<tr><td><strong>Audit</strong></td><td>grep freeform command strings</td><td>structured <code>(tool, args, customer_id)</code> logs</td></tr>
+</table></div>
+<div class="box compress"><div class="label">◆ Compression</div><p>With raw CLI the LLM-generated string is the security boundary — dangerous in multi-customer systems. MCP moves the boundary into trusted code: typed args cage requests, the server (not the model) attaches credentials and checks permissions, output is bounded, every call is auditable. That control is what MCP's overhead buys — and it only matters when the agent acts on behalf of multiple parties with real blast radius. On your own dev box, none of it applies → CLI wins.</p></div>
+</section>
+
+<section id="build-server">
+<h2><span class="num">25</span>Building &amp; hosting an MCP server</h2>
+<p><strong>Why build one:</strong> so AI agents can <em>do things</em> in your product (press the buttons humans click). Payoffs: distribution (be the tool the agent reaches for, across all clients), write-once over any provider, usually a thin shim over an API you already have, and governed internal automation. <strong>Skip it</strong> if your app has no actions worth automating.</p>
+<pre data-lang="python"><code><span class="c-key">from</span> mcp.server.fastmcp <span class="c-key">import</span> FastMCP
+mcp = FastMCP(<span class="c-str">"my-app"</span>)
+<span class="c-key">@mcp.tool</span>()
+<span class="c-key">def</span> <span class="c-fn">get_order_status</span>(order_id: <span class="c-key">str</span>) -> <span class="c-key">str</span>:
+    <span class="c-str">"""Look up the status of a customer order."""</span>  <span class="c-com"># → tool description the LLM reads</span>
+    <span class="c-key">return</span> db.lookup(order_id)
+<span class="c-key">if</span> __name__ == <span class="c-str">"__main__"</span>:
+    mcp.run()   <span class="c-com"># stdio by default</span></code></pre>
+<p>The SDK generates the schema from your type hints (so hints/Pydantic <em>become</em> the contract), turns the docstring into the description, and handles <code>tools/list</code> + JSON-RPC + transport.</p>
+<p><strong>Where/how to host:</strong></p>
+<ul>
+<li><strong>Local (stdio)</strong> — not really hosted; the client launches it as a subprocess and talks over pipes. Just point the client config at the run command. Personal/dev tools.</li>
+<li><strong>Remote (Streamable HTTP)</strong> — a web service. Deploy to Cloud Run / AWS / Fly.io / a container, give it a URL, put OAuth 2.1 + PKCE in front, clients connect over HTTP+SSE. For multi-user/customer-facing.</li>
+</ul>
+</section>
+
+<section id="resources">
+<h2><span class="num">26</span>Resources vs tools (vs prompts)</h2>
+<p>MCP servers expose three primitives: <strong>tools, resources, prompts.</strong></p>
+<ul>
+<li><strong>Tool = a verb.</strong> "Do something" — runs, may have side effects, one-off result. <em>Model-controlled</em> (the LLM decides to call it). Send email, run query, create ticket.</li>
+<li><strong>Resource = a noun.</strong> Addressable readable data by URI (<code>weather://Delhi/current</code>), fairly stable, re-read across turns, subscribable to changes. <em>App/user-controlled</em> (like @-mentioning a file). Config, KB docs, current state.</li>
+<li><strong>Prompt</strong> = a pre-written template the user can trigger. Nice-to-have; build last.</li>
+</ul>
+<p>Designing a server: enumerate the <em>actions</em> → tools (≈80% of what you build); enumerate <em>frequently-read stable data</em> → resources (optional, patchy client support, often just done as a read-tool). When in doubt, ship a tool.</p>
+<div class="box compress"><div class="label">◆ Compression</div><p>Tool = verb, action, one-off result, model decides, side effects. Resource = noun, addressable readable data, app attaches it, stable, re-read, subscribable. "Do this" → tool; "here's reference data to keep available" → resource.</p></div>
+</section>
+
+<section id="oauth">
+<h2><span class="num">27</span>OAuth 2.1 + PKCE (remote MCP auth)</h2>
+<ul>
+<li><strong>OAuth</strong> = log in without giving the app your password; the provider hands the app a scoped <em>token</em> instead.</li>
+<li><strong>OAuth 2.1</strong> = the modern hardened version (insecure options removed, best practices mandatory).</li>
+<li><strong>PKCE</strong> ("pixie") = anti-theft for the auth code: the app generates a secret, sends only its <em>hash</em>, and proves it holds the original when redeeming the code → an intercepted code alone is useless.</li>
+<li><strong>Resource Indicators (RFC 8707)</strong> = pin each token to one specific service, so a rogue server can't replay a token meant for it against a <em>different</em> service.</li>
+</ul>
+<div class="box compress"><div class="label">◆ Compression</div><p>OAuth = scoped token instead of your password; 2.1 = hardened version; PKCE = makes an intercepted auth code worthless without a secret only the real app holds. MCP uses it so remote servers get safe, scoped, password-free access on your behalf — Resource Indicators bind each token to one service so a rogue server can't reuse it elsewhere.</p></div>
+</section>
+
+<!-- ============ PART V ============ -->
+<div class="part-head">Part V — Agent-to-Agent (A2A)</div>
+
+<section id="a2a">
+<h2><span class="num">28</span>The A2A protocol — increasing, vendor-neutral</h2>
+<p>Adoption is <strong>rising, not declining</strong>, and it's <em>not</em> tied to Google ADK anymore. At its one-year mark (April 2026): 150+ supporting organizations; native integration in Azure AI Foundry, Amazon Bedrock AgentCore, and Google Cloud; production deployments in supply chain, finance, insurance, IT ops. Search interest grew ~22% MoM. Strongest signal it's winning: IBM's competing ACP merged <em>into</em> A2A (Aug 2025) — effectively no real alternative as of 2026.</p>
+<p>The "needs ADK" assumption is outdated: Google donated the protocol + spec + SDKs to the <strong>Linux Foundation</strong> in June 2025, making it vendor-neutral (no more ADK-bound than Kubernetes is Google-bound). v1.0 (early 2026) made it production-grade: <strong>Signed Agent Cards</strong> (cryptographic trust for discovery, blocks card-forgery), multi-tenancy, multi-protocol bindings (JSON-RPC + gRPC), version negotiation.</p>
+<figure>
+<svg viewBox="0 0 760 220" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="arr5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" fill="#6fb3a8"/></marker></defs>
+  <rect x="100" y="40" width="150" height="50" rx="10" fill="#211d15" stroke="#a892c4" stroke-width="1.5"/><text x="175" y="70" text-anchor="middle" class="svg-title">Agent (vendor X)</text>
+  <rect x="510" y="40" width="150" height="50" rx="10" fill="#211d15" stroke="#a892c4" stroke-width="1.5"/><text x="585" y="70" text-anchor="middle" class="svg-title">Agent (vendor Y)</text>
+  <line x1="250" y1="65" x2="506" y2="65" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr5)"/>
+  <line x1="510" y1="78" x2="254" y2="78" stroke="#6fb3a8" stroke-width="2" marker-end="url(#arr5)"/>
+  <text x="380" y="40" text-anchor="middle" class="svg-sub" style="fill:#6fb3a8">A2A — horizontal (agent ↔ agent)</text>
+  <rect x="120" y="150" width="110" height="44" rx="9" fill="#16140f" stroke="#e0a64b"/><text x="175" y="177" text-anchor="middle" class="svg-label">tools</text>
+  <rect x="530" y="150" width="110" height="44" rx="9" fill="#16140f" stroke="#e0a64b"/><text x="585" y="177" text-anchor="middle" class="svg-label">tools</text>
+  <line x1="175" y1="90" x2="175" y2="148" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr5)" opacity="0.8"/>
+  <line x1="585" y1="90" x2="585" y2="148" stroke="#e0a64b" stroke-width="2" marker-end="url(#arr5)" opacity="0.8"/>
+  <text x="175" y="135" text-anchor="middle" class="svg-sub" style="fill:#e0a64b">MCP — vertical</text>
+  <text x="585" y="135" text-anchor="middle" class="svg-sub" style="fill:#e0a64b">MCP — vertical</text>
+</svg>
+<figcaption>MCP connects agents to tools (vertical); A2A connects agents to agents (horizontal)</figcaption>
+</figure>
+<div class="box interview"><div class="label">★ Interview line</div><p>A2A is increasing, not declining — 150+ orgs, native in Azure/Bedrock/Google Cloud, competitor ACP absorbed into it. It's vendor-neutral (Linux Foundation since June 2025), so it's not ADK-bound. Mental model: MCP = vertical (agent↔tool), A2A = horizontal (agent↔agent) — complementary layers, not rivals. Discovery is via Agent Cards, cryptographically signed since v1.0.</p></div>
+<div class="box trap"><div class="label">▲ Honest scope caveat</div><p>The traction is mostly big-company / cloud-platform / enterprise inter-agent plumbing. As a solo dev not building cross-vendor multi-agent systems, you may never touch A2A directly — which is why it <em>felt</em> niche. Big in enterprise, quieter in solo-dev land. Both true at once.</p></div>
+</section>
+
+<hr class="div">
+<footer>
+  <p>Session reference · LangGraph &amp; LangChain internals, agent memory, MCP, CLI, A2A · grounded in 2026 state of practice.</p>
+  <p>Each concept carries its ◆ compression and ★ interview line for active recall. ▲ marks traps worth remembering.</p>
+</footer>
+</div>
+</main>
+</div>
+
+<script>
+  // active nav highlight on scroll
+  const links = [...document.querySelectorAll('nav.toc a')];
+  const map = {};
+  links.forEach(a=>{const id=a.getAttribute('href').slice(1);map[id]=a;});
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        const a=map[e.target.id]; if(a){a.classList.add('active');}
+      }
+    });
+  },{rootMargin:'-20% 0px -70% 0px'});
+  document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+  // close mobile menu on link tap
+  links.forEach(a=>a.addEventListener('click',()=>document.querySelector('.toc').classList.remove('open')));
+</script>
+</body>
+</html>

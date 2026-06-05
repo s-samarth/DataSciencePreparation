@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ML Data Foundations - Deep Chapter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0a0e14;--surface:#141a23;--surface-2:#1b2330;--border:#232b38;--text:#e6edf3;--muted:#8b9bb0;--sw:#38bdf8;--ml:#f59e0b;--ok:#34d399;--warn:#f87171}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top,#132033,var(--bg) 42%);color:var(--text);font-family:Inter,sans-serif;line-height:1.75}nav{position:sticky;top:0;z-index:10;background:rgba(10,14,20,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:12px 24px;font-size:14px;white-space:nowrap;overflow:auto}nav a{color:var(--muted);text-decoration:none;margin-right:12px}nav a.now{color:var(--sw);font-weight:800}main{max-width:1180px;margin:auto;padding:36px 22px 80px}.hero,.chapter,.panel,.callout,.lab,.toc a,.checkpoint{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;box-shadow:0 12px 32px #0004}.hero{padding:40px;border-radius:18px;background:linear-gradient(135deg,rgba(56,189,248,.13),rgba(245,158,11,.08))}.eyebrow,.mono{font-family:"JetBrains Mono",monospace;color:var(--muted)}h1{font-size:clamp(36px,6vw,72px);line-height:1;margin:10px 0 18px}h2{font-size:34px;margin:48px 0 16px}h3{font-size:25px;margin:28px 0 12px}h4{font-size:19px;margin:22px 0 8px}.toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.toc a{color:var(--text);text-decoration:none}.chapter{margin:20px 0;border-left:4px solid var(--sw)}.chapter.ml,.callout.ml{border-left-color:var(--ml)}.callout{border-left:4px solid var(--sw);margin:16px 0}.callout.warn{border-left-color:var(--warn)}.plain{font-size:19px;color:#dbeafe}.two{display:grid;grid-template-columns:1.08fr .92fr;gap:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.subnote{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:15px;margin:14px 0}.sw{color:var(--sw)}.ml{color:var(--ml)}.muted{color:var(--muted)}button,select{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 12px;margin:4px}button{cursor:pointer}button.active{border-color:var(--ml);color:var(--ml)}svg{max-width:100%;background:#0d131d;border:1px solid var(--border);border-radius:12px}.node{fill:#141a23;stroke:#38bdf8;stroke-width:2}.node.ml{stroke:#f59e0b}.edge{stroke:#415066;stroke-width:3;fill:none}.cell{border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;background:#0d131d}.hot{background:rgba(245,158,11,.25);border-color:var(--ml)}table{width:100%;border-collapse:collapse;margin:12px 0}td,th{border-bottom:1px solid var(--border);padding:10px;text-align:left;vertical-align:top}code{font-family:"JetBrains Mono",monospace;color:#dbeafe}@media(max-width:850px){.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav><a href="01_software_system_design.html">1 Software Design</a><a class="now" href="02_ml_data_foundations.html">2 Data Foundations</a><a href="03_training_in_production.html">3 Training</a><a href="04_serving_the_model.html">4 Serving</a><a href="05_production_loop.html">5 Production Loop</a><a href="06_infrastructure.html">6 Infrastructure</a></nav>
+<main>
+  <section class="hero">
+    <div class="eyebrow">PAGE 2 - DATA FOUNDATION LAYER</div>
+    <h1>ML Foundations + Data Engineering</h1>
+    <p>An ML system is not only code plus a model. It is a decision-making system whose behavior depends on how real-world events are recorded, converted into labels, transformed into features, stored, joined, validated, and served back to the model.</p>
+    <p>If the data layer is wrong, the model can look brilliant offline and fail silently in production. This page teaches the data layer slowly: from raw events to training examples, from file formats to lakehouses, from batch pipelines to streaming features, and from leakage to training-serving skew.</p>
+  </section>
+
+  <section class="callout">
+    <h3>Running Scenario: Fraud Detection at Checkout</h3>
+    <p>Throughout this page, imagine you work at an e-commerce company. When a user attempts payment, you need to predict whether the transaction is fraudulent. The prediction must happen in under 100 ms because the checkout flow cannot wait. The true label may arrive days or weeks later through chargebacks, manual review, customer complaints, or bank reports.</p>
+    <p>This scenario is useful because it forces nearly every ML data question: What was known at payment time? When does the label arrive? Which features must be fresh? Which data belongs in a product database, warehouse, stream, feature store, or lakehouse? How do you avoid training on future information?</p>
+  </section>
+
+  <h2>Table of Contents</h2>
+  <div class="toc">
+    <a href="#requirements">1. Why ML Requirements Differ</a>
+    <a href="#events">2. Events to Examples</a>
+    <a href="#labels">3. Labels and Ground Truth</a>
+    <a href="#features">4. Features and Leakage</a>
+    <a href="#formats">5. Formats and Layout</a>
+    <a href="#storage">6. Data Models and Stores</a>
+    <a href="#processing">7. ETL, ELT, Batch, Stream</a>
+    <a href="#lakehouse">8. Lakehouse</a>
+    <a href="#passing">9. Passing Data</a>
+    <a href="#interview">10. Interview Synthesis</a>
+  </div>
+
+  <section id="requirements" class="chapter ml">
+    <h2>1. Why ML System Requirements Differ From Software Requirements</h2>
+    <p class="plain">A normal service fails loudly when it crashes. An ML service often fails quietly by returning a plausible but wrong answer.</p>
+    <p>In ordinary software, reliability usually means the system keeps responding correctly under infrastructure failure: server crash, database failover, bad deploy, network timeout, disk full, traffic spike. These are still important in ML systems. But ML adds a second meaning of reliability: the prediction itself must remain trustworthy under changing data.</p>
+    <p>In the fraud scenario, the API could be perfectly healthy. It may return HTTP 200 in 40 ms. But if fraudsters change behavior, the model may approve bad transactions. No exception is thrown. The business discovers the problem later through chargebacks. That is the key mental shift: ML correctness is partly statistical and delayed.</p>
+    <h3>Reliability</h3>
+    <p><span class="sw">Software reliability</span> asks: does the service return a response, persist data safely, recover from failures, and meet SLOs? <span class="ml">ML reliability</span> asks: are predictions still accurate, calibrated, fair enough for the use case, robust on edge cases, and valid for today's population?</p>
+    <p>For fraud, software reliability monitors checkout latency, API errors, database errors, and queue lag. ML reliability monitors approval rate, score distribution, feature missingness, chargeback rate once labels arrive, and performance by country, payment method, device type, and account age.</p>
+    <h3>Scalability</h3>
+    <p>Software scalability usually focuses on traffic and storage. ML scalability has at least three axes. First, traffic volume: more prediction requests per second. Second, model complexity: a bigger model may require more CPU, GPU, memory, or latency budget. Third, number of models: a company may serve fraud, ranking, churn, recommendations, ETA, moderation, and LLM models at the same time.</p>
+    <p>A system serving one logistic regression model from memory can scale with ordinary API replicas. A system serving a large transformer may need GPU scheduling, batching, model warmup, and queue-based backpressure. A platform serving hundreds of models needs model registry, version routing, monitoring per model, and cost governance.</p>
+    <h3>Maintainability</h3>
+    <p>Software maintainability asks whether code is modular, tested, and deployable. ML maintainability adds data and model lineage. If a model version caused a regression, you need to answer: which code commit trained it, which data snapshot was used, which feature definitions were active, which labels were included, which preprocessing code ran, and which evaluation report approved it?</p>
+    <h3>Adaptability</h3>
+    <p>Adaptability is the ML-specific requirement that gets overlooked. Fraud patterns change. User behavior changes after a UI redesign. A new payment method launches. A holiday sale changes transaction distribution. The system must adapt without shutting down checkout. That means monitoring, retraining, rollback, and feature evolution are part of the system design, not afterthoughts.</p>
+    <div class="checkpoint">
+      <b>Can you explain this?</b>
+      <p>If an interviewer asks "what makes ML systems different from normal systems?", do not say only "data drift." Say: "The API can be operationally healthy while the model is statistically wrong. So I need to design for software SLOs and ML quality signals: labels, feature freshness, drift, calibration, slice metrics, and retraining."</p>
+    </div>
+  </section>
+
+  <section id="events" class="chapter">
+    <h2>2. From Raw Events to Training Examples</h2>
+    <p class="plain">A model does not train on raw reality. It trains on rows that engineers construct from events, timestamps, labels, and features.</p>
+    <p>Start with what the product actually logs. In checkout fraud, raw events might include:</p>
+    <ul>
+      <li><b>Account events:</b> account created, email changed, password reset, two-factor enabled.</li>
+      <li><b>Behavior events:</b> product viewed, item added to cart, checkout started, payment submitted.</li>
+      <li><b>Security events:</b> failed logins, device changes, IP changes, suspicious velocity signals.</li>
+      <li><b>Payment events:</b> authorization success/failure, payment method, billing country, chargeback notices.</li>
+      <li><b>Review events:</b> human reviewer decision, customer support report, bank dispute outcome.</li>
+    </ul>
+    <p>These events live at different times and in different systems. Some are generated by your application servers. Some come from payment providers. Some are delayed. Some are wrong. The ML data engineering job is to turn them into training examples that match the production decision.</p>
+    <h3>The most important idea: prediction time</h3>
+    <p>Prediction time is the moment the model would have made its decision in production. In this scenario, prediction time is payment submission. Every feature must be computed using information available at or before that moment. Every label must come from after that moment.</p>
+    <p>This sounds obvious, but it prevents many subtle bugs. If a training row for transaction T includes a field that was updated after the transaction, the model has seen the future. Offline metrics improve, but the model will not have that information in production.</p>
+    <h3>Observation window and label window</h3>
+    <p>The observation window is the historical period used to compute features. Example: "failed logins in the last 10 minutes" or "total spend in the last 7 days." The label window is the future period used to determine ground truth. Example: "chargeback within 30 days."</p>
+    <p>A clean training row can be described like this:</p>
+    <div class="subnote">
+      <p><b>Entity:</b> transaction_id = tx_123</p>
+      <p><b>Prediction time:</b> 2026-05-01 10:03:14</p>
+      <p><b>Features:</b> facts known before 10:03:14</p>
+      <p><b>Label:</b> whether fraud was confirmed by 2026-05-31</p>
+    </div>
+    <p>This structure is the foundation of point-in-time correctness. If you can explain it clearly, many ML system design questions become easier.</p>
+  </section>
+
+  <section id="labels" class="chapter ml">
+    <h2>3. Labels and Ground Truth Are Products Too</h2>
+    <p class="plain">A label is the answer you train the model to predict. In production ML, labels are often delayed, noisy, biased, and expensive.</p>
+    <p>Beginners often treat labels as if they are already sitting in a clean CSV. In real systems, labels are created by product behavior, human decisions, external systems, or future outcomes. Each source has bias.</p>
+    <table>
+      <thead><tr><th>Label type</th><th>Example</th><th>What can go wrong</th></tr></thead>
+      <tbody>
+        <tr><td>Explicit user label</td><td>User clicks "this is spam"</td><td>Only angry or motivated users label; many cases remain unlabeled.</td></tr>
+        <tr><td>Implicit behavioral label</td><td>Watch time, click, purchase</td><td>Behavior reflects exposure and UI position, not pure preference.</td></tr>
+        <tr><td>Delayed outcome</td><td>Chargeback, loan default, churn</td><td>Truth arrives weeks later, so monitoring is delayed.</td></tr>
+        <tr><td>Human review</td><td>Moderator marks content unsafe</td><td>Reviewers disagree; policies change; reviewed items are not random.</td></tr>
+        <tr><td>Weak or synthetic label</td><td>Rule-based fraud flag, LLM judge</td><td>The model may learn the rule or judge bias instead of the real target.</td></tr>
+      </tbody>
+    </table>
+    <p>Label delay changes system design. If fraud labels arrive 30 days later, you cannot know today's model accuracy today. You need proxy metrics: approval rate, score distribution, manual review rate, user complaints, payment authorization failure, and early chargeback signals. Page 5 will use this idea for monitoring.</p>
+    <p>Label bias also matters. Suppose you only send high-risk transactions to human review, and only reviewed transactions get labels. Then your training data overrepresents suspicious transactions. If you train naively, the model may not understand normal traffic well. This is selection bias caused by the previous production policy.</p>
+    <div class="callout">
+      <b>Data-science analogy:</b> in a clean notebook, y is given. In a production system, y is engineered. You must ask where it came from, when it arrives, what population it covers, and what policy created it.
+    </div>
+  </section>
+
+  <section id="features" class="chapter">
+    <h2>4. Features, Freshness, and Leakage</h2>
+    <p class="plain">A feature is a fact made available to the model at prediction time. The phrase "at prediction time" is what keeps you honest.</p>
+    <p>Features can be simple fields such as transaction amount, country, account age, device type, or payment method. They can be aggregate features such as failed logins in the last 10 minutes, number of cards used in the last 24 hours, average order value in the last 30 days, or distance from usual shipping location. They can be learned features such as embeddings for user behavior, product text, images, or documents.</p>
+    <p>Feature freshness is a system requirement. Account age can be computed from a database record and cached. Failed logins in the last 10 minutes needs recent event data. A daily batch pipeline is not enough if the model must react to attacks in seconds. This is where batch vs stream processing becomes a model-quality decision, not just an infrastructure preference.</p>
+    <h3>Leakage explained slowly</h3>
+    <p>Leakage means the model learns from information it will not have in production. The easiest example is using the label as a feature. If you train a fraud model with <code>chargeback_occurred</code> as an input, the model will look perfect and be useless. But leakage is usually subtler.</p>
+    <p><b>Future leakage:</b> using facts updated after prediction time, such as final order status or future chargeback count.</p>
+    <p><b>Target leakage:</b> using a field that directly encodes the answer, such as manual review outcome when the target is fraud.</p>
+    <p><b>Duplicate leakage:</b> nearly identical examples appear in train and test, so the model memorizes users or transactions.</p>
+    <p><b>Policy leakage:</b> labels are created by an old model or rule, and the new model simply learns that policy instead of the true outcome.</p>
+    <div class="two">
+      <div class="lab">
+        <h3>Leakage detector</h3>
+        <p>Pick a candidate feature and ask whether it would be known at payment time.</p>
+        <select id="featurePick"><option>chargebacks_in_next_30_days</option><option>failed_logins_last_10_min</option><option>account_age_at_payment_time</option><option>final_order_status</option><option>avg_order_value_last_30_days_as_of_payment</option></select>
+        <button onclick="leak()">Explain feature</button>
+        <div id="leakOut"></div>
+      </div>
+      <div class="callout warn">
+        <b>Interview trap:</b> saying "we will use all historical data" is not enough. You must say "historical as of prediction time." That phrase is the difference between a real ML system answer and a Kaggle answer.
+      </div>
+    </div>
+  </section>
+
+  <section id="formats" class="chapter">
+    <h2>5. Data Formats and Physical Layout</h2>
+    <p class="plain">A file format is not just a storage detail. It controls what is cheap to read, what is easy to debug, and how safely schemas evolve.</p>
+    <h3>JSON</h3>
+    <p>JSON is easy for humans and APIs. A single event can carry flexible fields: device information, request headers, nested metadata, and optional attributes. That makes JSON good for raw logs and service payloads. The cost is that text parsing is slow, repeated field names waste space, and types can be ambiguous. The string "123" and the number 123 are different, and missing fields require careful handling.</p>
+    <h3>CSV</h3>
+    <p>CSV is simple and universal. Almost every tool can open it. But CSV is weak for production data engineering: no rich schema, weak typing, awkward escaping, no nested structures, poor compression, and fragile handling of nulls. It is fine for small exports and examples; it is not ideal as the backbone of a large ML data platform.</p>
+    <h3>Parquet</h3>
+    <p>Parquet is binary, columnar, compressed, and built for analytical workloads. If your training job needs five columns out of a table with 300 columns, Parquet readers can skip most irrelevant data. Parquet stores column chunks together, compresses similar values well, and records metadata that query engines can use to skip row groups.</p>
+    <p>Columnar storage is why Parquet is common for feature matrices and lakehouse tables. ML training often scans many rows and selected columns. That is exactly the access pattern Parquet optimizes. The tradeoff is that Parquet is not human-readable and is not ideal for tiny row-by-row writes. Usually, streaming or transactional systems collect events first, then batch or compact them into Parquet for analytics and training.</p>
+    <div class="two">
+      <div class="lab">
+        <h3>Interactive: row vs column access</h3>
+        <button id="rowBtn" class="active">Fetch one full row</button>
+        <button id="colBtn">Scan one feature column</button>
+        <div id="matrix" class="grid"></div>
+      </div>
+      <div class="callout">
+        <b>Data-science analogy:</b> Parquet is the storage version of thinking in feature columns. If you only need <code>transaction_amount</code>, <code>country</code>, and <code>device_risk_score</code>, a columnar file avoids dragging unrelated fields through the pipeline.
+      </div>
+    </div>
+  </section>
+
+  <section id="storage" class="chapter">
+    <h2>6. Data Models, OLTP/OLAP, ACID/BASE</h2>
+    <p class="plain">Different stores exist because different questions need different access patterns and consistency guarantees.</p>
+    <p>An <b>OLTP</b> system runs the live product. It handles many small reads and writes: create user, update payment, fetch session, write order, check inventory. It optimizes low-latency indexed access and safe concurrent updates. Postgres, MySQL, DynamoDB, Spanner, and similar systems often play this role.</p>
+    <p>An <b>OLAP</b> system analyzes history. It handles fewer but much larger queries: compute daily revenue, build a training set, aggregate model performance by segment, scan billions of events. Warehouses and lakehouses are designed for this shape. Snowflake, BigQuery, Redshift, Databricks SQL, Trino, DuckDB, and Spark are common examples.</p>
+    <p>Do not run huge training-data scans directly on the checkout database. You may slow down real users. Instead, copy or stream operational data into analytical storage. That separation is one of the most important data-engineering ideas in ML systems.</p>
+    <h3>ACID and BASE in plain language</h3>
+    <p><b>ACID</b> means the database protects transaction correctness. If you transfer money, you do not want one account debited without the other credited. In ML systems, ACID matters for model registry transitions, feature definitions, metadata, payment events, and any source of truth.</p>
+    <p><b>BASE</b> systems trade strict immediate consistency for availability and scale. A feed counter can be slightly stale. A telemetry event can arrive late. A feature value may be eventually updated. This can be fine, but you must understand what stale data does to the model.</p>
+    <table>
+      <thead><tr><th>Need</th><th>Likely store</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Payment transaction</td><td>Relational/strong transactional DB</td><td>Correctness matters more than flexible scale.</td></tr>
+        <tr><td>Raw clickstream</td><td>Event log + object storage/lakehouse</td><td>Huge append volume, replay, historical scans.</td></tr>
+        <tr><td>Latest user features at serving</td><td>Key-value online store</td><td>Lookup by entity id with low p99 latency.</td></tr>
+        <tr><td>Training feature history</td><td>Warehouse/lakehouse</td><td>Columnar scans and point-in-time joins.</td></tr>
+        <tr><td>Embedding nearest neighbors</td><td>Vector index/store</td><td>Similarity search, not exact key lookup.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="processing" class="chapter">
+    <h2>7. ETL, ELT, Batch, Streaming, and CDC</h2>
+    <p class="plain">A data pipeline is not a script. It is a repeatable, observable process that moves data from raw to trusted while handling failures.</p>
+    <p><b>ETL</b> means extract, transform, load. You pull data from sources, clean and shape it, then load it into the destination. <b>ELT</b> means extract, load, transform. You first land data in a warehouse or lakehouse, then transform it there. ELT became common because cloud storage is cheap and modern query engines can transform large data in place.</p>
+    <p><b>Batch processing</b> runs on bounded data: the last hour, yesterday, last month, or a backfill range. It is easier to test and replay. Training data generation is often batch because you need a consistent historical snapshot.</p>
+    <p><b>Stream processing</b> runs continuously on unbounded events. It is needed when features must be fresh: failed login count in the last 10 minutes, card velocity in the last hour, click count in the last 30 seconds. Streaming systems must handle late events, out-of-order events, state, windows, and replay.</p>
+    <p><b>CDC</b>, change-data-capture, watches operational database changes and publishes them as events. Instead of querying the database every minute to see what changed, CDC emits inserts, updates, and deletes. This is useful for syncing product state into analytics, search indexes, feature pipelines, and caches.</p>
+    <div class="two">
+      <div class="lab"><h3>Pipeline animation</h3><svg id="etl" viewBox="0 0 820 190"></svg></div>
+      <div class="callout warn"><b>Production failure modes:</b> retries can duplicate records; backfills can overwrite good partitions; schema changes can break consumers; late events can change aggregates; and silent null explosions can poison training.</div>
+    </div>
+  </section>
+
+  <section id="lakehouse" class="chapter">
+    <h2>8. Data Lake, Warehouse, and Lakehouse</h2>
+    <p class="plain">A data lake stores flexible raw files. A warehouse stores governed analytical tables. A lakehouse tries to combine cheap flexible storage with warehouse-like table guarantees.</p>
+    <p>A traditional <b>data lake</b> is object storage: S3, GCS, ADLS, or MinIO. It can store JSON, CSV, Parquet, images, audio, logs, model artifacts, and anything else. It is cheap and flexible, but raw lakes can become messy: no clear schema, duplicate datasets, unclear ownership, and hard-to-trust tables.</p>
+    <p>A <b>data warehouse</b> gives structured tables, SQL, governance, performance, and business trust. It is excellent for BI and analytics. But warehouses can be expensive for raw data retention, less flexible for unstructured data, and tied to a particular engine.</p>
+    <p>A <b>lakehouse</b> uses object storage plus table formats such as Apache Iceberg, Delta Lake, or Apache Hudi. These formats track table metadata, snapshots, schema evolution, partitioning, and transactional writes. Catalogs such as Unity Catalog, AWS Glue, Apache Polaris, or Nessie provide permissions, discovery, and governance. Compute engines such as Spark, Trino, Flink, DuckDB, Snowflake, BigQuery, and Databricks can read the same table format.</p>
+    <p>For ML, the lakehouse is valuable because training needs large historical scans, reproducibility, schema evolution, and multiple compute engines. You might use Spark to build features, DuckDB for local debugging, Trino for ad hoc queries, and a training job reading the same Parquet-backed table.</p>
+    <div class="subnote"><b>2026 practical reality:</b> lakehouse-style architecture is central to AI data platforms because raw events, curated features, labels, embeddings, evaluation outputs, and governance metadata can live in one coherent storage layer.</div>
+  </section>
+
+  <section id="passing" class="chapter">
+    <h2>9. Passing Data Between Components</h2>
+    <p class="plain">How components pass data determines coupling, latency, durability, and debuggability.</p>
+    <p><b>Database handoff:</b> one component writes a table; another reads it. This is durable and easy to inspect, but consumers become coupled to schema and polling can be inefficient.</p>
+    <p><b>Service call:</b> one component calls another over REST or RPC. This is good when the caller needs an answer immediately. It is bad for high-volume event movement because it tightly couples availability and latency.</p>
+    <p><b>Queue or pub-sub:</b> producers publish events; consumers process asynchronously. This decouples services and supports replay, but introduces ordering, retry, and lag questions.</p>
+    <p><b>Object storage handoff:</b> batch jobs write files for other jobs. This is good for large data and model artifacts, but not for low-latency decisions.</p>
+    <p><b>Feature store handoff:</b> training and serving share feature definitions while using different physical stores: offline for history, online for low-latency lookup.</p>
+    <p><b>Vector store handoff:</b> embedding producers write vectors; retrieval systems perform nearest-neighbor search for recommendations, semantic search, RAG, or personalization.</p>
+  </section>
+
+  <section id="interview" class="chapter ml">
+    <h2>10. Interview Synthesis</h2>
+    <p class="plain">A strong ML data answer starts with the decision moment, not the database name.</p>
+    <p>If asked to design the data layer for a fraud model, say something like:</p>
+    <div class="checkpoint">
+      <p>"I would first define prediction time as payment submission and define the label as confirmed fraud or chargeback within a fixed future window. Then I would build point-in-time correct training examples: features computed only from events before payment time, labels from after payment time. Raw events would land in a lakehouse for historical training and replay. Fresh serving features such as failed-login velocity would come from a streaming pipeline into an online feature store. I would validate schema, freshness, null rates, distribution shifts, and leakage before training. I would not scan the OLTP checkout database directly for training workloads."</p>
+    </div>
+    <p>That answer shows conceptual understanding. It connects product timing, labels, features, storage, pipelines, and validation. It does not rely on name-dropping tools.</p>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+function drawMatrix(mode="row"){const cells=[];for(let r=0;r<4;r++)for(let c=0;c<4;c++){const hot=mode==="row"?r===1:c===2;cells.push(`<div class="cell ${hot?'hot':''}">row ${r+1}<br>col ${c+1}</div>`)}matrix.innerHTML=cells.join("")}
+rowBtn.onclick=()=>{rowBtn.classList.add("active");colBtn.classList.remove("active");drawMatrix("row")};
+colBtn.onclick=()=>{colBtn.classList.add("active");rowBtn.classList.remove("active");drawMatrix("col")};
+drawMatrix("row");
+let step=0;
+function drawEtl(){const ns=[["Extract",80],["Land raw",220],["Validate",370],["Transform",525],["Publish",675],["Monitor",790]];etl.innerHTML=ns.map((n,i)=>`<circle class="node ${i===step?'ml':''}" cx="${n[1]}" cy="95" r="40"/><text x="${n[1]}" y="100" fill="#e6edf3" text-anchor="middle" font-size="12">${n[0]}</text>${i?`<path class="edge" d="M${n[1]-100} 95 L${n[1]-42} 95"/>`:''}`).join("");step=(step+1)%ns.length}
+drawEtl();setInterval(drawEtl,950);
+function leak(){const x=featurePick.value;const m={"chargebacks_in_next_30_days":"Leakage. This is future information and is basically the label. The model will look excellent offline and fail at serving time because this value is unknown at payment time.","failed_logins_last_10_min":"Valid if the count is computed only from login events before payment submission and can be served within the checkout latency budget. It likely requires streaming or a very fresh online store.","account_age_at_payment_time":"Valid. It can be computed from account creation timestamp and prediction timestamp. It is stable and easy to reproduce point-in-time.","final_order_status":"Usually leakage. Final status often includes cancellation, fulfillment, refund, manual review, or fraud investigation outcomes that happen after payment time.","avg_order_value_last_30_days_as_of_payment":"Valid if computed as of payment time. Invalid if computed using today's full history when creating old training examples."};leakOut.innerHTML=`<p>${m[x]}</p>`}
+</script>
+</body>
+</html>

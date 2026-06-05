@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inferential Statistics &mdash; Part 2 Reference</title>
+<style>
+:root{
+  --bg:#0f1117;
+  --panel:#161a23;
+  --panel2:#1c2230;
+  --ink:#e6e9ef;
+  --muted:#9aa4b6;
+  --line:#2a3140;
+  --accent:#e8b04b;      /* warm gold */
+  --accent2:#5db0ff;     /* cool blue */
+  --green:#5ad19a;
+  --red:#ef6f6f;
+  --purple:#b08bff;
+  --mathbg:#11151d;
+  --codebg:#10141c;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(232,176,75,0.08), transparent 60%),
+    radial-gradient(900px 500px at -5% 10%, rgba(93,176,255,0.07), transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  line-height:1.7;
+  font-size:17px;
+}
+.wrap{max-width:980px;margin:0 auto;padding:48px 26px 120px;}
+header.hero{
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:38px 34px;
+  background:linear-gradient(160deg, var(--panel2), var(--panel));
+  position:relative;
+  overflow:hidden;
+}
+header.hero:before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 22px);
+  pointer-events:none;
+}
+.kicker{
+  font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  letter-spacing:0.28em;text-transform:uppercase;font-size:12px;
+  color:var(--accent);margin:0 0 14px;
+}
+h1{
+  font-size:clamp(30px,5vw,46px);line-height:1.08;margin:0 0 14px;
+  font-weight:600;letter-spacing:-0.01em;
+}
+h1 .sub{display:block;color:var(--muted);font-size:0.45em;font-weight:400;margin-top:14px;letter-spacing:0;}
+.hero p{color:var(--muted);margin:10px 0 0;max-width:70ch;}
+.meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;}
+.tag{
+  font-family:"SF Mono",ui-monospace,monospace;font-size:11.5px;
+  border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--muted);
+  background:rgba(255,255,255,0.02);
+}
+
+/* TOC */
+nav.toc{
+  margin:34px 0 10px;border:1px solid var(--line);border-radius:14px;
+  background:var(--panel);padding:24px 28px;
+}
+nav.toc h2{margin:0 0 14px;font-size:14px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent2);font-family:"SF Mono",monospace;}
+nav.toc ol{margin:0;padding-left:22px;columns:2;column-gap:38px;}
+nav.toc li{margin:7px 0;break-inside:avoid;}
+nav.toc a{color:var(--ink);text-decoration:none;border-bottom:1px dotted transparent;}
+nav.toc a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+
+section{margin:54px 0 0;scroll-margin-top:20px;}
+.secnum{
+  font-family:"SF Mono",monospace;color:var(--accent);font-size:13px;letter-spacing:0.2em;
+}
+h2.sec{
+  font-size:clamp(23px,3.4vw,31px);margin:6px 0 8px;font-weight:600;letter-spacing:-0.01em;
+  border-bottom:1px solid var(--line);padding-bottom:14px;
+}
+h3{font-size:21px;margin:34px 0 8px;color:var(--ink);font-weight:600;}
+h4{font-size:17.5px;margin:24px 0 6px;color:var(--accent);font-weight:600;letter-spacing:0.01em;}
+p{margin:12px 0;}
+strong{color:#fff;font-weight:600;}
+em{color:var(--accent);font-style:italic;}
+a{color:var(--accent2);}
+ul,ol{margin:12px 0;padding-left:26px;}
+li{margin:8px 0;}
+
+/* Intuition / mental-model callouts */
+.box{border-radius:13px;padding:18px 22px;margin:20px 0;border:1px solid var(--line);position:relative;}
+.box .lab{
+  font-family:"SF Mono",monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+  display:block;margin-bottom:8px;
+}
+.intuition{background:linear-gradient(135deg,rgba(232,176,75,0.10),rgba(232,176,75,0.02));border-color:rgba(232,176,75,0.32);}
+.intuition .lab{color:var(--accent);}
+.mental{background:linear-gradient(135deg,rgba(93,176,255,0.10),rgba(93,176,255,0.02));border-color:rgba(93,176,255,0.32);}
+.mental .lab{color:var(--accent2);}
+.myth{background:linear-gradient(135deg,rgba(239,111,111,0.09),rgba(239,111,111,0.02));border-color:rgba(239,111,111,0.32);}
+.myth .lab{color:var(--red);}
+.interview{background:linear-gradient(135deg,rgba(176,139,255,0.10),rgba(176,139,255,0.02));border-color:rgba(176,139,255,0.32);}
+.interview .lab{color:var(--purple);}
+.keyline{background:linear-gradient(135deg,rgba(90,209,154,0.10),rgba(90,209,154,0.02));border-color:rgba(90,209,154,0.32);}
+.keyline .lab{color:var(--green);}
+
+/* Math */
+.math{
+  background:var(--mathbg);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:8px;padding:16px 20px;margin:18px 0;overflow-x:auto;
+  font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:16px;line-height:1.9;
+  color:#f2f4f8;
+}
+.math .pe{display:block;color:var(--muted);font-family:inherit;font-size:13.5px;font-style:italic;margin-bottom:8px;border-bottom:1px dashed var(--line);padding-bottom:7px;}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 4px;}
+.frac .num{border-bottom:1.5px solid #cfd6e4;padding:0 8px;}
+.frac .den{padding:2px 8px 0;}
+.sqrt{border-top:1.5px solid #cfd6e4;padding:0 3px;}
+.sqrt-sym{font-size:1.05em;}
+sub,sup{font-size:0.72em;}
+.vbar{color:var(--accent2);padding:0 2px;}
+
+/* Tables */
+.tablewrap{overflow-x:auto;margin:20px 0;border:1px solid var(--line);border-radius:12px;}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:520px;}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{background:var(--panel2);color:var(--accent2);font-family:"SF Mono",monospace;font-size:12px;letter-spacing:0.05em;text-transform:uppercase;font-weight:600;}
+tr:last-child td{border-bottom:none;}
+td:first-child{color:#fff;font-weight:600;}
+.grid2 th{background:var(--panel2);}
+
+/* Question blocks */
+.q{border:1px solid var(--line);border-radius:13px;margin:24px 0;overflow:hidden;background:var(--panel);}
+.q .qhead{background:linear-gradient(90deg,rgba(232,176,75,0.14),transparent);padding:14px 20px;font-weight:600;border-bottom:1px solid var(--line);}
+.q .qhead .qtag{font-family:"SF Mono",monospace;font-size:11px;letter-spacing:0.18em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:4px;}
+.q .qbody{padding:6px 20px 18px;}
+.step{margin:14px 0;padding-left:16px;border-left:2px solid var(--line);}
+.step .sn{font-family:"SF Mono",monospace;font-size:12px;color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;}
+.verdict{margin-top:14px;padding:12px 16px;border-radius:9px;background:rgba(90,209,154,0.10);border:1px solid rgba(90,209,154,0.3);}
+.verdict.fail{background:rgba(239,111,111,0.08);border-color:rgba(239,111,111,0.28);}
+
+/* SVG viz */
+.viz{margin:24px 0;border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:20px;}
+.viz .cap{font-size:13.5px;color:var(--muted);margin-top:12px;font-style:italic;text-align:center;}
+.viz svg{display:block;width:100%;height:auto;}
+
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:40px 0;}
+code.inl{font-family:"SF Mono",monospace;background:var(--codebg);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:14px;color:var(--accent);}
+.footer{margin-top:80px;border-top:1px solid var(--line);padding-top:24px;color:var(--muted);font-size:14px;text-align:center;}
+.back{position:fixed;right:20px;bottom:20px;background:var(--accent);color:#1a1205;border:none;border-radius:50%;width:48px;height:48px;font-size:20px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.4);text-decoration:none;display:flex;align-items:center;justify-content:center;font-weight:700;}
+@media(max-width:680px){nav.toc ol{columns:1;}.wrap{padding:30px 16px 90px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="kicker">Inferential Statistics &middot; Part 2</p>
+  <h1>Hypothesis Testing to Bayesian Estimation
+    <span class="sub">A complete, intuition-first reference with the math kept in &mdash; built from our full session</span>
+  </h1>
+  <p>This page captures every concept, mental model, myth, comparison table, and worked question from our conversation, in the order we learned them. Lead with the story and the intuition; the formalism sits right beside it. Nothing skipped.</p>
+  <div class="meta">
+    <span class="tag">Hypothesis Testing</span>
+    <span class="tag">p-values</span>
+    <span class="tag">Type I / II Errors</span>
+    <span class="tag">Power</span>
+    <span class="tag">t / z / &chi;&sup2; / F</span>
+    <span class="tag">ANOVA</span>
+    <span class="tag">Non-parametric</span>
+    <span class="tag">Bayesian &amp; MAP</span>
+    <span class="tag">Foundations</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#s1">Hypothesis Testing</a></li>
+    <li><a href="#s2">The p-value</a></li>
+    <li><a href="#s3">Type I &amp; II Errors, FDR, Precision/Recall</a></li>
+    <li><a href="#s4">Statistical Power &amp; Power Analysis</a></li>
+    <li><a href="#s5">t-Distribution, df, z-vs-t, t-Test</a></li>
+    <li><a href="#s6">The z-Test &amp; z-vs-t Table</a></li>
+    <li><a href="#s7">Chi-Squared Distribution &amp; Tests</a></li>
+    <li><a href="#s8">The F-Distribution</a></li>
+    <li><a href="#s9">Tests for Variances &amp; ANOVA</a></li>
+    <li><a href="#s10">Order Statistics</a></li>
+    <li><a href="#s11">Wilcoxon &amp; Kolmogorov-Smirnov</a></li>
+    <li><a href="#s12">Bayesian Estimation &amp; MAP</a></li>
+    <li><a href="#s13">Sample Size vs. Effective Sample Size</a></li>
+    <li><a href="#s14">Standard Deviation vs. Standard Error</a></li>
+    <li><a href="#s15">Bootstrapping</a></li>
+    <li><a href="#s16">Population vs. Sample Variance (n&minus;1)</a></li>
+    <li><a href="#s17">Odds &amp; Log-Odds</a></li>
+    <li><a href="#s18">CLT &amp; LLN in Inference</a></li>
+  </ol>
+</nav>
+
+<!-- ===================== SECTION 1 ===================== -->
+<section id="s1">
+  <div class="secnum">01</div>
+  <h2 class="sec">Hypothesis Testing</h2>
+
+  <h3>The Core Problem: Why We Need It</h3>
+  <p>You see something in your data: a drug seems to lower blood pressure, a new button seems to lift conversions, a coin seems to land heads too often. The question that haunts every analysis is the same: <strong>is this effect real, or did I just get lucky with my sample?</strong></p>
+  <p>You can never measure the whole population, so you take a noisy sample. Flip a fair coin 10 times and 7 heads is just randomness; flip it 1000 times and 700 heads is genuinely off. Hypothesis testing is a <strong>formal, disciplined procedure for separating real signal from random noise</strong> &mdash; it stops you from fooling yourself. Humans are catastrophically bad at this intuitively (hot hands, stocks "due" for a rebound, a redesign that "feels" better). The test forces a number onto how surprised we should be, given that nothing interesting is actually happening.</p>
+
+  <div class="box mental">
+    <span class="lab">Mental Model &mdash; Proof by Contradiction, Softened</span>
+    In math, to prove something you assume the opposite and show it leads to absurdity. Hypothesis testing is the statistical version, softened for a noisy world. The <strong>courtroom</strong> is the cleanest analogy: the defendant is presumed innocent (the null), the prosecution must prove guilt beyond reasonable doubt (the threshold), and failing to do so yields "not guilty" &mdash; which is <em>not</em> "proven innocent."
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <tr><th>Courtroom</th><th>Hypothesis Test</th></tr>
+    <tr><td>Presumed innocent</td><td>Null hypothesis H&#8320; (nothing is happening)</td></tr>
+    <tr><td>The evidence</td><td>Your data</td></tr>
+    <tr><td>Beyond reasonable doubt</td><td>Significance threshold &alpha;</td></tr>
+    <tr><td>"Guilty" verdict</td><td>Reject H&#8320;</td></tr>
+    <tr><td>"Not guilty" verdict</td><td>Fail to reject H&#8320;</td></tr>
+  </table>
+  </div>
+
+  <h3>Null and Alternate Hypotheses</h3>
+  <p><strong>The null hypothesis (H&#8320;)</strong> is the boring, skeptical default: "no effect," "no difference," "the coin is fair." <strong>The alternate hypothesis (H&#8321; or H&#8336;)</strong> is the interesting claim you want to demonstrate: "the drug works," "the coin is biased."</p>
+  <p>Why is the boring statement the default? Two deep reasons:</p>
+  <ul>
+    <li><strong>The null is specific; the alternate is vague.</strong> "The coin is fair" means exactly <em>p = 0.5</em> &mdash; one precise number you can build a probability model on. "The coin is biased" could be 0.51 or 0.9; you cannot compute probabilities from a vague claim. We need the precise statement to do the math, so the precise statement becomes the working assumption.</li>
+    <li><strong>The burden of proof sits on the new claim.</strong> Extraordinary claims need extraordinary evidence. The data must drag you, kicking and screaming, away from disbelief.</li>
+  </ul>
+
+  <h4>How to Frame the Null</h4>
+  <p>The null always contains the <strong>equality</strong> (=, &le;, or &ge;) &mdash; it needs a specific value to assume so probabilities are computable. Whatever you set out to prove goes in H&#8321;.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Claim</th><th>H&#8320;</th><th>H&#8321;</th></tr>
+    <tr><td>New method raises avg above 70</td><td>&mu; &le; 70</td><td>&mu; &gt; 70</td></tr>
+    <tr><td>Coin is biased (either way)</td><td>p = 0.5</td><td>p &ne; 0.5</td></tr>
+    <tr><td>Drug changes BP (unknown direction)</td><td>&mu; = 0</td><td>&mu; &ne; 0</td></tr>
+  </table></div>
+
+  <h3>How We Test the Null &mdash; The Machinery</h3>
+  <div class="step"><span class="sn">Step 1</span><br>Assume H&#8320; is true. This gives a precise probability model &mdash; a known distribution of what the data <em>should</em> look like in the boring world.</div>
+  <div class="step"><span class="sn">Step 2</span><br>Collect data, compute a <strong>test statistic</strong>: a single number measuring how far the data sits from what H&#8320; predicts ("how many standard errors away am I?").</div>
+  <div class="step"><span class="sn">Step 3</span><br>Ask the key question: if H&#8320; were true, how likely is data this extreme or more? <strong>That probability is the p-value.</strong></div>
+  <div class="step"><span class="sn">Step 4</span><br>Compare to a pre-chosen threshold <strong>&alpha;</strong> (usually 0.05) &mdash; your "beyond reasonable doubt" bar, the risk of being fooled by noise you'll tolerate.</div>
+  <div class="step"><span class="sn">Step 5</span><br>Verdict: if p &lt; &alpha;, <strong>reject H&#8320;</strong>; if p &ge; &alpha;, <strong>fail to reject H&#8320;</strong>.</div>
+
+  <h3>The Language: "Reject" vs. "Fail to Reject"</h3>
+  <div class="box keyline">
+    <span class="lab">The Key Asymmetry</span>
+    Proof by contradiction lets you do exactly one thing cleanly: show an assumption leads to absurdity and throw it out. The <em>reverse</em> move is invalid &mdash; if assuming H&#8320; does <strong>not</strong> produce absurdity, that does not prove H&#8320; is true. <strong>Absence of evidence is not evidence of absence.</strong> So we never "accept" H&#8320;.
+  </div>
+  <p>Two concrete reasons we can never "accept" the null:</p>
+  <ul>
+    <li><strong>Small samples hide real effects.</strong> A drug that truly lowers BP by a tiny amount, tested on 5 people, gives noisy data &rarr; you fail to reject "no effect" &mdash; but the effect is real. You simply lacked the <em>power</em> to see it.</li>
+    <li><strong>H&#8320; is a single exact point.</strong> "&mu; = 100" or "effect is exactly zero" is almost never <em>precisely</em> true (maybe it's 0.0001). You can never gather enough evidence to confirm a value to infinite precision; you can only fail to find it different.</li>
+  </ul>
+  <div class="box intuition">
+    <span class="lab">One-liner to Lock It In</span>
+    <strong>You can prove something is wrong; you can't prove something is right.</strong> Hypothesis testing can convict, but it can never fully exonerate. So we only ever <em>reject</em> or <em>fail to reject</em> &mdash; never <em>accept</em>.
+  </div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Worked Intuition &mdash; no formulas</span>Flip a coin 10 times, get 8 heads. Is it biased?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Frame</span><br>H&#8320;: p = 0.5 (fair). H&#8321;: p &ne; 0.5 (biased).</div>
+      <div class="step"><span class="sn">2 &middot; Assume H&#8320;</span><br>If fair, heads in 10 flips follows a binomial centered at 5.</div>
+      <div class="step"><span class="sn">3 &middot; Key question</span><br>How often would a fair coin give 8+ heads (or 2 or fewer, since extreme cuts both ways)? Getting 8, 9, or 10 has probability &asymp; 5.5%; the symmetric low tail adds &asymp; 5.5%, so "this extreme or more" &asymp; 11%.</div>
+      <div class="step"><span class="sn">4 &middot; Compare</span><br>p &asymp; 0.11 &gt; &alpha; = 0.05.</div>
+      <div class="verdict fail"><strong>Fail to reject H&#8320;.</strong> 8 heads is surprising, but not surprising enough at the 5% bar. We did <em>not</em> conclude the coin is fair &mdash; maybe it is slightly biased and 10 flips wasn't enough. With 1000 flips and 800 heads the story flips entirely.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Hypothesis testing decides whether an observed effect is real or sampling noise. Set a skeptical default (H&#8320;) and the claim you want (H&#8321;), assume the null, compute how likely your data is under it (the p-value), and reject if that falls below &alpha;. The logic mirrors proof by contradiction &mdash; which is why you only ever "reject" or "fail to reject," never "accept."
+  </div>
+</section>
+
+<!-- ===================== SECTION 2 ===================== -->
+<section id="s2">
+  <div class="secnum">02</div>
+  <h2 class="sec">The p-value</h2>
+
+  <div class="box intuition">
+    <span class="lab">The One Question It Answers</span>
+    <strong>"If the null hypothesis were true, how often would I see evidence this extreme, or more extreme, just by random luck?"</strong> The p-value is a measure of <em>surprise</em> &mdash; how shocked you should be by your data, assuming the boring world is the real one.
+  </div>
+
+  <div class="math">
+    <span class="pe">The p-value is the probability of the data (or more extreme), GIVEN the null is true &mdash; not the probability the null is true.</span>
+    p-value = P( data this extreme or more <span class="vbar">|</span> H&#8320; is true )
+  </div>
+  <p>The vertical bar means "given." We live inside the assumption that H&#8320; holds and ask how weird the data looks from in there. Small p = "if nothing interesting were happening I'd almost never see this." Large p = "even in a boring world this shows up all the time."</p>
+
+  <h4>Why "Or More Extreme"?</h4>
+  <p>For continuous data the probability of any single exact value is essentially zero, so that alone is useless. Deeper: what makes 8/10 heads surprising isn't the exact 8, it's landing far out in the tail; 9 or 10 would be even more surprising, more evidence against fairness. So "how extreme" must include everything <em>at least</em> as extreme &mdash; the whole tail. That tail area <em>is</em> the p-value.</p>
+
+  <h4>How We Use It</h4>
+  <ol>
+    <li>Set <strong>&alpha;</strong> in advance (usually 0.05). This means: "I'm willing to be fooled by noise 5% of the time."</li>
+    <li>Compute the p-value.</li>
+    <li><strong>p &lt; &alpha;</strong> &rarr; reject H&#8320;. &nbsp; <strong>p &ge; &alpha;</strong> &rarr; fail to reject H&#8320;.</li>
+  </ol>
+  <p>If the universe is genuinely boring and &alpha; = 0.05, you'll still wrongly reject about 1 in 20 times &mdash; the price of business (this is the Type I error rate).</p>
+
+  <h3>Myths vs. Reality</h3>
+  <div class="box myth"><span class="lab">Myth 1</span><strong>"The p-value is the probability that H&#8320; is true."</strong> No &mdash; the big one. The p-value assumes H&#8320; and computes the probability of the <em>data</em>. P(data|H&#8320;) &ne; P(H&#8320;|data). A p of 0.03 means "if the null were true, data this extreme occurs 3% of the time," not "3% chance the null is true." (P(dead|hanged) &asymp; 1, but P(hanged|dead) is tiny &mdash; swapping the condition flips the meaning.)</div>
+  <div class="box myth"><span class="lab">Myth 2</span><strong>"A large p-value proves H&#8320; is true."</strong> It means you failed to find evidence against it &mdash; could be a real effect your sample was too small to detect.</div>
+  <div class="box myth"><span class="lab">Myth 3</span><strong>"The p-value tells you effect size / importance."</strong> A tiny p means you're confident the effect <em>exists</em>, not that it's <em>large</em>. With a huge sample, a trivial effect gives a microscopic p. Statistical significance &ne; practical significance. Always report effect size too.</div>
+  <div class="box myth"><span class="lab">Myth 4</span><strong>"p = 0.05 is a magic line."</strong> It's an arbitrary convention (Fisher). There's no physical difference between 0.049 and 0.051. The p-value is continuous evidence, not a binary switch.</div>
+  <div class="box myth"><span class="lab">Myth 5</span><strong>"Just collect more data / test more things until p &lt; 0.05."</strong> That's <em>p-hacking</em>. Even in a boring world 1 in 20 tests crosses 0.05 by chance; test 20 things and you're guaranteed "significant" noise (the multiple-comparisons problem).</div>
+
+  <h3>Is the p-value Only for Normal Distributions? No.</h3>
+  <p>The p-value is a general concept: a tail probability under whatever distribution the null implies. Coin flips &rarr; binomial; rare counts &rarr; Poisson; variances &rarr; F; categorical &rarr; chi-squared; small-sample means &rarr; t; large-sample means &rarr; normal. The distribution changes; the logic never does.</p>
+  <div class="box keyline">
+    <span class="lab">Why Everyone Associates p-values with the Normal</span>
+    The <strong>Central Limit Theorem</strong>. Sample means and proportions become approximately normal for large n regardless of the population shape. Since most real testing is about means and proportions, the normal shows up constantly. It's not that p-values <em>require</em> normality &mdash; the CLT <em>hands</em> it to us for free in the common cases.
+  </div>
+
+  <h3>The Normal Case &mdash; the z-score</h3>
+  <div class="math">
+    <span class="pe">How many standard deviations away from the boring-world center did I land? Further out = more surprising = smaller p.</span>
+    z = <span class="frac"><span class="num">observed &minus; expected under H&#8320;</span><span class="den">standard error</span></span>
+  </div>
+  <p>Reference points worth memorizing:</p>
+  <ul>
+    <li>|z| = 1.645 &rarr; one-tailed p = 0.05</li>
+    <li>|z| = 1.96 &rarr; two-tailed p = 0.05 &nbsp;(<em>the</em> famous number)</li>
+    <li>|z| = 2.576 &rarr; two-tailed p = 0.01</li>
+  </ul>
+  <p><strong>One-tailed vs. two-tailed:</strong> a directional H&#8321; (&mu; &gt; 100) looks at one tail; a non-directional H&#8321; (&mu; &ne; 100) counts both tails, so the p-value is doubled (by symmetry, 2 &times; one-tail area).</p>
+
+  <div class="viz">
+    <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Normal curve with two-tailed rejection regions">
+      <defs>
+        <linearGradient id="bell" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5db0ff" stop-opacity="0.35"/>
+          <stop offset="1" stop-color="#5db0ff" stop-opacity="0.02"/>
+        </linearGradient>
+      </defs>
+      <line x1="40" y1="210" x2="660" y2="210" stroke="#2a3140" stroke-width="1.5"/>
+      <!-- bell path -->
+      <path d="M40,210 C180,210 230,40 350,40 C470,40 520,210 660,210 Z" fill="url(#bell)" stroke="#5db0ff" stroke-width="2"/>
+      <!-- tails shaded -->
+      <path d="M40,210 C120,210 150,150 175,120 L175,210 Z" fill="#ef6f6f" fill-opacity="0.5"/>
+      <path d="M660,210 C580,210 550,150 525,120 L525,210 Z" fill="#ef6f6f" fill-opacity="0.5"/>
+      <line x1="175" y1="40" x2="175" y2="218" stroke="#ef6f6f" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <line x1="525" y1="40" x2="525" y2="218" stroke="#ef6f6f" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <line x1="350" y1="40" x2="350" y2="218" stroke="#e8b04b" stroke-width="1.5" stroke-dasharray="2 4"/>
+      <text x="350" y="234" fill="#9aa4b6" font-size="13" text-anchor="middle" font-family="monospace">0 (null center)</text>
+      <text x="160" y="234" fill="#ef6f6f" font-size="13" text-anchor="middle" font-family="monospace">&minus;1.96</text>
+      <text x="540" y="234" fill="#ef6f6f" font-size="13" text-anchor="middle" font-family="monospace">+1.96</text>
+      <text x="110" y="150" fill="#ef6f6f" font-size="12" text-anchor="middle">reject</text>
+      <text x="590" y="150" fill="#ef6f6f" font-size="12" text-anchor="middle">reject</text>
+      <text x="350" y="150" fill="#5db0ff" font-size="13" text-anchor="middle">fail to reject (95%)</text>
+    </svg>
+    <div class="cap">Two-tailed test at &alpha; = 0.05: the red tails (2.5% each) are the rejection regions. A z beyond &plusmn;1.96 lands there.</div>
+  </div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Q1 &middot; Two-tailed z-test for a mean</span>Light bulbs: claimed mean 1000 h; 50 bulbs give mean 980 h, known &sigma; = 60. Differs at &alpha; = 0.05?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Frame</span><br>Two-tailed. H&#8320;: &mu; = 1000. H&#8321;: &mu; &ne; 1000.</div>
+      <div class="step"><span class="sn">2 &middot; Standard error</span>
+        <div class="math">SE = <span class="frac"><span class="num">&sigma;</span><span class="den">&radic;n</span></span> = <span class="frac"><span class="num">60</span><span class="den">&radic;50</span></span> = <span class="frac"><span class="num">60</span><span class="den">7.071</span></span> = 8.485 h</div>
+      </div>
+      <div class="step"><span class="sn">3 &middot; z-score</span>
+        <div class="math">z = <span class="frac"><span class="num">980 &minus; 1000</span><span class="den">8.485</span></span> = <span class="frac"><span class="num">&minus;20</span><span class="den">8.485</span></span> = &minus;2.357</div>
+      </div>
+      <div class="step"><span class="sn">4 &middot; p-value</span><br>One-tail area beyond 2.357 &asymp; 0.0092; two-tailed: 2 &times; 0.0092 = <strong>0.0184</strong>.</div>
+      <div class="verdict"><strong>Reject H&#8320;</strong> (0.0184 &lt; 0.05). If bulbs truly averaged 1000 h, a sample mean this far off (either direction) happens only ~1.8% of the time. We did <em>not</em> say "1.8% chance the factory is right" &mdash; we said "if the factory were right, data this extreme happens 1.8% of the time."</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Q2 &middot; One-tailed z-test for a proportion</span>Old button converts 12%; new button: 60/400 = 15%. Better at &alpha; = 0.05?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Frame</span><br>Directional (improvement) &rarr; one-tailed. H&#8320;: p = 0.12. H&#8321;: p &gt; 0.12.</div>
+      <div class="step"><span class="sn">2 &middot; SE under H&#8320;</span><br>Use the null's p&#8320; = 0.12, because we compute everything assuming H&#8320; is true.
+        <div class="math">SE = &radic;<span class="sqrt"><span class="frac"><span class="num">p&#8320;(1&minus;p&#8320;)</span><span class="den">n</span></span></span> = &radic;<span class="sqrt"><span class="frac"><span class="num">0.12 &times; 0.88</span><span class="den">400</span></span></span> = &radic;<span class="sqrt">0.000264</span> = 0.01625</div>
+      </div>
+      <div class="step"><span class="sn">3 &middot; z-score</span>
+        <div class="math">z = <span class="frac"><span class="num">0.15 &minus; 0.12</span><span class="den">0.01625</span></span> = <span class="frac"><span class="num">0.03</span><span class="den">0.01625</span></span> = 1.846</div>
+      </div>
+      <div class="step"><span class="sn">4 &middot; p-value</span><br>One tail (we only care about improvement). Area beyond 1.846 &asymp; <strong>0.0324</strong>.</div>
+      <div class="verdict"><strong>Reject H&#8320;</strong> (0.0324 &lt; 0.05). Significant evidence the new button improves conversion.</div>
+      <div class="box myth" style="margin-top:14px"><span class="lab">Teaching aside</span>If this had been two-tailed (H&#8321;: p &ne; 0.12), p = 2 &times; 0.0324 = 0.0648 &gt; 0.05 &rarr; <em>fail to reject</em>. Same data, opposite conclusion, purely from framing. Decide one- vs. two-tailed <strong>before</strong> seeing data &mdash; choosing after is p-hacking.</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Q3 &middot; Interpreting a p-value (conceptual)</span>Study reports p = 0.04. Journalist writes "96% chance the treatment works." Correct?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1</span><br>p = 0.04 means P(data this extreme or more | H&#8320; true) = 0.04 &mdash; a statement about the data under no-effect.</div>
+      <div class="step"><span class="sn">2</span><br>The journalist's claim is P(H&#8321; true) = 0.96, i.e. P(H&#8320; true) = 0.04 &mdash; a statement about the hypothesis given the data.</div>
+      <div class="step"><span class="sn">3</span><br>The error: they flipped the conditional. P(data|H&#8320;) was reported as P(H&#8320;|data). Getting P(H&#8320;|data) needs Bayes' theorem and a prior, which the p-value alone doesn't give.</div>
+      <div class="step"><span class="sn">4 &middot; Correct reading</span><br>"If the treatment had no effect, results this strong or stronger would occur only 4% of the time; since that's below 5%, we reject the no-effect hypothesis."</div>
+      <div class="verdict fail"><strong>The journalist is wrong</strong> &mdash; the most common p-value misinterpretation in popular writing.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    The p-value is the probability of data at least as extreme as observed, assuming H&#8320; is true. It measures surprise, not truth. Reject when p &lt; &alpha;. The three cardinal sins: treating it as P(H&#8320; true) (it's the reverse conditional), treating a large p as proof of H&#8320; (absence of evidence &ne; evidence of absence), and confusing significance with importance (tiny effects can be highly significant with big n). It's not tied to the normal &mdash; it's a tail probability under whatever distribution H&#8320; implies; the normal just appears everywhere thanks to the CLT. And <strong>P(data | H&#8320;) &ne; P(H&#8320; | data)</strong>.
+  </div>
+</section>
+
+<!-- ===================== SECTION 3 ===================== -->
+<section id="s3">
+  <div class="secnum">03</div>
+  <h2 class="sec">Type I &amp; II Errors, FDR, Precision/Recall</h2>
+
+  <div class="box intuition">
+    <span class="lab">Intuition &mdash; Two Ways to Be Wrong</span>
+    Reality has two states (H&#8320; true / false) and you make two decisions (reject / fail to reject). Two cells are correct; the other two are the two distinct failures &mdash; and they are <strong>not symmetric</strong>. Convict everyone &rarr; no innocents go free but every innocent is jailed; acquit everyone &rarr; the reverse. You cannot zero both at once.
+  </div>
+
+  <div class="tablewrap"><table class="grid2">
+    <tr><th></th><th>H&#8320; actually TRUE (no effect)</th><th>H&#8320; actually FALSE (real effect)</th></tr>
+    <tr><td>You reject H&#8320;</td><td style="color:#ef6f6f">&#10007; Type I error (false positive)</td><td style="color:#5ad19a">&#10003; Correct (true positive)</td></tr>
+    <tr><td>You fail to reject H&#8320;</td><td style="color:#5ad19a">&#10003; Correct (true negative)</td><td style="color:#ef6f6f">&#10007; Type II error (false negative)</td></tr>
+  </table></div>
+
+  <h4>Type I = False Positive (cried wolf)</h4>
+  <p>Rejecting a true null &mdash; declared an effect that doesn't exist. <strong>Its probability is exactly &alpha;</strong>, by definition. Set &alpha; = 0.05 and you explicitly accept a 5% chance of crying wolf when the null is true. You set that rate yourself.</p>
+  <h4>Type II = False Negative (missed the wolf)</h4>
+  <p>Failing to reject a false null &mdash; a real effect existed and you missed it. <strong>Its probability is &beta;.</strong> You don't set &beta; directly; it depends on the true effect size, sample size, noise, and &alpha;. Detection is hard when the wolf is small (tiny effect), in fog (high variance), or glimpsed briefly (small sample).</p>
+
+  <h4>The Trade-off</h4>
+  <p>Picture two overlapping curves &mdash; the test statistic under H&#8320; and under H&#8321; &mdash; with a vertical decision line between them. Slide it right to shrink &alpha; (less false-positive tail) and you automatically grow &beta;. The <strong>only</strong> way to shrink both is to pull the curves apart: get more data.</p>
+
+  <h4>Which Error Is Worse? It Depends on Cost</h4>
+  <ul>
+    <li><strong>Deadly-disease screening:</strong> a false negative can be fatal; a false positive is a scary follow-up. Tolerate more Type I to crush Type II &rarr; loose threshold.</li>
+    <li><strong>Criminal trials:</strong> "better ten guilty go free than one innocent convicted." The false positive is deemed worse &rarr; brutally high bar, more false negatives accepted.</li>
+    <li><strong>Spam filter:</strong> a real email lost to spam (FP) is worse than one spam reaching the inbox (FN) &rarr; tuned conservatively.</li>
+  </ul>
+
+  <h3>False Discovery Rate (FDR)</h3>
+  <div class="box mental">
+    <span class="lab">A Flipped Conditional &mdash; Not &alpha;</span>
+    <strong>&alpha;:</strong> of all cases where H&#8320; is TRUE, what fraction do I falsely flag? = P(reject | H&#8320; true).<br>
+    <strong>FDR:</strong> of all the times I flagged something, what fraction were false alarms? = P(H&#8320; true | I rejected). Different number, depends on the base rate of real effects.
+  </div>
+  <p><strong>Why it matters &mdash; multiple comparisons.</strong> Run 1000 tests where almost nothing is real. At &alpha; = 0.05 you get ~50 false positives from noise. If only ~10 real effects exist and you catch them all, you report ~60 "discoveries," 50 of which are garbage &rarr; <strong>FDR &asymp; 50/60 &asymp; 83%</strong>, even though &alpha; was a respectable 0.05. When making thousands of guesses, you control the FDR (e.g. the <strong>Benjamini-Hochberg</strong> procedure), not per-test &alpha;.</p>
+
+  <h3>Connection to Precision &amp; Recall</h3>
+  <p>Same 2&times;2 grid, renamed. In ML, "positive" = predicted the interesting class. FP = Type I error; FN = Type II error.</p>
+  <div class="math">
+    <span class="pe">Of everything I flagged positive, what fraction was actually positive? Destroyed by false positives.</span>
+    Precision = <span class="frac"><span class="num">TP</span><span class="den">TP + FP</span></span> &nbsp;&nbsp;&nbsp; and &nbsp;&nbsp;&nbsp; FDR = 1 &minus; Precision
+  </div>
+  <div class="math">
+    <span class="pe">Of all the actual positives out there, what fraction did I catch? Destroyed by false negatives. This equals statistical power, 1 &minus; &beta;.</span>
+    Recall = <span class="frac"><span class="num">TP</span><span class="den">TP + FN</span></span> = Power = 1 &minus; &beta;
+  </div>
+  <div class="box keyline">
+    <span class="lab">The Unification</span>
+    The precision/recall trade-off in ML <em>is</em> the &alpha;/&beta; trade-off in testing &mdash; the same line sliding between the same two overlapping distributions. Lower the threshold &rarr; more recall (fewer Type II) but less precision (more Type I). And <strong>recall is literally statistical power</strong>, which is where we go next.
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Type I (false positive) = reject a true null, rate = &alpha; (you set it). Type II (false negative) = fail to reject a false null, rate = &beta;. They trade off; only more data shrinks both. FDR = fraction of your rejections that are false = P(H&#8320;|rejected), the flipped conditional of &alpha;, crucial under multiple comparisons. FP = Type I, FN = Type II; Precision = TP/(TP+FP) = 1&minus;FDR; Recall = TP/(TP+FN) = power = 1&minus;&beta;.
+  </div>
+</section>
+
+<!-- ===================== SECTION 4 ===================== -->
+<section id="s4">
+  <div class="secnum">04</div>
+  <h2 class="sec">Statistical Power &amp; Power Analysis</h2>
+
+  <div class="box intuition">
+    <span class="lab">Intuition</span>
+    <strong>If there genuinely is an effect, what's the probability my test catches it?</strong> A test with 80% power flags a true effect 80% of the time and misses it (Type II) the other 20%. Low power = a blindfolded sniper: even with a real target, you'll probably miss.
+  </div>
+  <div class="math">
+    <span class="pe">Power is your ability to detect a real effect when one exists.</span>
+    Power = 1 &minus; &beta; = P( reject H&#8320; <span class="vbar">|</span> H&#8320; is false )
+  </div>
+
+  <h4>Where &amp; Why We Use It</h4>
+  <ul>
+    <li><strong>Before the study (the big one): sample-size planning.</strong> "How many samples so that, if a meaningful effect exists, I have a good chance (usually 80%) of detecting it?" Underpowered studies waste money and, in medicine, are ethically dubious &mdash; doomed to find nothing from the start.</li>
+    <li><strong>After the study (diagnostic):</strong> a non-significant result from a low-power study tells you almost nothing &mdash; you can't tell "no wolf" from "eyes closed." This is why "failed to reject H&#8320;" is such a weak conclusion.</li>
+  </ul>
+  <p><strong>The 80% convention</strong> (&beta; &le; 0.20) treats a false negative as ~4&times; less costly than a false positive (&alpha; = 0.05). High-stakes studies aim for 0.90&ndash;0.95.</p>
+
+  <h3>The Four Levers</h3>
+  <p>Fix any three and the fourth is determined &mdash; this is power analysis.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Lever</th><th>Effect on power</th><th>Intuition</th></tr>
+    <tr><td>Effect size</td><td>&uarr; bigger effect &rarr; more power</td><td>A sumo wrestler is easier to spot than a child. Usually nature's, not yours.</td></tr>
+    <tr><td>Sample size n</td><td>&uarr; more data &rarr; more power</td><td>Curves get skinnier and pull apart. <strong>Your main knob.</strong></td></tr>
+    <tr><td>&alpha;</td><td>&uarr; looser &alpha; &rarr; more power</td><td>Easier to reject &mdash; but more false positives. Buying power with &alpha;.</td></tr>
+    <tr><td>Variability &sigma;</td><td>&darr; more noise &rarr; less power</td><td>Fatter, more overlapping curves. Reduce via better measurement / paired designs.</td></tr>
+  </table></div>
+
+  <div class="viz">
+    <svg viewBox="0 0 700 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Two overlapping distributions showing alpha, beta and power">
+      <line x1="30" y1="220" x2="670" y2="220" stroke="#2a3140" stroke-width="1.5"/>
+      <path d="M30,220 C150,220 180,70 290,70 C400,70 430,220 540,220 Z" fill="#5db0ff" fill-opacity="0.16" stroke="#5db0ff" stroke-width="2"/>
+      <path d="M160,220 C280,220 310,70 420,70 C530,70 560,220 680,220 Z" fill="#e8b04b" fill-opacity="0.16" stroke="#e8b04b" stroke-width="2"/>
+      <line x1="370" y1="40" x2="370" y2="228" stroke="#fff" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="370" y="20" fill="#e6e9ef" font-size="12" text-anchor="middle">decision threshold</text>
+      <path d="M370,220 C400,220 410,150 420,120 C440,180 450,220 480,220 Z" fill="#ef6f6f" fill-opacity="0.45"/>
+      <path d="M300,220 C330,220 345,150 370,120 L370,220 Z" fill="#b08bff" fill-opacity="0.4"/>
+      <text x="250" y="240" fill="#5db0ff" font-size="12" text-anchor="middle">H&#8320; (no effect)</text>
+      <text x="470" y="240" fill="#e8b04b" font-size="12" text-anchor="middle">H&#8321; (real effect)</text>
+      <text x="410" y="170" fill="#ef6f6f" font-size="11">&alpha;</text>
+      <text x="345" y="170" fill="#b08bff" font-size="11">&beta;</text>
+      <text x="500" y="110" fill="#5ad19a" font-size="12">power = area of H&#8321; past the line</text>
+    </svg>
+    <div class="cap">Power is the area of the H&#8321; curve falling in the "reject" region. Pull the curves apart (bigger effect, more data, less noise) or move the threshold &rarr; more power.</div>
+  </div>
+
+  <h3>Power Analysis &mdash; Solving for Sample Size</h3>
+  <div class="math">
+    <span class="pe">Required n grows with the certainty you demand (z-values for &alpha; and power) and shrinks fast as the effect d grows.</span>
+    n &asymp; <span class="frac"><span class="num">2 ( z<sub>1&minus;&alpha;/2</sub> + z<sub>1&minus;&beta;</sub> )<sup>2</sup></span><span class="den">d<sup>2</sup></span></span>
+  </div>
+  <div class="box keyline"><span class="lab">The d&sup2; Insight</span>To detect an effect <strong>half as large you need roughly four times the sample</strong>. Small effects are brutally expensive to confirm.</div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Worked &middot; Power Analysis for Sample Size</span>Want 80% power to detect d = 0.3, two-sided &alpha; = 0.05. How many per group?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; z-values</span><br>&alpha; = 0.05 two-sided &rarr; z<sub>0.975</sub> = 1.96. &nbsp; 80% power &rarr; z<sub>0.80</sub> = 0.84.</div>
+      <div class="step"><span class="sn">2 &middot; Plug in</span>
+        <div class="math">n &asymp; <span class="frac"><span class="num">2(1.96 + 0.84)<sup>2</sup></span><span class="den">(0.3)<sup>2</sup></span></span> = <span class="frac"><span class="num">2(2.80)<sup>2</sup></span><span class="den">0.09</span></span> = <span class="frac"><span class="num">15.68</span><span class="den">0.09</span></span> &asymp; 174</div>
+      </div>
+      <div class="verdict"><strong>~174 per group</strong> (~348 total). Now double the effect to d = 0.6: denominator 0.36 &rarr; n &asymp; 15.68/0.36 &asymp; <strong>44 per group</strong>. Doubling the detectable effect cut the sample ~4&times; &mdash; the d&sup2; doing the heavy lifting.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Power = 1 &minus; &beta; = probability of detecting a real effect. It depends on effect size, sample size, &alpha;, and variability. Power analysis solves for sample size (usually targeting 80%); because effect size enters as d&sup2;, detecting an effect half as large needs ~4&times; the data.
+  </div>
+</section>
+
+<!-- ===================== SECTION 5 ===================== -->
+<section id="s5">
+  <div class="secnum">05</div>
+  <h2 class="sec">t-Distribution, Degrees of Freedom &amp; the t-Test</h2>
+
+  <h3>The Problem That Created the t-Distribution</h3>
+  <p>Everything with z-scores assumed we <strong>knew the population &sigma;</strong>. But in reality you almost never do &mdash; if you knew &sigma; that precisely you'd probably know &mu; too. So you estimate &sigma; from the sample with the sample SD, <strong>s</strong>. The catch: <strong>s is itself a noisy estimate</strong> from the same small sample. You've injected a second source of uncertainty. Naively using the normal with a noisy s makes you <em>overconfident</em> &mdash; you'd reject too often because the normal's tails are too thin to account for it.</p>
+
+  <div class="box mental">
+    <span class="lab">The Solution &mdash; Fatter Tails</span>
+    William Gosset ("Student," because Guinness forbade publishing) showed that replacing &sigma; with s yields a fatter-tailed distribution: the <strong>t-distribution</strong>. Because s can underestimate &sigma; (small denominator &rarr; big statistic), extreme values are more common, so the t-distribution assigns them more probability. This makes the test appropriately more conservative &mdash; "since you're guessing the spread, I'll demand stronger evidence."
+  </div>
+
+  <h3>Degrees of Freedom</h3>
+  <p>The t-distribution is a <em>family</em> of curves indexed by <strong>degrees of freedom (df)</strong>. More df &rarr; thinner tails &rarr; closer to the normal; by df &asymp; 30 they're nearly identical; at df = &infin; they're the same. More data &rarr; s is a more reliable stand-in for &sigma; &rarr; less extra uncertainty &rarr; convergence to normal.</p>
+  <div class="box intuition">
+    <span class="lab">What df Actually Is</span>
+    The number of values free to vary once constraints are imposed. Tell me three numbers must average 10 (sum to 30): you freely pick the first two, but the third is forced. Three numbers, one constraint &rarr; 2 df. Computing s needs the sample mean first; once it's fixed, deviations from it must sum to zero &mdash; one constraint &mdash; leaving <strong>n &minus; 1</strong> df. That's why sample variance divides by n&minus;1 (Bessel's correction).
+  </div>
+
+  <div class="viz">
+    <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Normal vs t-distribution with low df">
+      <line x1="30" y1="200" x2="670" y2="200" stroke="#2a3140" stroke-width="1.5"/>
+      <path d="M30,200 C200,200 250,55 350,55 C450,55 500,200 670,200" fill="none" stroke="#5db0ff" stroke-width="2.5"/>
+      <path d="M30,200 C190,195 250,95 350,95 C450,95 510,195 670,200" fill="none" stroke="#e8b04b" stroke-width="2.5" stroke-dasharray="6 4"/>
+      <text x="360" y="48" fill="#5db0ff" font-size="13">Normal (z) &mdash; thin tails</text>
+      <text x="360" y="120" fill="#e8b04b" font-size="13">t, low df &mdash; fat tails, shorter peak</text>
+      <circle cx="80" cy="197" r="3" fill="#e8b04b"/><circle cx="620" cy="197" r="3" fill="#e8b04b"/>
+      <text x="80" y="185" fill="#e8b04b" font-size="11" text-anchor="middle">more</text>
+      <text x="620" y="185" fill="#e8b04b" font-size="11" text-anchor="middle">more</text>
+    </svg>
+    <div class="cap">The t-distribution has fatter tails and a shorter peak than the normal. As df grows it converges onto the normal curve.</div>
+  </div>
+
+  <h4>Finding df by Test</h4>
+  <div class="tablewrap"><table>
+    <tr><th>Test</th><th>df</th></tr>
+    <tr><td>One-sample t-test</td><td>n &minus; 1 (one mean estimated)</td></tr>
+    <tr><td>Paired t-test</td><td>n &minus; 1, n = number of pairs (reduce each pair to a difference)</td></tr>
+    <tr><td>Two-sample, pooled (equal var.)</td><td>n&#8321; + n&#8322; &minus; 2 (two means estimated)</td></tr>
+    <tr><td>Two-sample, Welch (unequal var.)</td><td>Welch-Satterthwaite approximation (software)</td></tr>
+  </table></div>
+  <p>General principle: <strong>df = (independent observations) &minus; (parameters estimated from the data)</strong>. Every parameter you estimate costs one df.</p>
+
+  <h3>What the t-Test Is &amp; Why It's "Better/Worse" Than z</h3>
+  <div class="math">
+    <span class="pe">Just like z, but with the sample's estimated spread s in place of the known &sigma;.</span>
+    t = <span class="frac"><span class="num">x&#772; &minus; &mu;&#8320;</span><span class="den">s / &radic;n</span></span>
+  </div>
+  <ul>
+    <li><strong>One-sample:</strong> is my mean different from a claimed value?</li>
+    <li><strong>Two-sample (independent):</strong> do two groups' means differ? (A/B testing bread and butter)</li>
+    <li><strong>Paired:</strong> same subjects measured twice (before/after).</li>
+  </ul>
+  <p><strong>Better (more honest):</strong> the t-test accounts for the uncertainty in estimating &sigma;. Since you essentially never know &sigma;, it's the honest choice; a z-test with estimated &sigma; on a small sample gives artificially small p-values and inflated false positives. <strong>"Worse" (only narrowly):</strong> it's more conservative &mdash; fat tails push critical values out (e.g. ~2.78 at df=4 vs 1.96 for z), so slightly less power. But that "extra power" of z was an illusion from pretending you had certainty you didn't. As n grows the two become identical, so the cost vanishes. <strong>The t-test is correctly humble &mdash; the safer, more defensible choice.</strong></p>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Worked &middot; One-Sample t-Test</span>Claim: 350 ml/cup. 10 cups: mean 342 ml, s = 9 ml. Differs at &alpha; = 0.05? &sigma; unknown.</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; z or t?</span><br>&sigma; unknown, n = 10 small &rarr; <strong>t-test</strong>.</div>
+      <div class="step"><span class="sn">2 &middot; Frame</span><br>Two-sided. H&#8320;: &mu; = 350. H&#8321;: &mu; &ne; 350.</div>
+      <div class="step"><span class="sn">3 &middot; df</span><br>df = n &minus; 1 = 9.</div>
+      <div class="step"><span class="sn">4 &middot; SE (using s)</span>
+        <div class="math">SE = <span class="frac"><span class="num">s</span><span class="den">&radic;n</span></span> = <span class="frac"><span class="num">9</span><span class="den">&radic;10</span></span> = <span class="frac"><span class="num">9</span><span class="den">3.162</span></span> = 2.846 ml</div>
+      </div>
+      <div class="step"><span class="sn">5 &middot; t-statistic</span>
+        <div class="math">t = <span class="frac"><span class="num">342 &minus; 350</span><span class="den">2.846</span></span> = <span class="frac"><span class="num">&minus;8</span><span class="den">2.846</span></span> = &minus;2.811</div>
+      </div>
+      <div class="step"><span class="sn">6 &middot; Critical value, df = 9</span><br>Two-sided &alpha; = 0.05 &rarr; &plusmn;2.262 (vs only 1.96 for z &mdash; t demands more). |t| = 2.811 &gt; 2.262. Two-tailed p &asymp; 0.020.</div>
+      <div class="verdict"><strong>Reject H&#8320;</strong> (|t| = 2.811 &gt; 2.262, p &asymp; 0.020). If the true mean were 350, a sample this far off with this variability happens only ~2% of the time. <em>Aside:</em> a z-test here would have given p &asymp; 0.005 &mdash; overconfident. The t-test reins that in because with 10 cups, s = 9 is genuinely uncertain.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Estimating &sigma; from the sample adds uncertainty, giving a fatter-tailed t-distribution indexed by df (independent obs minus parameters estimated; n&minus;1 for one sample). It converges to the normal as df grows. Use z if &sigma; is known (or n large); use t if &sigma; is estimated (mandatory for small n, always defensible). The t-test uses s in place of &sigma;; it's the honest, more conservative choice, and its only "cost" &mdash; reduced power &mdash; was illusory confidence z never legitimately had.
+  </div>
+</section>
+
+<!-- ===================== SECTION 6 ===================== -->
+<section id="s6">
+  <div class="secnum">06</div>
+  <h2 class="sec">The z-Test &amp; the z-vs-t Comparison</h2>
+
+  <p>A <strong>z-test</strong> is a hypothesis test whose statistic follows the standard normal under the null &mdash; the light-bulb and conversion-rate problems were z-tests. Its defining feature: you either know the population &sigma;, or n is large enough that estimating it is negligible. It follows a normal shape because of the CLT, and all its machinery (1.96, tail-area p-values) rests on that.</p>
+  <div class="math">z = <span class="frac"><span class="num">observed &minus; expected under H&#8320;</span><span class="den">standard error</span></span></div>
+
+  <div class="tablewrap"><table>
+    <tr><th>Dimension</th><th>z-test</th><th>t-test</th></tr>
+    <tr><td>Population &sigma;</td><td>Known (or estimated with very large n)</td><td>Unknown, estimated from sample with s</td></tr>
+    <tr><td>Reference distribution</td><td>Standard normal N(0,1)</td><td>Student's t with df</td></tr>
+    <tr><td>Tail thickness</td><td>Thin, fixed</td><td>Fat; fatter for smaller df</td></tr>
+    <tr><td>Sample size</td><td>Best for large n (&gt;30)</td><td>For small n; correct for any n</td></tr>
+    <tr><td>Models the &sigma;-estimation uncertainty?</td><td>No (assumes &sigma; certain)</td><td>Yes</td></tr>
+    <tr><td>Critical value (two-sided 0.05)</td><td>Always 1.96</td><td>Larger, df-dependent (2.78 at df=4, 2.06 at df=25) &rarr; 1.96 as df&rarr;&infin;</td></tr>
+    <tr><td>Degrees of freedom</td><td>Not needed</td><td>Required (n&minus;1 for one sample)</td></tr>
+    <tr><td>As n grows</td><td>&mdash;</td><td>Converges to the z-test</td></tr>
+    <tr><td>Risk if misused</td><td>z with small n + estimated &sigma; &rarr; overconfident, inflated FP</td><td>Essentially none; only slightly conservative</td></tr>
+    <tr><td>Typical use</td><td>Large-n proportions; rare known-&sigma; cases</td><td>Comparing means (one/two-sample, paired) &mdash; the workhorse</td></tr>
+  </table></div>
+
+  <div class="box keyline">
+    <span class="lab">Practical Reality</span>
+    In practice you <strong>almost always use the t-test</strong> &mdash; knowing the true &sigma; is rare. The z-test survives mainly for (1) <strong>tests of proportions</strong>, where H&#8320; pins down p&#8320; and gives the SE directly, and (2) <strong>genuinely large samples</strong> (web experiments with thousands), where t and z have converged. Compressed rule: <em>estimated &sigma; &rarr; use t; known &sigma; or large-sample proportion &rarr; z is fine.</em> t is never wrong, because at large n it equals z anyway.
+  </div>
+</section>
+
+<!-- ===================== SECTION 7 ===================== -->
+<section id="s7">
+  <div class="secnum">07</div>
+  <h2 class="sec">Chi-Squared Distribution &amp; Tests</h2>
+
+  <h3>Where the Chi-Squared Distribution Comes From</h3>
+  <p>Build it from the normal. Take a standard normal Z, square it, and sum several independent squared standard normals:</p>
+  <div class="math">
+    <span class="pe">A chi-squared distribution is what you get when you sum k squared standard normals. The parameter k is just how many you added.</span>
+    &chi;&sup2;<sub>k</sub> = Z&#8321;&sup2; + Z&#8322;&sup2; + &hellip; + Z<sub>k</sub>&sup2;
+  </div>
+  <p>This immediately gives its properties, each with intuition:</p>
+  <ul>
+    <li><strong>Never negative</strong> &mdash; you're summing squares. Lives on [0, &infin;).</li>
+    <li><strong>Right-skewed</strong> &mdash; most squared normals are small (a normal is usually near 0), but occasionally a large value squares to something huge, stretching a long right tail. Skew is strongest for small k.</li>
+    <li><strong>Center grows with k</strong> &mdash; mean = k, because each squared standard normal contributes E[Z&sup2;] = 1 on average.</li>
+    <li><strong>Becomes more symmetric (normal-looking) as k grows</strong> &mdash; the CLT again: summing many independent things trends toward normal.</li>
+  </ul>
+
+  <div class="viz">
+    <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chi-squared distribution shapes for different df">
+      <line x1="40" y1="195" x2="670" y2="195" stroke="#2a3140" stroke-width="1.5"/>
+      <path d="M40,60 C70,150 110,185 200,190 C400,194 600,195 670,195" fill="none" stroke="#ef6f6f" stroke-width="2.5"/>
+      <path d="M40,195 C90,120 130,80 200,80 C320,80 360,190 670,194" fill="none" stroke="#e8b04b" stroke-width="2.5"/>
+      <path d="M40,195 C140,193 220,110 320,105 C430,100 520,185 670,192" fill="none" stroke="#5db0ff" stroke-width="2.5"/>
+      <text x="70" y="50" fill="#ef6f6f" font-size="12">k = 1 (very skewed)</text>
+      <text x="210" y="70" fill="#e8b04b" font-size="12">k = 3</text>
+      <text x="340" y="92" fill="#5db0ff" font-size="12">k = 6 (more symmetric)</text>
+      <text x="350" y="215" fill="#9aa4b6" font-size="12" text-anchor="middle">&chi;&sup2; value &rarr; (always &ge; 0)</text>
+    </svg>
+    <div class="cap">Higher df shifts the chi-squared right and makes it more symmetric. Mean equals the df.</div>
+  </div>
+
+  <div class="box intuition">
+    <span class="lab">Why It's Useful</span>
+    Whenever you measure how far observed things deviate from expected and want all deviations to count positively regardless of direction, you <strong>square</strong> them ("off by &minus;3" and "off by +3" both become 9), then <strong>sum</strong> for a total "how wrong was everything" score. That total naturally follows a chi-squared. So it's the home of any test based on summed squared deviations from expectation.
+  </div>
+
+  <h3>Test 1 &mdash; Goodness-of-Fit</h3>
+  <p><strong>Question:</strong> does observed categorical data match a hypothesized distribution? (A die rolled 120 times: if fair, expect 20 each.)</p>
+  <div class="math">
+    <span class="pe">For each category: how far is observed from expected, squared (direction-free, big misses punished), divided by expected (scale the deviation), then summed.</span>
+    &chi;&sup2; = &sum; <span class="frac"><span class="num">(O<sub>i</sub> &minus; E<sub>i</sub>)&sup2;</span><span class="den">E<sub>i</sub></span></span>
+  </div>
+  <p><strong>Why divide by E<sub>i</sub>?</strong> A deviation of 10 means something different when you expected 20 vs 2000. Dividing normalizes "how surprising is this miss relative to scale," which is exactly what turns each term into an approximately squared-standard-normal &mdash; so the sum is chi-squared. <strong>df = categories &minus; 1</strong> (the counts must sum to n). A large &chi;&sup2; means big deviation &rarr; evidence against H&#8320;; chi-squared tests are <strong>always right-tailed</strong>.</p>
+
+  <h3>Test 2 &mdash; Test of Independence</h3>
+  <p><strong>Question:</strong> are two categorical variables related, or independent? Build a contingency table; if independent, expected cell counts come from the margins (the multiplication rule P(A&cap;B)=P(A)P(B)).</p>
+  <div class="math">
+    <span class="pe">If independent, a cell's expected count is its row total times column total over the grand total.</span>
+    E<sub>ij</sub> = <span class="frac"><span class="num">(row<sub>i</sub> total) &times; (col<sub>j</sub> total)</span><span class="den">grand total</span></span>
+  </div>
+  <div class="math">&chi;&sup2; = &sum;<sub>cells</sub> <span class="frac"><span class="num">(O<sub>ij</sub> &minus; E<sub>ij</sub>)&sup2;</span><span class="den">E<sub>ij</sub></span></span> &nbsp;&nbsp;&nbsp; df = (rows &minus; 1)(cols &minus; 1)</div>
+
+  <h4>Parameters &amp; Practical Caveat</h4>
+  <p>The chi-squared distribution has exactly <strong>one parameter: df</strong>, which sets its whole shape. You compute df from the problem's structure (categories minus constraints), then use it to get the p-value. Inputs to any test: observed counts O, expected counts E (under H&#8320;), and df. <strong>Caveat:</strong> the approximation breaks when expected counts are tiny (rule of thumb: every E &ge; 5); for tiny counts use an exact test (Fisher's exact for 2&times;2).</p>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Worked &middot; Goodness-of-Fit</span>120 rolls: 25, 17, 15, 23, 24, 16. Is the die fair at &alpha; = 0.05?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Frame</span><br>H&#8320;: fair (each face 1/6). H&#8321;: not fair.</div>
+      <div class="step"><span class="sn">2 &middot; Expected</span><br>120 &times; 1/6 = 20 each.</div>
+      <div class="step"><span class="sn">3 &middot; Terms (O&minus;E)&sup2;/E</span><br>
+        (25&minus;20)&sup2;/20 = 1.25 &nbsp;|&nbsp; (17&minus;20)&sup2;/20 = 0.45 &nbsp;|&nbsp; (15&minus;20)&sup2;/20 = 1.25<br>
+        (23&minus;20)&sup2;/20 = 0.45 &nbsp;|&nbsp; (24&minus;20)&sup2;/20 = 0.80 &nbsp;|&nbsp; (16&minus;20)&sup2;/20 = 0.80</div>
+      <div class="step"><span class="sn">4 &middot; Sum</span><br>&chi;&sup2; = 1.25+0.45+1.25+0.45+0.80+0.80 = <strong>5.00</strong></div>
+      <div class="step"><span class="sn">5 &middot; df</span><br>6 &minus; 1 = 5.</div>
+      <div class="step"><span class="sn">6 &middot; Compare</span><br>Critical &chi;&sup2; (df=5, &alpha;=0.05) = 11.07. Our 5.00 &lt; 11.07. p &asymp; 0.42.</div>
+      <div class="verdict fail"><strong>Fail to reject H&#8320;.</strong> Deviations from 20-each are within what a fair die routinely produces (~42% of the time this extreme or more). No evidence it's loaded.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Chi-squared = sum of k squared standard normals; non-negative, right-skewed, centered at its single parameter df, &rarr; normal as df grows. Natural distribution for summed squared deviations from expectation. Tests (goodness-of-fit, independence) use &sum;(O&minus;E)&sup2;/E; df is (categories&minus;1) or (rows&minus;1)(cols&minus;1); always right-tailed; needs expected counts &ge; 5.
+  </div>
+</section>
+
+<!-- ===================== SECTION 8 ===================== -->
+<section id="s8">
+  <div class="secnum">08</div>
+  <h2 class="sec">The F-Distribution</h2>
+
+  <p>Chi-squared describes variance-like things (summed squared deviations). To <strong>compare two variances</strong> we take their ratio:</p>
+  <div class="math">
+    <span class="pe">Take two independent chi-squared variables, each divided by its own df, and form their ratio &mdash; that ratio is the F-distribution. It's a ratio of two scaled variances.</span>
+    F = <span class="frac"><span class="num">&chi;&sup2;&#8321; / d&#8321;</span><span class="den">&chi;&sup2;&#8322; / d&#8322;</span></span>
+  </div>
+  <ul>
+    <li><strong>Never negative</strong> (ratio of non-negatives); lives on [0, &infin;).</li>
+    <li><strong>Right-skewed</strong> (inherited from chi-squared).</li>
+    <li><strong>Centers near 1</strong> &mdash; if the two variances are equal, the ratio is ~1. F &gt;&gt; 1 means the numerator's variation dwarfs the denominator's: the signal we hunt.</li>
+    <li><strong>Two df parameters</strong> (numerator d&#8321;, denominator d&#8322;) &mdash; it's built from two chi-squared pieces, so F-tables are indexed by two numbers.</li>
+  </ul>
+  <p><strong>When we use it:</strong> directly comparing two variances (an F-test for equality of variances &mdash; "do these two processes have the same consistency?"), and &mdash; the dominant use &mdash; <strong>ANOVA</strong>, which reframes a question about means into a ratio of variances.</p>
+</section>
+
+<!-- ===================== SECTION 9 ===================== -->
+<section id="s9">
+  <div class="secnum">09</div>
+  <h2 class="sec">Tests for Variances &amp; ANOVA</h2>
+
+  <h3>The Problem ANOVA Solves</h3>
+  <p>You have <strong>three or more groups</strong> and want to know if their means differ. First instinct: run a t-test on every pair. With 3 groups that's 3 tests; it explodes from there.</p>
+  <div class="box myth">
+    <span class="lab">Why Many Pairwise t-Tests Fail</span>
+    Every t-test carries 5% false-positive risk. Run many and the risks accumulate. With 3 groups, P(at least one false positive) &asymp; 1 &minus; (0.95)&sup3; &asymp; <strong>14%</strong>, climbing fast with more groups. You'd nearly guarantee "finding" a difference that isn't real &mdash; the multiple-comparisons / family-wise error problem.
+  </div>
+  <p><strong>ANOVA's solution:</strong> one single test asking "are <em>any</em> of these means different?" while holding the overall false-positive rate at &alpha;.</p>
+
+  <h4>What ANOVA Tests</h4>
+  <ul>
+    <li>H&#8320;: all group means equal (&mu;&#8321; = &mu;&#8322; = &mu;&#8323; = &hellip;)</li>
+    <li>H&#8321;: at least one differs (it does <em>not</em> say which)</li>
+  </ul>
+
+  <div class="box intuition">
+    <span class="lab">The Beautiful Core Idea &mdash; Test Means by Comparing Two Variances</span>
+    <strong>Between-group variance:</strong> how far the group means sit from the grand mean &mdash; variation <em>caused by groups differing</em> (the signal). <strong>Within-group variance:</strong> scatter inside each group around its own mean &mdash; natural noise unrelated to groups.<br><br>
+    If H&#8320; is true (all means equal), group means differ only by the same noise that drives within-group scatter, so the two variances are roughly equal &rarr; ratio &asymp; 1. If means genuinely differ, between-group variance balloons beyond noise &rarr; ratio &gt;&gt; 1. The spread of the group means <em>is</em> the fingerprint of whether the means differ.
+  </div>
+
+  <div class="math">
+    <span class="pe">F is the ratio of variation explained by group differences to leftover within-group noise &mdash; signal over noise.</span>
+    F = <span class="frac"><span class="num">between-group variance</span><span class="den">within-group variance</span></span> = <span class="frac"><span class="num">signal (do group means spread apart?)</span><span class="den">noise (within-group scatter)</span></span>
+  </div>
+  <ul>
+    <li><strong>F &asymp; 1:</strong> between-group is no bigger than noise &rarr; means look the same &rarr; fail to reject.</li>
+    <li><strong>F &gt;&gt; 1:</strong> means spread further than chance allows &rarr; reject; at least one differs.</li>
+  </ul>
+  <p>Because it's a ratio of two variances, it follows the <strong>F-distribution</strong>, with df&#8321; = (groups &minus; 1) and df&#8322; = (total observations &minus; groups).</p>
+
+  <div class="viz">
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Between vs within group variance">
+      <line x1="30" y1="190" x2="670" y2="190" stroke="#2a3140" stroke-width="1.5"/>
+      <!-- group A -->
+      <circle cx="120" cy="150" r="4" fill="#5db0ff"/><circle cx="140" cy="160" r="4" fill="#5db0ff"/><circle cx="105" cy="165" r="4" fill="#5db0ff"/>
+      <line x1="90" y1="155" x2="160" y2="155" stroke="#5db0ff" stroke-width="2"/>
+      <text x="125" y="205" fill="#5db0ff" font-size="12" text-anchor="middle">Group A</text>
+      <!-- group B -->
+      <circle cx="330" cy="95" r="4" fill="#e8b04b"/><circle cx="350" cy="105" r="4" fill="#e8b04b"/><circle cx="315" cy="110" r="4" fill="#e8b04b"/>
+      <line x1="300" y1="100" x2="370" y2="100" stroke="#e8b04b" stroke-width="2"/>
+      <text x="335" y="205" fill="#e8b04b" font-size="12" text-anchor="middle">Group B</text>
+      <!-- group C -->
+      <circle cx="540" cy="55" r="4" fill="#5ad19a"/><circle cx="560" cy="65" r="4" fill="#5ad19a"/><circle cx="525" cy="68" r="4" fill="#5ad19a"/>
+      <line x1="510" y1="60" x2="580" y2="60" stroke="#5ad19a" stroke-width="2"/>
+      <text x="545" y="205" fill="#5ad19a" font-size="12" text-anchor="middle">Group C</text>
+      <!-- grand mean -->
+      <line x1="30" y1="110" x2="670" y2="110" stroke="#fff" stroke-width="1.2" stroke-dasharray="5 5"/>
+      <text x="640" y="104" fill="#e6e9ef" font-size="11" text-anchor="end">grand mean</text>
+      <text x="40" y="40" fill="#9aa4b6" font-size="12">Between = how far group means sit from grand mean (signal)</text>
+      <text x="40" y="58" fill="#9aa4b6" font-size="12">Within = scatter of dots around their own group line (noise)</text>
+    </svg>
+    <div class="cap">If the group lines spread far from the grand mean relative to the within-group dot-scatter, F is large &rarr; the means differ.</div>
+  </div>
+
+  <h4>Needed / When to Use / Follow-up</h4>
+  <p><strong>Needed</strong> because many pairwise t-tests inflate false positives; ANOVA gives one global test at controlled &alpha;. <strong>Use</strong> when one categorical factor has <strong>3+ levels</strong> and a continuous outcome. (With exactly 2 groups, ANOVA reduces to the t-test: F = t&sup2;.) <strong>Follow-up:</strong> ANOVA says only <em>that</em> some difference exists, not <em>which</em>; if you reject, run <strong>post-hoc</strong> pairwise tests corrected for multiple comparisons (e.g. Tukey's HSD). <strong>Assumptions:</strong> roughly equal variances and normal residuals; otherwise use Welch's ANOVA or Kruskal-Wallis.</p>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Worked &middot; One-Way ANOVA</span>A: 80,85,82 &nbsp; B: 70,75,72 &nbsp; C: 90,92,94. Differ at &alpha; = 0.05? (3 groups, n=3 each)</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Frame</span><br>H&#8320;: &mu;<sub>A</sub> = &mu;<sub>B</sub> = &mu;<sub>C</sub>. H&#8321;: at least one differs.</div>
+      <div class="step"><span class="sn">2 &middot; Means</span><br>A = 82.33, B = 72.33, C = 92.00. Grand = 82.22.</div>
+      <div class="step"><span class="sn">3 &middot; Between (signal)</span>
+        <div class="math">SSB = 3[(82.33&minus;82.22)&sup2; + (72.33&minus;82.22)&sup2; + (92.00&minus;82.22)&sup2;]<br>= 3[0.012 + 97.81 + 95.65] = 3 &times; 193.47 = 580.4</div>
+        df between = 3 &minus; 1 = 2 &rarr; MS between = 580.4 / 2 = 290.2.</div>
+      <div class="step"><span class="sn">4 &middot; Within (noise)</span><br>
+        A: (80&minus;82.33)&sup2;+(85&minus;82.33)&sup2;+(82&minus;82.33)&sup2; = 12.67<br>
+        B: 12.67 &nbsp;|&nbsp; C: (90&minus;92)&sup2;+0+(94&minus;92)&sup2; = 8.00<br>
+        SSW = 12.67+12.67+8.00 = 33.34; df within = 9 &minus; 3 = 6 &rarr; MS within = 33.34/6 = 5.56.</div>
+      <div class="step"><span class="sn">5 &middot; F</span>
+        <div class="math">F = <span class="frac"><span class="num">290.2</span><span class="den">5.56</span></span> = 52.2</div></div>
+      <div class="step"><span class="sn">6 &middot; Compare</span><br>Critical F (df&#8321;=2, df&#8322;=6, &alpha;=0.05) &asymp; 5.14. Our 52.2 &gt;&gt; 5.14; p &lt; 0.001.</div>
+      <div class="verdict"><strong>Reject H&#8320;.</strong> The spread between group means is ~52&times; the within-group noise &mdash; essentially impossible if all three were equal. At least one method differs. <em>Follow up</em> with corrected post-hoc tests to learn which (visually C highest, B lowest).</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    The F-distribution is a ratio of two scaled chi-squared variables (a ratio of variances): non-negative, right-skewed, centered near 1, two df parameters. ANOVA is "analysis of variance" but a test about <em>means</em>, comparing 3+ groups in one test that controls the false-positive rate (unlike many t-tests, which inflate it). It compares between-group variance (signal) to within-group variance (noise) as an F-ratio: F &asymp; 1 = no difference, F &gt;&gt; 1 = at least one mean differs. It tells you <em>that</em>, not <em>which</em> &mdash; follow with corrected post-hoc tests.
+  </div>
+</section>
+
+<!-- ===================== SECTION 10 ===================== -->
+<section id="s10">
+  <div class="secnum">10</div>
+  <h2 class="sec">Order Statistics</h2>
+  <p><strong>The concept:</strong> sort your data smallest to largest; each value in its sorted position is an order statistic. The smallest is the 1st, the largest the nth, the middle one the median. They're your data values ranked by position rather than by collection order.</p>
+  <div class="box intuition">
+    <span class="lab">Intuition</span>
+    Once sorted, <em>positions</em> carry information independent of the raw values. Min, max, median, quartiles, percentiles are all order statistics. The power: ranks behave predictably even when raw values are messy, skewed, or on a weird scale.
+  </div>
+  <p><strong>Where we use it:</strong> medians and percentiles (the basis of box plots), the foundation of nearly all non-parametric tests (which work on ranks), extreme-value analysis (floods, insurance tails, p99 latency &mdash; literally an order statistic), and robust statistics that resist outliers. The connecting idea: <strong>replace raw values with their ranks and you no longer depend on normality</strong> &mdash; the door into non-parametric testing.</p>
+</section>
+
+<!-- ===================== SECTION 11 ===================== -->
+<section id="s11">
+  <div class="secnum">11</div>
+  <h2 class="sec">Wilcoxon &amp; Kolmogorov-Smirnov Tests</h2>
+
+  <h3>Wilcoxon Test</h3>
+  <p><strong>What it is:</strong> a non-parametric alternative to the t-test. Two versions: the <strong>signed-rank test</strong> (counterpart to the paired t-test) and the <strong>rank-sum test</strong> / Mann-Whitney U (counterpart to the two-sample t-test).</p>
+  <div class="box intuition">
+    <span class="lab">Intuition</span>
+    Throw away raw values, work only with their <strong>ranks</strong> (order statistics in action). If two groups are truly the same, their values interleave when pooled and ranked, so ranks are shared roughly evenly. If one group is systematically larger, its values cluster at the high ranks. The test detects that rank imbalance.
+  </div>
+  <p><strong>Where we use it:</strong> when the t-test's assumptions break &mdash; small samples, non-normal data, ordinal data (1&ndash;5 ratings), outliers that would wreck a mean. Because it uses ranks, a wild outlier just becomes "the highest rank" rather than dragging the result. <strong>Trade-off:</strong> slightly less powerful than the t-test <em>when</em> the data really is normal &mdash; you give up a little sensitivity for not needing normality.</p>
+
+  <h3>Kolmogorov-Smirnov (KS) Goodness-of-Fit</h3>
+  <p><strong>What it is:</strong> a test for whether a sample came from a particular distribution (one-sample), or whether two samples share a distribution (two-sample).</p>
+  <div class="box intuition">
+    <span class="lab">Intuition</span>
+    Build the <strong>cumulative distribution</strong> of your data (the running "fraction of data at or below this value" as you sweep low to high). Compare that staircase to the reference's cumulative curve (or to another sample's). The test takes the <strong>single biggest vertical gap</strong> between the two curves. Small max gap = good fit; large gap = they diverge somewhere.
+  </div>
+  <div class="viz">
+    <svg viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="KS test: two cumulative curves and the maximum gap">
+      <line x1="50" y1="210" x2="660" y2="210" stroke="#2a3140" stroke-width="1.5"/>
+      <line x1="50" y1="210" x2="50" y2="30" stroke="#2a3140" stroke-width="1.5"/>
+      <text x="40" y="38" fill="#9aa4b6" font-size="11" text-anchor="end">1.0</text>
+      <text x="40" y="210" fill="#9aa4b6" font-size="11" text-anchor="end">0</text>
+      <path d="M50,210 C200,205 280,120 360,90 C460,55 560,40 660,35" fill="none" stroke="#5db0ff" stroke-width="2.5"/>
+      <path d="M50,210 C180,200 250,170 360,140 C470,108 560,55 660,35" fill="none" stroke="#e8b04b" stroke-width="2.5"/>
+      <line x1="360" y1="90" x2="360" y2="140" stroke="#ef6f6f" stroke-width="3"/>
+      <text x="372" y="118" fill="#ef6f6f" font-size="13">max gap (D)</text>
+      <text x="500" y="55" fill="#5db0ff" font-size="12">reference / sample 1</text>
+      <text x="120" y="195" fill="#e8b04b" font-size="12">sample 2</text>
+      <text x="350" y="235" fill="#9aa4b6" font-size="12" text-anchor="middle">value &rarr;</text>
+    </svg>
+    <div class="cap">The KS statistic is the largest vertical distance between the two cumulative curves. Big gap &rarr; different distributions.</div>
+  </div>
+  <p><strong>Where we use it:</strong> checking whether data is plausibly normal (or any distribution) before a test that assumes it; comparing two samples for the same distribution &mdash; in ML this is a classic way to <strong>detect data drift</strong> (feature distribution in training vs. production). It's fully general: no assumption about the shape, just the biggest gap between cumulative curves.</p>
+
+  <div class="box keyline">
+    <span class="lab">The Thread</span>
+    Order statistics (ranks, cumulative positions) are the raw material. <strong>Wilcoxon ranks values and checks if two groups share ranks fairly</strong> (a test about location/central tendency); <strong>KS builds cumulative curves and checks the biggest gap</strong> (a test about the whole distribution's shape). One asks "is one group bigger?", the other "are these the same distribution at all?"
+  </div>
+</section>
+
+<!-- ===================== SECTION 12 ===================== -->
+<section id="s12">
+  <div class="secnum">12</div>
+  <h2 class="sec">Bayesian Estimation &amp; MAP</h2>
+
+  <div class="box mental">
+    <span class="lab">The Core Shift</span>
+    Frequentist (MLE) world: a parameter is a <strong>fixed unknown constant</strong>; the data is random. Bayesian world: the parameter itself is a <strong>random variable with a distribution of belief</strong>. You don't think the conversion rate is one mystery number; you hold a distribution &mdash; "probably ~12%, plausibly 8&ndash;16%." The payoff: a principled way to inject prior knowledge and to express how uncertain your estimate is.
+  </div>
+
+  <h3>Prior, Likelihood, Posterior</h3>
+  <ul>
+    <li><strong>Prior P(&theta;):</strong> belief about the parameter <em>before</em> data. Where outside knowledge enters.</li>
+    <li><strong>Likelihood P(data|&theta;):</strong> how probable the observed data is for each &theta; &mdash; the same likelihood as MLE.</li>
+    <li><strong>Posterior P(&theta;|data):</strong> updated belief <em>after</em> data &mdash; the output.</li>
+  </ul>
+  <div class="math">
+    <span class="pe">Your updated belief is your prior reweighted by how well each parameter value explains the data you actually saw.</span>
+    <span style="color:#b08bff">P(&theta; | data)</span> &prop; <span style="color:#e8b04b">P(data | &theta;)</span> &times; <span style="color:#5db0ff">P(&theta;)</span><br>
+    <span style="font-size:13px;color:#9aa4b6">posterior &prop; likelihood &times; prior &nbsp;(the denominator P(data) is just a normalizing constant)</span>
+  </div>
+  <div class="box intuition">
+    <span class="lab">Mental Model</span>
+    Start with a belief (prior), the data pulls and reshapes it (likelihood), you end with the posterior &mdash; a blend of "what I thought" and "what the data says," weighted by how strong each one is.
+  </div>
+
+  <h4>Why &amp; When We Use It</h4>
+  <ul>
+    <li><strong>Meaningful prior knowledge</strong> (a hundred similar A/B tests landing near 10&ndash;15%). MLE throws that away; Bayesian updates from it.</li>
+    <li><strong>Scarce data.</strong> 3 heads in 3 flips: MLE says P(heads) = 1.0 ("never tails"). A reasonable prior pulls it back to sanity. Less data &rarr; prior protects more; as data grows the prior fades.</li>
+    <li><strong>Need uncertainty, not just a point.</strong> The posterior is a full distribution &rarr; "95% probability the rate is 9&ndash;14%" (a credible interval).</li>
+    <li><strong>Continuous updating.</strong> Today's posterior is tomorrow's prior &mdash; powers bandits, spam filters, recommenders.</li>
+  </ul>
+
+  <h3>MAP &mdash; Maximum A Posteriori</h3>
+  <p>The full posterior is rich, but often you want one best number. MAP asks: <strong>what single &theta; is most probable given data and prior?</strong> &mdash; the peak (mode) of the posterior.</p>
+  <div class="math">
+    <span class="pe">Pick the parameter value that maximizes the posterior &mdash; the most likely value after combining prior with data.</span>
+    &theta;&#770;<sub>MAP</sub> = arg max<sub>&theta;</sub> P(&theta; | data) = arg max<sub>&theta;</sub> P(data | &theta;) P(&theta;)
+  </div>
+  <div class="math">
+    <span class="pe">MLE for comparison &mdash; identical except MAP includes the prior term P(&theta;).</span>
+    &theta;&#770;<sub>MLE</sub> = arg max<sub>&theta;</sub> P(data | &theta;)
+  </div>
+
+  <div class="box keyline">
+    <span class="lab">Complementary or Replacement? &mdash; MAP Generalizes MLE</span>
+    <strong>MAP with a flat (uniform) prior IS MLE.</strong> A uniform P(&theta;) is constant, and multiplying the likelihood by a constant doesn't move the maximum &mdash; so MAP collapses into MLE. MLE is the special case of MAP claiming no prior preference. Use <strong>MLE</strong> with no meaningful prior or abundant data; use <strong>MAP</strong> with prior knowledge or scarce data needing regularization. As data grows, <strong>MAP converges to MLE</strong> (the likelihood swamps any fixed prior). They diverge most when data is scarce &mdash; exactly when the prior is most valuable.
+  </div>
+
+  <h3>Why MAP Is Everywhere in ML</h3>
+  <div class="box intuition">
+    <span class="lab">Regularization IS MAP Estimation</span>
+    Not an analogy &mdash; mathematically exact. Pure MLE minimizes raw loss and overfits. Adding a regularization penalty on the weights is <em>literally a prior on the parameters</em>, and minimizing (loss + penalty) is <em>literally MAP</em>.
+  </div>
+  <ul>
+    <li><strong>L2 (Ridge / weight decay) = MAP with a Gaussian prior</strong> on the weights ("weights should be small, near zero"). The prior's belief shrinks them.</li>
+    <li><strong>L1 (Lasso) = MAP with a Laplace prior.</strong> The Laplace's sharp spike at zero is why L1 drives weights to <em>exactly</em> zero &mdash; sparsity / feature selection.</li>
+  </ul>
+  <p>The regularization strength &lambda; <strong>is</strong> the strength of your prior: strong &lambda; = confident prior = data must fight harder; weak &lambda; = vague prior = data dominates. Regularization is everywhere in ML, and regularization is MAP &mdash; that's why MAP is everywhere.</p>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Q1 &middot; MAP vs MLE &mdash; the scarce-data rescue</span>3 flips, 3 heads. (a) MLE estimate? (b) MAP with a "probably fair" prior?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">(a) MLE</span><br>Likelihood &theta;&sup3; is maximized by pushing &theta; as high as possible:
+        <div class="math">&theta;&#770;<sub>MLE</sub> = <span class="frac"><span class="num">heads</span><span class="den">total</span></span> = <span class="frac"><span class="num">3</span><span class="den">3</span></span> = 1.0</div>
+        Absurd &mdash; "never tails" from 3 flips. The classic small-data failure.</div>
+      <div class="step"><span class="sn">(b) MAP</span><br>Add a Beta prior acting like pseudo-counts &mdash; say 2 prior heads + 2 prior tails (gentle "probably fair"):
+        <div class="math">&theta;&#770;<sub>MAP</sub> = <span class="frac"><span class="num">real heads + prior heads</span><span class="den">real total + prior total</span></span> = <span class="frac"><span class="num">3 + 2</span><span class="den">3 + 4</span></span> = <span class="frac"><span class="num">5</span><span class="den">7</span></span> &asymp; 0.71</div></div>
+      <div class="verdict"><strong>MAP &asymp; 0.71</strong> &mdash; data pulled belief up from 0.5, but the prior refuses the insane "tails impossible." It acted as a sanity-preserving regularizer. <em>Convergence:</em> with 1000 heads in 1000 flips, MAP = (1000+2)/(1000+4) &asymp; 0.998 &mdash; the 4 pseudo-counts are now negligible. With lots of data, MAP &asymp; MLE.</div>
+    </div>
+  </div>
+
+  <div class="q">
+    <div class="qhead"><span class="qtag">Q2 &middot; MAP of a mean with a Gaussian prior</span>Servers historically ~100 ms (prior); a few measurements give sample mean 130 ms. Where does MAP land?</div>
+    <div class="qbody">
+      <div class="step"><span class="sn">1 &middot; Prior</span><br>Centered at 100 ms, spread = how sure you are (prior variance).</div>
+      <div class="step"><span class="sn">2 &middot; Likelihood</span><br>Centered at the sample mean 130 ms, spread = noise &amp; sample size (more samples &rarr; tighter).</div>
+      <div class="step"><span class="sn">3 &middot; Posterior / MAP</span><br>For Gaussian prior &amp; likelihood, MAP is a <strong>precision-weighted average</strong> (precision = 1/variance = confidence):
+        <div class="math"><span class="pe">Lands between 100 and 130, pulled toward whichever side is more confident (smaller variance).</span>
+        &theta;&#770;<sub>MAP</sub> = <span class="frac"><span class="num">(prec<sub>prior</sub> &times; 100) + (prec<sub>data</sub> &times; 130)</span><span class="den">prec<sub>prior</sub> + prec<sub>data</sub></span></span></div></div>
+      <div class="step"><span class="sn">4 &middot; What drives it</span><br>
+        Few/noisy measurements &rarr; weak likelihood &rarr; MAP stays near 100.<br>
+        Many/clean measurements &rarr; sharp likelihood &rarr; MAP pulled to ~130, prior fades.<br>
+        Very confident prior &rarr; clings to 100. &nbsp; Vague prior &rarr; MAP &asymp; 130 = sample mean = MLE.</div>
+      <div class="verdict">The whole Bayesian story in one formula: a tug-of-war between belief and data, the rope pulled by <em>confidence</em> on each side. The vague-prior limit recovering MLE (&asymp;130) is "MAP with a flat prior = MLE" shown numerically.</div>
+    </div>
+  </div>
+
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Bayesian estimation treats the parameter as a random variable with a distribution of belief. Start with a prior, multiply by the likelihood, get a posterior (updated belief). Used with prior knowledge, scarce data (the prior regularizes and prevents absurd estimates), and when you need full uncertainty. MAP is the posterior's mode &mdash; identical to MLE except it multiplies by the prior. MAP generalizes MLE: flat prior &rarr; MAP = MLE, and MAP &rarr; MLE as data grows. In ML, <strong>regularization is MAP</strong>: L2 = Gaussian prior, L1/Lasso = Laplace prior, and &lambda; is the prior's strength. MLE when no useful prior or abundant data; MAP to encode prior knowledge or tame scarce, noisy data.
+  </div>
+</section>
+
+<!-- ===================== SECTION 13 ===================== -->
+<section id="s13">
+  <div class="secnum">13</div>
+  <h2 class="sec">Sample Size vs. Effective Sample Size</h2>
+  <p><strong>Sample size (n):</strong> how many data points you collected. <strong>Effective sample size (ESS):</strong> how many <em>independent, equally-informative</em> points you <em>effectively</em> have &mdash; often far fewer. Not every point carries a full unit of fresh information.</p>
+  <h4>Why They Diverge</h4>
+  <ul>
+    <li><strong>Correlation between observations.</strong> Measuring one patient's BP 100 times in an hour isn't 100 independent facts &mdash; readings are highly correlated. Time-series, repeated measures, clustered data (students within a classroom) all suffer this. More correlation &rarr; lower ESS.</li>
+    <li><strong>Unequal weighting.</strong> If a few responses are heavily weighted (one stands in for 50 people), a handful dominate and the effective sample shrinks.</li>
+    <li><strong>Importance sampling / MCMC.</strong> Samples drawn from the wrong distribution and reweighted; ESS measures how many "good" samples you really have. Common formula ESS = (&sum;w<sub>i</sub>)&sup2; / &sum;w<sub>i</sub>&sup2; &mdash; equals n only when all weights are equal, collapses toward 1 when one weight dominates.</li>
+  </ul>
+  <div class="box keyline">
+    <span class="lab">Why It Matters</span>
+    Every formula with &radic;n (standard error, power, CI width) assumes independence. If points are correlated, plugging in raw n makes you <strong>overconfident</strong> &mdash; intervals too narrow, p-values too small. Use ESS. Classic A/B trap: the same user appears many times; counting events instead of users inflates n far above ESS and manufactures false significance.
+  </div>
+</section>
+
+<!-- ===================== SECTION 14 ===================== -->
+<section id="s14">
+  <div class="secnum">14</div>
+  <h2 class="sec">Standard Deviation vs. Standard Error</h2>
+  <p><strong>Standard deviation (SD)</strong> describes the spread of <em>individual data points</em> &mdash; "how much do observations vary around the mean?" It's the square root of variance, a property of the data. <strong>Standard error (SE)</strong> describes the spread of a <em>statistic</em> (usually the mean) across hypothetical repeated samples &mdash; "if I redid the experiment many times, how much would my sample mean bounce around?" A property of your estimate, not the data.</p>
+  <div class="math">
+    <span class="pe">The standard error is the standard deviation shrunk by the square root of how many points you averaged over.</span>
+    SE = <span class="frac"><span class="num">SD</span><span class="den">&radic;n</span></span>
+  </div>
+  <div class="box intuition">
+    <span class="lab">Why SE Is Smaller &amp; Shrinks with n</span>
+    A single random person can be very tall or short (high SD). But the <em>average</em> of 100 people is far more stable &mdash; highs and lows cancel. More averaging &rarr; more cancellation &rarr; more stable mean &rarr; smaller SE. This is the CLT and LLN made concrete.
+  </div>
+  <div class="box keyline">
+    <span class="lab">The One-Line Distinction</span>
+    SD tells you how spread out <em>the data</em> is; SE tells you how precisely you've <em>pinned down the mean</em>. SD does <strong>not</strong> shrink with more data (it converges to the true population spread &mdash; a fixed fact of the world); SE <strong>does</strong> shrink (the mean gets pinned down more precisely). Describe variability of individuals &rarr; report SD. Express confidence in the mean &rarr; report SE (CIs are built from it: mean &plusmn; 1.96 &times; SE). Common sin: showing tiny SE error bars where SD belongs, making variability look smaller than it is.
+  </div>
+</section>
+
+<!-- ===================== SECTION 15 ===================== -->
+<section id="s15">
+  <div class="secnum">15</div>
+  <h2 class="sec">Bootstrapping</h2>
+  <p><strong>Core idea:</strong> estimate the uncertainty of <em>any</em> statistic by <strong>resampling your own data, with replacement, many times.</strong> No formula, no distributional assumption &mdash; let the data simulate "what other samples might have looked like."</p>
+  <div class="box intuition">
+    <span class="lab">Why It's Almost Magical</span>
+    You wish you could re-run the experiment thousands of times to see how your statistic varies &mdash; but you only have one sample. The insight: <strong>treat your sample as a stand-in for the population and draw new samples from it.</strong> Your sample is your best picture of the population, so resampling from it mimics resampling from the population.
+  </div>
+  <h4>Mechanics</h4>
+  <ol>
+    <li>You have a sample of size n.</li>
+    <li>Draw n points from it <strong>with replacement</strong> (some appear multiple times, others not at all) &mdash; one "bootstrap sample."</li>
+    <li>Compute your statistic (mean, median, correlation, 90th percentile&hellip;) on it.</li>
+    <li>Repeat thousands of times &rarr; thousands of values of the statistic.</li>
+    <li>Their spread estimates the standard error; their percentiles give a CI (2.5th &amp; 97.5th &rarr; 95% CI).</li>
+  </ol>
+  <p><strong>Why "with replacement"?</strong> Without it you'd just get your original dataset back every time &mdash; no variation. Replacement creates the variation that mimics genuine resampling. <strong>Why valuable:</strong> works for statistics with <em>no clean SE formula</em> (median, percentiles, ratios, correlations, model metrics) and makes <em>no distributional assumption</em>.</p>
+
+  <h3>Using Bootstrapping to Calculate a p-value</h3>
+  <p>Simulate the null by resampling. Example &mdash; do two groups have different means?</p>
+  <div class="step"><span class="sn">1 &middot; State H&#8320;</span><br>Both groups come from the same distribution. Compute the observed statistic (actual difference in means).</div>
+  <div class="step"><span class="sn">2 &middot; Simulate the null</span><br>Under H&#8320; the labels are meaningless, so <strong>pool all data and randomly reshuffle</strong> which points are "A" vs "B" (a permutation test, bootstrapping's sibling). Recompute the difference each time.</div>
+  <div class="step"><span class="sn">3 &middot; Build the null distribution</span><br>Repeat thousands of times &rarr; thousands of differences arising purely by chance when there's no real effect.</div>
+  <div class="step"><span class="sn">4 &middot; Count for the p-value</span>
+    <div class="math"><span class="pe">Out of all the fake differences generated assuming no effect, what fraction were as big as the real one?</span>
+    p = <span class="frac"><span class="num"># resampled statistics &ge; observed</span><span class="den">total resamples</span></span></div>
+  </div>
+  <div class="box keyline">
+    <span class="lab">Why Beautiful</span>
+    A p-value with <strong>zero formulas, no z/t/&chi;&sup2;, no distributional assumptions</strong> &mdash; you simulated the null directly by shuffling and counted how often chance alone is as extreme as observed. That's the literal meaning of a p-value, made tangible. When data is weird or assumptions are shaky, this is the most honest route.
+  </div>
+</section>
+
+<!-- ===================== SECTION 16 ===================== -->
+<section id="s16">
+  <div class="secnum">16</div>
+  <h2 class="sec">Population vs. Sample Variance &mdash; Why n&minus;1</h2>
+  <div class="math">
+    <span class="pe">Population variance: you know the true mean &mu; (you have the whole population).</span>
+    &sigma;&sup2; = <span class="frac"><span class="num">1</span><span class="den">N</span></span> &sum; (x<sub>i</sub> &minus; &mu;)&sup2;
+  </div>
+  <div class="math">
+    <span class="pe">Sample variance: you must use the sample mean x&#772; because you don't know &mu; &mdash; and you divide by n&minus;1, not n.</span>
+    s&sup2; = <span class="frac"><span class="num">1</span><span class="den">n &minus; 1</span></span> &sum; (x<sub>i</sub> &minus; x&#772;)&sup2;
+  </div>
+
+  <div class="box intuition">
+    <span class="lab">The Intuition (Understand First)</span>
+    You don't know &mu;, so you substitute x&#772; &mdash; computed from the same data. Key fact: <strong>x&#772; is, by construction, the value closest to your data points.</strong> The sum &sum;(x<sub>i</sub> &minus; c)&sup2; is minimized at c = x&#772;; any other center (including the true &mu;) gives a larger sum. So measuring spread around x&#772; uses the point that hugs your data most tightly &mdash; making the squared deviations <strong>systematically too small</strong>. You underestimate the true spread. The fix: divide by a smaller number (n&minus;1) to inflate the estimate by exactly the right amount.
+  </div>
+  <div class="box mental">
+    <span class="lab">Degrees-of-Freedom View</span>
+    Computing x&#772; imposes one constraint &mdash; deviations from x&#772; must sum to zero. Know n&minus;1 of them and the last is forced. You have only <strong>n&minus;1 independent pieces of information</strong> about the spread; one df was spent on the mean. Divide by the number of <em>independent</em> deviations.
+  </div>
+
+  <h3>The Proof (Why Exactly n&minus;1)</h3>
+  <p>We want an <strong>unbiased</strong> estimator &mdash; its average over all possible samples equals the true &sigma;&sup2;. Start from the identity linking deviations-from-x&#772; to deviations-from-&mu;:</p>
+  <div class="math">
+    &sum; (x<sub>i</sub> &minus; x&#772;)&sup2; = &sum; (x<sub>i</sub> &minus; &mu;)&sup2; &minus; n(x&#772; &minus; &mu;)&sup2;
+  </div>
+  <p>In words: scatter around the sample mean equals scatter around the true mean <em>minus</em> a positive term n(x&#772;&minus;&mu;)&sup2; &mdash; exactly the "shrinkage" from using x&#772; instead of &mu;. (It comes from expanding (x<sub>i</sub>&minus;&mu;)&sup2; = ((x<sub>i</sub>&minus;x&#772;)+(x&#772;&minus;&mu;))&sup2; and summing; the cross term vanishes because &sum;(x<sub>i</sub>&minus;x&#772;) = 0.) Take expectations of both sides:</p>
+  <div class="math">
+    <span class="pe">First term: each point's expected squared deviation from the true mean is &sigma;&sup2;, and there are n of them.</span>
+    E[ &sum;(x<sub>i</sub> &minus; &mu;)&sup2; ] = n&sigma;&sup2;
+  </div>
+  <div class="math">
+    <span class="pe">Second term: uses Var(x&#772;) = &sigma;&sup2;/n &mdash; the squared standard error.</span>
+    E[ n(x&#772; &minus; &mu;)&sup2; ] = n &middot; Var(x&#772;) = n &middot; <span class="frac"><span class="num">&sigma;&sup2;</span><span class="den">n</span></span> = &sigma;&sup2;
+  </div>
+  <div class="math">
+    <span class="pe">Putting it together &mdash; there it is:</span>
+    E[ &sum;(x<sub>i</sub> &minus; x&#772;)&sup2; ] = n&sigma;&sup2; &minus; &sigma;&sup2; = (n &minus; 1)&sigma;&sup2;
+  </div>
+  <p>The expected sum of squared deviations around x&#772; is exactly <strong>(n&minus;1)&sigma;&sup2;</strong>, not n&sigma;&sup2;. Therefore:</p>
+  <ul>
+    <li><strong>Divide by n:</strong> E[s&sup2;] = (n&minus;1)&sigma;&sup2;/n &lt; &sigma;&sup2; &mdash; biased downward, underestimates (confirming the intuition).</li>
+    <li><strong>Divide by n&minus;1:</strong> E[s&sup2;] = (n&minus;1)&sigma;&sup2;/(n&minus;1) = &sigma;&sup2; &mdash; unbiased.</li>
+  </ul>
+  <div class="box keyline">
+    <span class="lab">The Punchline</span>
+    n&minus;1 isn't a fudge &mdash; it's the unique factor making the expectation land exactly on the true variance. The "missing" &sigma;&sup2; (subtracted because we used x&#772; instead of &mu;) is precisely one data point's worth of information &mdash; hence n&minus;1. The bias is large for small n (&divide;4 vs &divide;5 = 25% at n=5) and negligible for large n.
+  </div>
+</section>
+
+<!-- ===================== SECTION 17 ===================== -->
+<section id="s17">
+  <div class="secnum">17</div>
+  <h2 class="sec">Odds &amp; Log-Odds</h2>
+  <div class="math">
+    <span class="pe">Odds: the ratio of "happens" to "doesn't happen." p = 0.75 &rarr; odds 3 ("3 to 1"). p = 0.5 &rarr; odds 1.</span>
+    odds = <span class="frac"><span class="num">p</span><span class="den">1 &minus; p</span></span>
+  </div>
+  <div class="math">
+    <span class="pe">Log-odds (the logit): the natural log of the odds.</span>
+    logit(p) = ln( <span class="frac"><span class="num">p</span><span class="den">1 &minus; p</span></span> )
+  </div>
+
+  <h4>The Ranges &mdash; The Whole Reason Log-Odds Dominates</h4>
+  <div class="viz">
+    <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ranges of probability, odds, log-odds">
+      <text x="20" y="40" fill="#5db0ff" font-size="13" font-family="monospace">Probability</text>
+      <line x1="160" y1="35" x2="420" y2="35" stroke="#5db0ff" stroke-width="3"/>
+      <circle cx="160" cy="35" r="4" fill="#5db0ff"/><circle cx="420" cy="35" r="4" fill="#5db0ff"/>
+      <text x="150" y="22" fill="#9aa4b6" font-size="11">0</text><text x="415" y="22" fill="#9aa4b6" font-size="11">1</text>
+      <text x="440" y="40" fill="#9aa4b6" font-size="11">bounded both ends</text>
+
+      <text x="20" y="100" fill="#e8b04b" font-size="13" font-family="monospace">Odds</text>
+      <line x1="160" y1="95" x2="630" y2="95" stroke="#e8b04b" stroke-width="3"/>
+      <circle cx="160" cy="95" r="4" fill="#e8b04b"/>
+      <text x="150" y="82" fill="#9aa4b6" font-size="11">0</text>
+      <text x="290" y="82" fill="#9aa4b6" font-size="11">1 (neutral, off-center)</text>
+      <text x="600" y="82" fill="#9aa4b6" font-size="11">&infin;</text>
+      <text x="640" y="100" fill="#9aa4b6" font-size="11">asymmetric</text>
+
+      <text x="20" y="165" fill="#5ad19a" font-size="13" font-family="monospace">Log-odds</text>
+      <line x1="120" y1="160" x2="660" y2="160" stroke="#5ad19a" stroke-width="3"/>
+      <text x="110" y="147" fill="#9aa4b6" font-size="11">&minus;&infin;</text>
+      <line x1="390" y1="150" x2="390" y2="170" stroke="#fff" stroke-width="1.5"/>
+      <text x="370" y="147" fill="#9aa4b6" font-size="11">0 (p=0.5)</text>
+      <text x="650" y="147" fill="#9aa4b6" font-size="11">+&infin;</text>
+      <text x="120" y="190" fill="#9aa4b6" font-size="11">unbounded &amp; symmetric around 0</text>
+    </svg>
+    <div class="cap">Probability is trapped in [0,1]; odds in [0,&infin;) but lopsided; log-odds spans the full real line, symmetric around 0.</div>
+  </div>
+
+  <h4>Why Take the Log &mdash; What It Solves</h4>
+  <ul>
+    <li><strong>Unbounded range solves the modeling problem.</strong> Linear models output w&middot;x + b &isin; (&minus;&infin;,&infin;), but probability is trapped in [0,1] &mdash; a mismatch. Log-odds also spans all reals, so you cleanly set <strong>log-odds = w&middot;x + b</strong>. <em>This is exactly logistic regression</em>: model log-odds linearly, then convert back to probability via the sigmoid (the sigmoid is the inverse of the logit). The log-odds is the bridge that lets a linear model produce a valid probability.</li>
+    <li><strong>Symmetry around zero is interpretable.</strong> 0 &rarr; p=0.5; positive = more likely than not, negative = less, magnitude = strength. ln(2) &asymp; +0.69 and ln(0.5) &asymp; &minus;0.69 are exact mirrors &mdash; "twice as likely" and "half as likely" become symmetric.</li>
+    <li><strong>Addition replaces multiplication (the deep reason).</strong> Logs turn multiplication into addition. Odds combine multiplicatively (awkward); in log-odds space, <em>evidence adds up</em>. Each feature contributes additively &mdash; so logistic-regression coefficients are interpretable ("this feature adds 0.7 to the log-odds"), and it connects to information theory / log-likelihoods / "bits of evidence" (Naive Bayes sums log-probabilities for the same reason).</li>
+    <li><strong>Numerical stability (engineering reason).</strong> Probabilities can be tiny (10&#8315;&sup3;&#8304;&#8304;); multiplying many underflows to zero. Log space turns products into sums of manageable numbers. ML libraries compute log-probabilities / log-odds internally &mdash; cross-entropy, log-loss, softmax-with-logits. The "logits" a network outputs <em>are</em> unnormalized log-odds; sigmoid/softmax converts back only at the very end.</li>
+  </ul>
+  <div class="box interview">
+    <span class="lab">Interview-Ready Summary</span>
+    Log-odds maps the bounded, asymmetric probability scale onto the full, symmetric real line. That makes it the natural output space for linear models (logistic regression sets log-odds = w&middot;x + b), turns multiplicative evidence-combination into additive contributions (interpretable coefficients), and gives numerical stability by replacing tiny-probability multiplication with addition. That trio &mdash; unbounded range, additivity, stability &mdash; is why log-odds is everywhere in ML.
+  </div>
+</section>
+
+<!-- ===================== SECTION 18 ===================== -->
+<section id="s18">
+  <div class="secnum">18</div>
+  <h2 class="sec">CLT &amp; LLN in Inferential Statistics</h2>
+
+  <h3>Law of Large Numbers &mdash; Why Estimation Works At All</h3>
+  <p>LLN: as the sample grows, the sample mean converges to the true population mean. It's the reason <strong>estimation is even possible</strong> &mdash; the guarantee that with enough data your estimates home in on truth rather than wandering off. It underwrites:</p>
+  <ul>
+    <li><strong>Consistency of estimators</strong> &mdash; MLE, sample mean, etc. converge to the right answer with enough data.</li>
+    <li><strong>The shrinking standard error</strong> &mdash; SE = SD/&radic;n &rarr; 0 as n grows is LLN in action.</li>
+    <li><strong>Bootstrapping's validity</strong> &mdash; a large sample faithfully represents the population, so resampling from it approximates resampling from the population.</li>
+  </ul>
+  <p>But LLN alone isn't enough &mdash; it says the mean <em>converges</em>, not <em>how it's distributed</em> or <em>how uncertain</em> it is along the way. That's CLT's job.</p>
+
+  <h3>Central Limit Theorem &mdash; Why We Can Compute p-values &amp; CIs</h3>
+  <p>CLT: regardless of the population's shape, the distribution of the <em>sample mean</em> becomes approximately <strong>normal</strong> as n grows, centered at the true mean with SD = &sigma;/&radic;n. The single most important theorem in inference, because:</p>
+  <ul>
+    <li><strong>It's why z/t-tests work on non-normal data.</strong> Raw data can be wildly skewed, but the sample <em>mean</em> is approximately normal for decent n. Since tests about means use the distribution <em>of the mean</em>, they're valid even when the data isn't normal &mdash; you can t-test skewed income data. (This is the "why p-values associate with the normal" answer, fully grounded.)</li>
+    <li><strong>It's why CIs have their form.</strong> "mean &plusmn; 1.96 &times; SE" comes directly from CLT: because the mean is normal, 95% of the time it lands within 1.96 SE of the truth. No CLT, no 1.96.</li>
+    <li><strong>It's why the SE formula is meaningful</strong> &mdash; CLT pins the mean's spread as exactly &sigma;/&radic;n, giving the scale for all tests and intervals.</li>
+    <li><strong>It's the root of the &chi;&sup2;, t, F family.</strong> Each was built from normal variables; the reason those normals appear in real data is CLT. So CLT is the root of the entire distribution family tree.</li>
+  </ul>
+  <div class="box keyline">
+    <span class="lab">The Division of Labor</span>
+    <strong>LLN promises your estimate converges to the truth (so estimation is possible); CLT tells you the shape and spread of that estimate's uncertainty (so you can quantify it with tests and intervals).</strong> LLN says "you'll get there"; CLT says "and here's exactly how uncertain you are on the way." Together they make the leap from a finite, noisy sample to a confident statement about an unseen population logically valid &mdash; everything else in this series is built on these two guarantees.
+  </div>
+</section>
+
+<div class="footer">
+  <p>Inferential Statistics &middot; Part 2 &mdash; complete session reference. Intuition first, math kept in, nothing skipped.</p>
+  <p>Hypothesis testing &rarr; p-values &rarr; errors &amp; power &rarr; the test family (z, t, &chi;&sup2;, F, ANOVA) &rarr; non-parametrics &rarr; Bayesian &amp; MAP &rarr; foundations.</p>
+</div>
+
+<a href="#" class="back" title="Back to top">&uarr;</a>
+
+</div>
+</body>
+</html>

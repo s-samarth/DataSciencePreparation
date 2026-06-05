@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Linear Regression to GDA — A Study Reference</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['$$','$$']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root{
+    --paper:#f4f0e6;
+    --paper-2:#efe9db;
+    --ink:#23201a;
+    --ink-soft:#4a4438;
+    --rule:#d8cfb8;
+    --accent:#7c2d12;      /* deep rust */
+    --accent-2:#1d4d4f;    /* deep teal */
+    --gold:#9a7b2e;
+    --box:#fbf8f0;
+    --shadow:rgba(60,50,30,.12);
+    --code:#2b2722;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, #fbf7ec 0%, transparent 40%),
+      radial-gradient(circle at 88% 92%, #f0ead9 0%, transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    line-height:1.62;
+    font-size:18px;
+  }
+  /* subtle paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+    mix-blend-mode:multiply;
+  }
+  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:0 26px 120px;}
+
+  /* ---------- Masthead ---------- */
+  header.mast{
+    padding:70px 0 38px;border-bottom:3px double var(--rule);margin-bottom:10px;
+  }
+  .kicker{
+    font-family:"Iowan Old Style",Georgia,serif;
+    letter-spacing:.42em;text-transform:uppercase;font-size:12px;color:var(--accent);
+    font-weight:700;margin-bottom:18px;
+  }
+  h1.title{
+    font-size:clamp(34px,6vw,56px);line-height:1.04;margin:0 0 18px;font-weight:700;
+    letter-spacing:-.01em;
+  }
+  h1.title em{font-style:italic;color:var(--accent-2);}
+  .dek{font-size:19px;color:var(--ink-soft);font-style:italic;max-width:64ch;}
+  .meta{
+    margin-top:26px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    font-size:12.5px;letter-spacing:.03em;color:var(--gold);text-transform:uppercase;
+  }
+
+  /* ---------- TOC ---------- */
+  nav.toc{
+    background:var(--box);border:1px solid var(--rule);border-radius:3px;
+    padding:26px 30px;margin:38px 0 54px;box-shadow:0 2px 14px var(--shadow);
+  }
+  nav.toc h2{
+    font-size:13px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);
+    margin:0 0 16px;font-weight:700;
+  }
+  nav.toc ol{margin:0;padding-left:0;counter-reset:toc;list-style:none;
+    columns:2;column-gap:42px;}
+  nav.toc li{counter-increment:toc;margin:0 0 9px;break-inside:avoid;font-size:15.5px;}
+  nav.toc li::before{content:counter(toc,decimal-leading-zero);color:var(--gold);
+    font-family:ui-monospace,monospace;font-size:12px;margin-right:10px;}
+  nav.toc a{color:var(--ink);text-decoration:none;border-bottom:1px solid transparent;transition:.2s;}
+  nav.toc a:hover{color:var(--accent);border-bottom-color:var(--accent);}
+
+  /* ---------- Sections ---------- */
+  section{margin:0 0 18px;padding-top:30px;}
+  .sec-num{
+    font-family:ui-monospace,monospace;font-size:13px;color:var(--gold);
+    letter-spacing:.2em;display:block;margin-bottom:6px;
+  }
+  h2.sec{
+    font-size:clamp(26px,4vw,36px);margin:0 0 8px;line-height:1.1;font-weight:700;
+    letter-spacing:-.01em;border-bottom:1px solid var(--rule);padding-bottom:14px;
+  }
+  h3{font-size:22px;margin:34px 0 10px;color:var(--accent-2);font-weight:700;}
+  h4{font-size:18px;margin:22px 0 6px;color:var(--accent);font-weight:700;font-style:italic;}
+  p{margin:12px 0;}
+  strong{color:var(--code);}
+  em.term{font-style:italic;color:var(--accent-2);font-weight:600;}
+
+  /* callouts */
+  .analogy,.keynote,.trap,.derivation{
+    border-radius:3px;padding:18px 22px;margin:22px 0;position:relative;
+    box-shadow:0 1px 8px var(--shadow);
+  }
+  .analogy{background:linear-gradient(180deg,#f3ede0,#efe7d6);border-left:4px solid var(--gold);}
+  .keynote{background:#eef4f1;border-left:4px solid var(--accent-2);}
+  .trap{background:#f7ede9;border-left:4px solid var(--accent);}
+  .derivation{background:var(--box);border:1px solid var(--rule);}
+  .tag{
+    display:inline-block;font-family:ui-monospace,monospace;font-size:10.5px;
+    letter-spacing:.18em;text-transform:uppercase;font-weight:700;margin-bottom:8px;
+  }
+  .analogy .tag{color:var(--gold);}
+  .keynote .tag{color:var(--accent-2);}
+  .trap .tag{color:var(--accent);}
+  .derivation .tag{color:var(--ink-soft);}
+
+  /* Q&A */
+  .qa{border-top:1px dashed var(--rule);padding:14px 0 4px;margin-top:8px;}
+  .qa .q{font-weight:700;color:var(--accent);}
+  .qa .q::before{content:"Q  ";font-family:ui-monospace,monospace;color:var(--gold);}
+  .qa .a{margin-top:4px;}
+  .qa .a::before{content:"A  ";font-family:ui-monospace,monospace;color:var(--accent-2);font-weight:700;}
+
+  /* tables */
+  table{width:100%;border-collapse:collapse;margin:22px 0;font-size:15px;
+    background:var(--box);box-shadow:0 1px 8px var(--shadow);}
+  caption{caption-side:top;text-align:left;font-style:italic;color:var(--ink-soft);
+    font-size:14px;margin-bottom:8px;}
+  th,td{border:1px solid var(--rule);padding:10px 13px;text-align:left;vertical-align:top;}
+  th{background:var(--paper-2);font-weight:700;color:var(--accent-2);
+    font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;}
+  tr:nth-child(even) td{background:#faf7ef;}
+
+  /* figures */
+  figure{margin:28px 0;text-align:center;}
+  figure svg{max-width:100%;height:auto;background:var(--box);
+    border:1px solid var(--rule);border-radius:3px;box-shadow:0 2px 12px var(--shadow);}
+  figcaption{font-size:13.5px;color:var(--ink-soft);font-style:italic;margin-top:10px;max-width:64ch;margin-left:auto;margin-right:auto;}
+
+  code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:14.5px;
+    background:#e9e2cf;padding:1px 6px;border-radius:3px;color:var(--code);}
+
+  ul,ol{margin:12px 0;padding-left:26px;}
+  li{margin:7px 0;}
+
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--rule) 18%,var(--rule) 82%,transparent);
+    margin:50px 0;border:0;}
+  .big-divider{display:flex;align-items:center;gap:18px;margin:60px 0 10px;}
+  .big-divider::before,.big-divider::after{content:"";flex:1;height:1px;background:var(--rule);}
+  .big-divider span{font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.3em;
+    text-transform:uppercase;color:var(--gold);}
+
+  /* MathJax sizing */
+  mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%;}
+  mjx-container[display="true"]{margin:16px 0!important;}
+
+  footer{margin-top:80px;padding-top:30px;border-top:3px double var(--rule);
+    font-size:14px;color:var(--ink-soft);font-style:italic;text-align:center;}
+
+  a.backtop{color:var(--accent);text-decoration:none;font-size:13px;font-style:normal;
+    font-family:ui-monospace,monospace;letter-spacing:.1em;}
+
+  @media (max-width:620px){
+    body{font-size:16.5px;}
+    nav.toc ol{columns:1;}
+    .wrap{padding:0 18px 80px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="kicker">Machine Learning · Study Reference</div>
+  <h1 class="title">From Linear Regression<br>to <em>Generalized Linear Models</em><br>&amp; Generative Learning</h1>
+  <p class="dek">One continuous arc — least squares, regularization, the optimizers, logistic regression, the GLM framework that unifies them all, and the generative counterpart (GDA) that loops back to logistic. Every derivation, analogy, and Q&amp;A from the session, kept intact.</p>
+  <div class="meta">Session recap · Math preserved · Built for recall</div>
+</header>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#lr">Linear Regression — the core idea</a></li>
+    <li><a href="#math">The math: model, loss, closed form</a></li>
+    <li><a href="#gd">Gradient descent &amp; its three flavors</a></li>
+    <li><a href="#lms">The LMS / Widrow-Hoff rule</a></li>
+    <li><a href="#convex">Convexity, the Hessian &amp; PSD</a></li>
+    <li><a href="#assump">Assumptions &amp; failure modes</a></li>
+    <li><a href="#qq">Normality &amp; the Q–Q plot</a></li>
+    <li><a href="#reg">Regularization — Ridge, Lasso, ElasticNet</a></li>
+    <li><a href="#whyweights">Why weights explode (p &gt; n)</a></li>
+    <li><a href="#trace">Normal equation via traces</a></li>
+    <li><a href="#lwr">Locally Weighted Regression</a></li>
+    <li><a href="#mle">Probabilistic view — why squared error</a></li>
+    <li><a href="#logistic">Logistic Regression</a></li>
+    <li><a href="#newton">Newton's Method</a></li>
+    <li><a href="#perceptron">The Perceptron</a></li>
+    <li><a href="#glm">Generalized Linear Models</a></li>
+    <li><a href="#softmax">Softmax Regression</a></li>
+    <li><a href="#gen">Generative Learning &amp; GDA</a></li>
+    <li><a href="#gda-logistic">GDA ↔ Logistic Regression</a></li>
+    <li><a href="#synthesis">The whole arc in one paragraph</a></li>
+  </ol>
+</nav>
+
+<!-- ============ 1 ============ -->
+<section id="lr">
+  <span class="sec-num">SECTION 01</span>
+  <h2 class="sec">Linear Regression — the core idea</h2>
+  <p>Linear regression is <strong>fitting the best straight line (or flat plane) through a cloud of points.</strong> "Best" means the line where the total vertical miss-distance, squared, is as small as possible.</p>
+  <p>Why <em class="term">vertical</em> distance, not perpendicular? Because we predict \(y\) <em>from</em> \(x\) — the error lives entirely in the \(y\) direction. Why <em class="term">squared</em>? Two practical reasons: squaring kills the sign (a \(+3\) and a \(-3\) miss both count as badness and don't cancel), and it punishes big misses disproportionately (off by 10 is <em>more</em> than twice as bad as off by 5: 100 vs 25), so the line positions itself to avoid large errors.</p>
+
+  <div class="analogy">
+    <span class="tag">Cricket analogy</span>
+    A coach judging a bowler's line and length over an over doesn't care about the <em>direction</em> of the miss (too wide vs down leg are both bad), and a delivery that's wildly off is disproportionately worse than one slightly off — a full toss is more than twice as punishable as a marginally short ball. So he mentally <strong>squares</strong> the misses. The "best line and length" minimizing those squared misses across six balls is exactly the regression line.
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="math">
+  <span class="sec-num">SECTION 02</span>
+  <h2 class="sec">The math: model, loss, closed form</h2>
+
+  <h4>The model</h4>
+  <p>One feature: \(\hat{y} = wx + b\), where \(w\) is the slope, \(b\) the intercept, \(\hat y\) the prediction. Many features:</p>
+  $$\hat{y} = w_1 x_1 + w_2 x_2 + \dots + w_d x_d + b = \mathbf{w}^\top \mathbf{x} + b$$
+
+  <h4>The loss (Mean Squared Error)</h4>
+  <p>Average, over all \(n\) points, of (actual − predicted) squared:</p>
+  $$\mathrm{MSE} = \frac{1}{n}\sum_{i=1}^{n}\big(y_i - \hat{y}_i\big)^2 = \frac{1}{n}\sum_{i=1}^{n}\big(y_i - (w x_i + b)\big)^2$$
+
+  <h4>The closed-form solution</h4>
+  <p>Because MSE is a bowl (a paraboloid in the weights), its minimum is exactly where its slope is zero. Take the derivative, set to zero, solve. For one feature:</p>
+  $$w = \frac{\sum_{i}(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i}(x_i - \bar{x})^2}, \qquad b = \bar{y} - w\bar{x}$$
+  <p>Read \(w\): numerator is how \(x\) and \(y\) move together (covariance), denominator is how \(x\) varies alone (variance). So <strong>slope = covariance(x,y) / variance(x)</strong> — literally "co-movement per unit of x-spread." And \(b=\bar y - w\bar x\) forces the line through the mean point \((\bar x,\bar y)\), the centre of mass of the data.</p>
+
+  <h4>The matrix form &amp; Normal Equation</h4>
+  <p>Stack one example per row; prepend a column of 1s to absorb the intercept as weight \(w_0\):</p>
+  $$X \in \mathbb{R}^{n\times(d+1)},\quad \mathbf{w}\in\mathbb{R}^{(d+1)\times1},\quad \mathbf{y}\in\mathbb{R}^{n\times1}$$
+  <p>Predictions for the whole batch in one matrix multiply: \(\hat{\mathbf{y}} = X\mathbf{w}\) (this <em>is</em> the vectorization — no Python loop). Loss: \(L(\mathbf w)=\|\mathbf y - X\mathbf w\|^2\). Setting the gradient to zero gives the <em class="term">Normal Equation</em>:</p>
+  $$\mathbf{w} = (X^\top X)^{-1}X^\top \mathbf{y}$$
+  <p>Inverting the \((d+1)\times(d+1)\) matrix \(X^\top X\) costs \(O(d^3)\) — which is why, for huge feature counts, we fall back to gradient descent.</p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="gd">
+  <span class="sec-num">SECTION 03</span>
+  <h2 class="sec">Gradient descent &amp; its three flavors</h2>
+  <p>Instead of jumping to the bottom of the bowl, <strong>walk</strong> there. The gradient \(\nabla_{\mathbf w}L\) points uphill (steepest increase), so step against it:</p>
+  $$\mathbf{w} \leftarrow \mathbf{w} - \eta\,\nabla_{\mathbf{w}} L(\mathbf{w})$$
+  <p>\(\eta\) is the learning rate (stride length). Too small → crawls forever. Too large → oversteps the valley and bounces / diverges.</p>
+
+  <div class="analogy">
+    <span class="tag">Foggy hillside</span>
+    You're on a hill in fog (no closed form visible), but you can feel the slope at your feet. Step in the steepest downhill direction, reassess, repeat. \(\eta\) is your stride; too big and you leap clear over the valley onto the far slope.
+  </div>
+
+  <h4>The gradient for linear regression (vectorized)</h4>
+  <p>With error vector \(\mathbf e = X\mathbf w - \mathbf y\):</p>
+  $$\nabla_{\mathbf{w}} L = \frac{2}{n} X^\top (X\mathbf{w} - \mathbf{y})$$
+  <p>In words: <strong>the gradient for feature \(j\) is the average of (prediction error × that feature's value).</strong> Setting it to zero recovers the Normal Equation — so GD and the closed form chase the same point; GD just crawls there. Because the loss is convex, GD with a sane \(\eta\) is guaranteed to reach the global minimum.</p>
+
+  <h4>The three flavors — same algorithm, one dial</h4>
+  <p>The only thing that changes is <strong>how many samples are used to estimate the gradient before each step</strong>:</p>
+  <table>
+    <caption>The dial trades gradient accuracy against steps-per-second.</caption>
+    <tr><th>Flavor</th><th>Samples / step</th><th>Character</th></tr>
+    <tr><td><strong>Batch</strong> (\(B=n\))</td><td>all \(n\)</td><td>True gradient, smooth path, but one step touches the whole dataset. 1 update / epoch.</td></tr>
+    <tr><td><strong>Stochastic (SGD)</strong> (\(B=1\))</td><td>one random</td><td>Cheap, noisy, zig-zags; buzzes around the minimum (decay \(\eta\) to settle). \(n\) updates / epoch.</td></tr>
+    <tr><td><strong>Mini-batch</strong> (\(1\!<\!B\!<\!n\))</td><td>32–256</td><td>Best of both; GPU-friendly matrix multiply. The practical default. \(n/B\) updates / epoch.</td></tr>
+  </table>
+  <p>One epoch = one full pass over the data. Note: PyTorch's <code>optim.SGD</code> is really mini-batch — define all three precisely by \(B\) in an interview.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Contour paths of batch, mini-batch and SGD descent">
+      <!-- contours -->
+      <g fill="none" stroke="#d8cfb8" stroke-width="1.4">
+        <ellipse cx="470" cy="130" rx="150" ry="92"/>
+        <ellipse cx="470" cy="130" rx="112" ry="68"/>
+        <ellipse cx="470" cy="130" rx="74" ry="44"/>
+        <ellipse cx="470" cy="130" rx="38" ry="22"/>
+      </g>
+      <circle cx="470" cy="130" r="4.5" fill="#7c2d12"/>
+      <text x="470" y="118" font-family="monospace" font-size="11" fill="#7c2d12" text-anchor="middle">min</text>
+      <!-- batch: smooth arc -->
+      <path d="M70,40 Q250,70 470,130" fill="none" stroke="#1d4d4f" stroke-width="2.6"/>
+      <circle cx="70" cy="40" r="4" fill="#1d4d4f"/>
+      <text x="60" y="32" font-family="monospace" font-size="12" fill="#1d4d4f">Batch</text>
+      <!-- mini-batch: slightly wobbly -->
+      <path d="M70,110 Q180,150 250,120 T390,150 Q440,140 470,130" fill="none" stroke="#9a7b2e" stroke-width="2.2"/>
+      <circle cx="70" cy="110" r="4" fill="#9a7b2e"/>
+      <text x="60" y="103" font-family="monospace" font-size="12" fill="#9a7b2e">Mini-batch</text>
+      <!-- sgd: drunk stumble -->
+      <path d="M70,210 L120,170 L100,200 L165,160 L150,195 L220,150 L205,185 L280,150 L270,170 L340,140 L330,165 L400,140 L395,150 L450,135 L460,140 L470,130"
+            fill="none" stroke="#7c2d12" stroke-width="1.7"/>
+      <circle cx="70" cy="210" r="4" fill="#7c2d12"/>
+      <text x="60" y="232" font-family="monospace" font-size="12" fill="#7c2d12">SGD</text>
+    </svg>
+    <figcaption>Contour map of the loss bowl. Batch takes a clean arc (few costly steps); SGD is a cheap drunk stumble that orbits the minimum; mini-batch is the purposeful middle path.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="lms">
+  <span class="sec-num">SECTION 04</span>
+  <h2 class="sec">The LMS / Widrow-Hoff rule</h2>
+  <p>Per-example cost \(J(\theta)=\tfrac12(h_\theta(x)-y)^2\) with \(h_\theta(x)=\theta^\top x\). Chain rule (the 2 and \(\tfrac12\) cancel; \(\partial h/\partial\theta_j = x_j\)):</p>
+  $$\frac{\partial J}{\partial \theta_j} = \big(h_\theta(x) - y\big)\,x_j$$
+  <p><strong>The gradient for weight \(j\) is the prediction error times the \(j\)-th feature.</strong> Plugging into the GD step gives the <em class="term">LMS / Widrow-Hoff update</em>:</p>
+  $$\theta_j := \theta_j + \alpha\big(y^{(i)} - h_\theta(x^{(i)})\big)x_j^{(i)}$$
+
+  <div class="keynote">
+    <span class="tag">Why it's intuitive</span>
+    The update is <strong>self-correcting and proportional to error</strong>: near-right prediction → tiny step; badly wrong → big step; the sign auto-handles direction; and it's scaled by \(x_j\) so only the feature that actually drove the prediction gets corrected. This single-example atom is what Batch GD (sum over all \(m\)) and SGD (one at a time) are built from.
+  </div>
+  <div class="analogy">
+    <span class="tag">Cricket</span>
+    A batsman adjusting after each ball: misjudge the length badly → big technical correction; almost middled it → leave technique alone; and only adjust the part of your game that was involved (no point fixing pull-shot footwork after misjudging a cover drive).
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="convex">
+  <span class="sec-num">SECTION 05</span>
+  <h2 class="sec">Convexity, the Hessian &amp; positive semi-definite</h2>
+  <p>From \(\nabla_{\mathbf w}L = -2X^\top\mathbf y + 2X^\top X\mathbf w\), differentiate again:</p>
+  $$H = \nabla^2_{\mathbf{w}} L = 2 X^\top X$$
+  <p>The Hessian is <strong>constant</strong> — the loss is exactly quadratic, so curvature is identical everywhere (a true paraboloid). Convexity ⇔ \(X^\top X\) is positive semi-definite (PSD).</p>
+
+  <div class="derivation">
+    <span class="tag">PSD proof</span>
+    For any vector \(\mathbf z\): \(\;\mathbf{z}^\top (X^\top X) \mathbf{z} = (X\mathbf{z})^\top (X\mathbf{z}) = \|X\mathbf{z}\|^2 \geq 0.\) A squared length is never negative — which is the definition of PSD. Hence \(H = 2X^\top X \succeq 0\), the loss is convex, and any stationary point is a global minimum.
+  </div>
+
+  <h4>What PSD actually means</h4>
+  <ul>
+    <li><strong>Matrix version of "non-negative":</strong> just as \(a\ge 0\) means \(az^2\ge0\) (upward parabola), PSD means \(\mathbf z^\top A\mathbf z\ge0\) — the quadratic surface opens upward in <em>every</em> direction. That's why "Hessian PSD ⇔ convex."</li>
+    <li><strong>Eigenvalue view:</strong> PSD ⇔ all eigenvalues \(\ge 0\) (the curvatures along the principal axes). A negative eigenvalue = a downhill direction = a saddle.</li>
+    <li><strong>PD vs PSD:</strong> strictly positive (PD, unique minimum) iff \(X\) has full column rank. Collinear features make some \(X\mathbf z = 0\) → a flat trough → \(X^\top X\) singular → the closed form breaks. <em>This is exactly what Ridge's \(+\lambda I\) fixes.</em></li>
+  </ul>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="assump">
+  <span class="sec-num">SECTION 06</span>
+  <h2 class="sec">Assumptions &amp; failure modes</h2>
+  <p>The trick to remembering these: hang all six on <strong>one scene</strong> — a cricket dataset predicting runs from batting average, where each assumption is one way reality fools your straight line.</p>
+
+  <table>
+    <caption>Six characters in one cricket dataset, each with a distinct visual tell.</caption>
+    <tr><th>Assumption</th><th>The character</th><th>The tell &amp; consequence</th><th>Fix</th></tr>
+    <tr><td><strong>Linearity</strong></td><td>the curve you forced straight</td><td>residuals form a <strong>smile/frown</strong>; systematic under/overfit (high bias)</td><td>polynomial features, non-linear model</td></tr>
+    <tr><td><strong>Homoscedasticity</strong></td><td>noisy top-order vs steady tailender</td><td>residuals make a <strong>funnel</strong>; line still unbiased but error bars miscalibrated</td><td>log-transform y, weighted regression</td></tr>
+    <tr><td><strong>No multicollinearity</strong></td><td>two scouts, same report</td><td>weights <strong>explode &amp; cancel</strong> (+500/−480); VIF &gt; 10; \(X^\top X\) near-singular</td><td>drop feature, PCA, Ridge</td></tr>
+    <tr><td><strong>Normality of errors</strong></td><td>the optional paperwork</td><td>Q–Q plot <strong>off the diagonal</strong>; only the significance tests break, not the line</td><td>log-transform, robust regression</td></tr>
+    <tr><td><strong>Independence</strong></td><td>the rain-affected match</td><td>errors <strong>clump</strong> (autocorrelation); overconfident SEs</td><td>lag features, time-series models</td></tr>
+    <tr><td><strong>No influential outliers</strong></td><td>the one Bradman</td><td>line <strong>tilts to chase</strong> him (MSE squares!); Cook's distance &gt; 1</td><td>Winsorize, Huber loss</td></tr>
+  </table>
+
+  <div class="keynote">
+    <span class="tag">Recall anchor</span>
+    The <strong>residual-vs-fitted plot is the master clue board</strong> — three of six (linearity, homoscedasticity, outliers) are read off its <em>shape</em> alone (smile, funnel, lone far dot). Interview line: "I'd plot residuals vs fitted first — shape tells me linearity, variance, and outliers in one look — then Q–Q for normality, Durbin-Watson for independence, VIF for collinearity."
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three residual plot shapes">
+      <g font-family="monospace" font-size="11" fill="#4a4438">
+        <!-- panel 1: random (good) -->
+        <line x1="30" y1="100" x2="190" y2="100" stroke="#d8cfb8"/>
+        <circle cx="50" cy="92" r="2.5" fill="#1d4d4f"/><circle cx="70" cy="108" r="2.5" fill="#1d4d4f"/>
+        <circle cx="90" cy="95" r="2.5" fill="#1d4d4f"/><circle cx="110" cy="106" r="2.5" fill="#1d4d4f"/>
+        <circle cx="130" cy="90" r="2.5" fill="#1d4d4f"/><circle cx="150" cy="110" r="2.5" fill="#1d4d4f"/>
+        <circle cx="170" cy="97" r="2.5" fill="#1d4d4f"/>
+        <text x="110" y="150" text-anchor="middle">Random band — good</text>
+        <!-- panel 2: funnel -->
+        <line x1="240" y1="100" x2="400" y2="100" stroke="#d8cfb8"/>
+        <circle cx="258" cy="98" r="2.5" fill="#7c2d12"/><circle cx="278" cy="103" r="2.5" fill="#7c2d12"/>
+        <circle cx="298" cy="94" r="2.5" fill="#7c2d12"/><circle cx="318" cy="112" r="2.5" fill="#7c2d12"/>
+        <circle cx="338" cy="84" r="2.5" fill="#7c2d12"/><circle cx="358" cy="120" r="2.5" fill="#7c2d12"/>
+        <circle cx="378" cy="75" r="2.5" fill="#7c2d12"/>
+        <path d="M250,100 L390,72 M250,100 L390,128" stroke="#7c2d12" stroke-width="1" stroke-dasharray="3,3" fill="none"/>
+        <text x="320" y="150" text-anchor="middle">Funnel — heteroscedastic</text>
+        <!-- panel 3: smile -->
+        <line x1="450" y1="100" x2="610" y2="100" stroke="#d8cfb8"/>
+        <path d="M460,70 Q530,135 600,70" stroke="#9a7b2e" stroke-width="1.4" fill="none" stroke-dasharray="3,3"/>
+        <circle cx="468" cy="74" r="2.5" fill="#9a7b2e"/><circle cx="490" cy="100" r="2.5" fill="#9a7b2e"/>
+        <circle cx="510" cy="118" r="2.5" fill="#9a7b2e"/><circle cx="530" cy="124" r="2.5" fill="#9a7b2e"/>
+        <circle cx="550" cy="118" r="2.5" fill="#9a7b2e"/><circle cx="572" cy="100" r="2.5" fill="#9a7b2e"/>
+        <circle cx="592" cy="74" r="2.5" fill="#9a7b2e"/>
+        <text x="530" y="150" text-anchor="middle">Smile — nonlinearity</text>
+      </g>
+    </svg>
+    <figcaption>Reading the residual-vs-fitted plot by shape: an even band passes; a funnel flags non-constant variance; a smile/frown flags a curve forced straight.</figcaption>
+  </figure>
+
+  <h4>Data diet (falls out of the same scene)</h4>
+  <ul>
+    <li><strong>Outlier-sensitive?</strong> Very — MSE squares, so one Bradman tilts the line.</li>
+    <li><strong>Normalize features?</strong> Yes — doesn't move the prediction, but unequal scales make GD zig-zag across a stretched-ellipse bowl and make Ridge/Lasso penalize big-scale features unfairly.</li>
+    <li><strong>Categoricals?</strong> One-hot encode. <strong>Missing data?</strong> Impute or drop. <strong>Sample size?</strong> ~10–20 obs per feature for stable coefficients.</li>
+  </ul>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="qq">
+  <span class="sec-num">SECTION 07</span>
+  <h2 class="sec">Normality &amp; the Q–Q plot</h2>
+  <p><strong>Why do tests break without normality?</strong> A coefficient estimate \(\hat{\mathbf w}=(X^\top X)^{-1}X^\top\mathbf y\) is a fixed matrix times \(\mathbf y\), and the only random part of \(\mathbf y\) is the error \(\boldsymbol\epsilon\). So the <em>shape</em> of \(\hat{\mathbf w}\)'s sampling distribution = the shape of \(\boldsymbol\epsilon\)'s. If errors are normal, \(\hat{\mathbf w}\) is normal, the t-statistic follows a t-distribution, and a p-value is an area read off that known curve. If errors aren't normal, the p-value reads area off the <em>wrong</em> curve — precise and wrong.</p>
+  <ul>
+    <li><strong>Heavy tails</strong> → falsely significant results (reject "coef = 0" too often).</li>
+    <li><strong>Skew</strong> → a symmetric CI is mis-centered.</li>
+  </ul>
+  <div class="keynote">
+    <span class="tag">The CLT escape hatch</span>
+    \(\hat{\mathbf w}\) is essentially a <em>sum</em> over many points, so by the Central Limit Theorem it tends to normal as \(n\) grows <em>regardless</em> of the errors' shape. <strong>Normality is a small-sample concern.</strong> With \(n=50{,}000\), mild non-normality barely dents p-values; with \(n=30\) it wrecks them. And the line itself (Gauss-Markov: best linear unbiased) never needed normality at all.
+  </div>
+
+  <h4>Decoding Q–Q plot shapes</h4>
+  <p>Sort residuals, plot against what a perfect normal would produce at those ranks. On the diagonal = normal. <em>Direction</em> of deviation = the diagnosis:</p>
+  <ul>
+    <li><strong>S-shape</strong> (ends splay from the line) → tail problem. Below-left &amp; above-right = <strong>heavy tails</strong> (the dangerous, false-positive case). Opposite = light tails (conservative).</li>
+    <li><strong>C-shape / single bend</strong> (both ends curve the same way) → <strong>skew</strong>. Up-bend = right skew (log-transform y); down-bend = left skew.</li>
+    <li><strong>A few isolated points</strong> flying off while the middle is fine → <strong>outliers</strong>, not a distribution shape.</li>
+  </ul>
+  <p>Quick decoder: <strong>splaying S = tails</strong>; <strong>consistent curve = skew</strong>. Don't over-read on small \(n\); pair with Shapiro-Wilk if it matters.</p>
+</section>
+
+<!-- ============ 8 ============ -->
+<section id="reg">
+  <span class="sec-num">SECTION 08</span>
+  <h2 class="sec">Regularization — Ridge, Lasso, ElasticNet</h2>
+  <p><strong>Why regularize?</strong> (1) <em>Overfitting</em>: with many features, OLS grows large weights to thread every point — high variance. (2) <em>Multicollinearity</em>: collinear features make \(X^\top X\) singular and weights blow up. Both are fixed by one move: <strong>add a penalty on weight size</strong>, so the model can't make weights large for free.</p>
+  <div class="analogy">
+    <span class="tag">The budget</span>
+    OLS is a shopper with an unlimited credit card — it buys huge weights to fit every point. Regularization is a <strong>budget</strong>; \(\lambda\) sets how strict it is. The model must now ask "is this feature worth its weight-cost?" Cheap, low-value features get squeezed out — exactly what stops it chasing noise.
+  </div>
+  $$L(\mathbf{w}) = \underbrace{\|\mathbf{y} - X\mathbf{w}\|_2^2}_{\text{fit}} + \underbrace{\lambda \cdot \text{penalty}(\mathbf{w})}_{\text{keep weights small}}$$
+  <p>\(\lambda=0\) → plain OLS (max variance); \(\lambda\to\infty\) → all weights crushed (max bias). Never penalize the intercept; always standardize features first.</p>
+
+  <h4>Ridge (L2)</h4>
+  $$L = \|\mathbf y - X\mathbf w\|_2^2 + \lambda\sum_j w_j^2 \qquad\Rightarrow\qquad \mathbf{w} = (X^\top X + \lambda I)^{-1}X^\top \mathbf{y}$$
+  <p>The \(\lambda I\) adds \(\lambda\) to every eigenvalue of \(X^\top X\), bumping them all strictly positive → guaranteed invertible. Geometrically it <strong>lifts the flat trough back into a strict bowl</strong>. Shrinks all weights toward zero, never exactly to zero.</p>
+
+  <h4>Lasso (L1)</h4>
+  $$L = \|\mathbf y - X\mathbf w\|_2^2 + \lambda\sum_j |w_j|$$
+  <p>Drives many weights to <strong>exactly zero</strong> (automatic feature selection). No closed form (the kink at \(|w|=0\) isn't differentiable) — solved by coordinate descent. The per-coordinate soft-thresholding update reveals the on/off gate:</p>
+  $$w_j = \mathrm{sign}(\rho_j)\cdot\max\big(|\rho_j| - \lambda,\ 0\big)$$
+  <p>If a feature's signal \(|\rho_j|\) is below the threshold \(\lambda\), the weight is set to exactly 0.</p>
+
+  <h4>Why L1 zeros and L2 doesn't — the geometry</h4>
+  <p>MSE contours are ellipses centered on the OLS solution. The penalty is a constraint region: <strong>L2 = a smooth circle</strong>, <strong>L1 = a diamond with corners on the axes</strong>. The solution is where the expanding ellipse first touches the region. L1's <strong>corners lie on the axes (where a weight = 0)</strong>, and an ellipse coming in at an angle hits a corner first → sparsity. L2's circle is smooth → it touches at a generic point where both weights are small-but-nonzero. <em>Corners cause sparsity.</em></p>
+
+  <figure>
+    <svg viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="L1 diamond vs L2 circle constraint geometry">
+      <g font-family="monospace" font-size="12">
+        <!-- L1 -->
+        <g transform="translate(0,0)">
+          <line x1="40" y1="140" x2="290" y2="140" stroke="#d8cfb8"/><line x1="165" y1="30" x2="165" y2="250" stroke="#d8cfb8"/>
+          <polygon points="165,70 225,140 165,210 105,140" fill="#7c2d12" fill-opacity="0.13" stroke="#7c2d12" stroke-width="2"/>
+          <ellipse cx="225" cy="80" rx="78" ry="46" fill="none" stroke="#1d4d4f" stroke-width="1.6" transform="rotate(-22 225 80)"/>
+          <ellipse cx="225" cy="80" rx="52" ry="30" fill="none" stroke="#1d4d4f" stroke-width="1.6" transform="rotate(-22 225 80)"/>
+          <circle cx="165" cy="70" r="5" fill="#7c2d12"/>
+          <text x="175" y="64" fill="#7c2d12">touches a corner → w₁=0</text>
+          <text x="165" y="270" text-anchor="middle" fill="#4a4438">L1 (Lasso) — diamond</text>
+        </g>
+        <!-- L2 -->
+        <g transform="translate(330,0)">
+          <line x1="10" y1="140" x2="270" y2="140" stroke="#d8cfb8"/><line x1="140" y1="30" x2="140" y2="250" stroke="#d8cfb8"/>
+          <circle cx="140" cy="140" r="62" fill="#1d4d4f" fill-opacity="0.12" stroke="#1d4d4f" stroke-width="2"/>
+          <ellipse cx="210" cy="80" rx="78" ry="46" fill="none" stroke="#7c2d12" stroke-width="1.6" transform="rotate(-22 210 80)"/>
+          <ellipse cx="210" cy="80" rx="52" ry="30" fill="none" stroke="#7c2d12" stroke-width="1.6" transform="rotate(-22 210 80)"/>
+          <circle cx="188" cy="98" r="5" fill="#1d4d4f"/>
+          <text x="196" y="92" fill="#1d4d4f">touches the curve → both ≠ 0</text>
+          <text x="140" y="270" text-anchor="middle" fill="#4a4438">L2 (Ridge) — circle</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>The expanding loss ellipse first touches L1's pointy corner (a weight snaps to zero) but L2's smooth circle at a generic point (both weights shrink, neither vanishes).</figcaption>
+  </figure>
+
+  <h4>ElasticNet</h4>
+  $$L = \|\mathbf y - X\mathbf w\|_2^2 + \lambda_1\sum_j|w_j| + \lambda_2\sum_j w_j^2$$
+  <p>L1 + L2 stacked. Fixes Lasso's failure on <em>correlated</em> features (Lasso arbitrarily keeps one, unstable); L2's grouping effect <strong>shares weight across correlated groups</strong>. Use when you want selection but features come in correlated clusters.</p>
+
+  <table>
+    <caption>Same single idea — trade a little bias for weight discipline — differing only in the budget's shape.</caption>
+    <tr><th></th><th>Ridge (L2)</th><th>Lasso (L1)</th><th>ElasticNet</th></tr>
+    <tr><td>Penalty</td><td>\(\sum w_j^2\)</td><td>\(\sum|w_j|\)</td><td>both</td></tr>
+    <tr><td>Constraint</td><td>circle (smooth)</td><td>diamond (corners)</td><td>rounded diamond</td></tr>
+    <tr><td>Zeros weights?</td><td>no, shrinks all</td><td>yes (selection)</td><td>yes</td></tr>
+    <tr><td>Closed form?</td><td>yes (\(+\lambda I\))</td><td>no (coord. descent)</td><td>no</td></tr>
+    <tr><td>Collinearity</td><td>stabilizes</td><td>picks one (poor)</td><td>shares (good)</td></tr>
+  </table>
+</section>
+
+<!-- ============ 9 ============ -->
+<section id="whyweights">
+  <span class="sec-num">SECTION 09</span>
+  <h2 class="sec">Why weights explode when \(p > n\)</h2>
+  <p>With 100 features and 30 samples you're in the <strong>underdetermined</strong> regime: more knobs than constraints. As a linear system, 30 equations and 100 unknowns → infinitely many <em>exact</em> solutions. OLS drives training error to literally zero — in infinitely many ways. The question isn't "will it fit" (it fits perfectly) but <strong>which</strong> of the infinite solutions it lands on, and why that's bad.</p>
+  <p>With more features than constraints, features are guaranteed linearly dependent. Take two near-identical features \(x_5\approx x_6\). The model can fit using \(+1000\,x_5 - 998\,x_6\): the huge weights nearly cancel on every <em>training</em> point (so training looks fine) while amplifying the hair's-width noise difference to nail the last residual. Mathematically this is \((X^\top X)^{-1}\) blowing up — inverting a near-zero eigenvalue yields an enormous number; the huge weights <em>are</em> that inverse.</p>
+  <div class="keynote">
+    <span class="tag">Why your instinct was half-right</span>
+    "Large weights wouldn't mean it fits well" — true on <strong>test</strong> data, false on <strong>train</strong>. On a test point, \(x_5,x_6\) drift apart differently than in training, the cancellation fails, and a tiny discrepancy × 1000 sends the prediction flying. Weight magnitude is a <strong>sensitivity multiplier</strong>: it memorized, it didn't learn.
+  </div>
+  <div class="analogy">
+    <span class="tag">Stand-up</span>
+    A set hyper-tuned to one venue — callbacks only that crowd gets, timing built around that room's echo, a bit that only lands because the seat-5 heckler always interrupts at minute 4. Kills on those 30 nights (perfect fit), collapses in a new city (every laugh depended on a fragile configuration that only existed in training). The huge cancelling weights are those hyper-specific dependencies. Regularization is the comedian who builds material that travels — slightly less optimized for the home crowd (a little bias), but robust everywhere (low variance).
+  </div>
+  <p>Ridge's \(+\lambda I\) resolves "which of the infinite solutions" by adding a tiebreaker: <strong>pick the smallest-weight one</strong>, which kills the noise-amplifying cancellations.</p>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="trace">
+  <span class="sec-num">SECTION 10</span>
+  <h2 class="sec">The Normal Equation via traces (CS229)</h2>
+  <p>Same destination \(\theta=(X^\top X)^{-1}X^\top y\), reached through trace identities. Cost in matrix form (the \(\tfrac12\) cancels the differentiation 2):</p>
+  $$J(\theta) = \frac{1}{2}(X\theta - y)^\top(X\theta - y)$$
+  <p>Because \(J\) is a scalar, \(J=\operatorname{tr}J\), which lets us apply trace identities: \(\operatorname{tr}(AB)=\operatorname{tr}(BA)\), \(\nabla_A\operatorname{tr}(AB)=B^\top\), and \(\nabla_A\operatorname{tr}(ABA^\top C)=CAB+C^\top AB^\top\). Expanding and differentiating term by term:</p>
+  $$\nabla_\theta J(\theta) = X^\top X\theta - X^\top y$$
+  <p>Set to zero (valid because \(J\) is convex — Hessian \(X^\top X\succeq0\)):</p>
+  $$X^\top X\theta = X^\top y \;\Rightarrow\; \theta = (X^\top X)^{-1}X^\top y$$
+  <div class="keynote">
+    <span class="tag">Interview one-liner</span>
+    "Write cost as \(\tfrac12\|X\theta - y\|^2\), take the gradient (trace identities or matrix calculus), get \(X^\top X\theta - X^\top y\), set to zero, solve — global min because the cost is convex." The trace machinery is just the rigorous way to differentiate the quadratic form.
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="lwr">
+  <span class="sec-num">SECTION 11</span>
+  <h2 class="sec">Locally Weighted Regression (LWR)</h2>
+  <p>One global line systematically misfits a curve, and guessing the right polynomial features is hard. LWR's idea: <strong>fit a fresh line for every query point, using mostly the training points near it.</strong> Zoom in far enough and any smooth curve looks locally straight.</p>
+  $$\text{minimize}\quad \sum_i w^{(i)}\,(y^{(i)} - \theta^\top x^{(i)})^2, \qquad w^{(i)} = \exp\!\left(-\frac{(x^{(i)} - x)^2}{2\tau^2}\right)$$
+  <p>Close to the query \(x\) → \(w^{(i)}\to1\) (full attention); far → \(w^{(i)}\to0\) (ignored). It's a bell-shaped attention window (not a probability — no normalizer). <strong>\(\tau\) (bandwidth)</strong> is the bias-variance dial: large \(\tau\) → wide window → approaches global LR → underfit; small \(\tau\) → narrow → wiggly → overfit.</p>
+  <div class="keynote">
+    <span class="tag">Parametric vs non-parametric</span>
+    Plain LR is <strong>parametric</strong>: fit \(\theta\) once, then throw the data away — model size is fixed. LWR is <strong>non-parametric</strong>: every prediction re-solves a weighted regression using the training set itself, so you must keep all data forever. "Non-parametric" precisely means <em>the stuff you keep grows with the training set</em> — not "no parameters." The trade: parametric is cheap and rigid; non-parametric is flexible and expensive (KNN is the other classic example).
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="mle">
+  <span class="sec-num">SECTION 12</span>
+  <h2 class="sec">Probabilistic view — why squared error?</h2>
+  <p>Assume \(y^{(i)} = \theta^\top x^{(i)} + \epsilon^{(i)}\) with IID Gaussian noise \(\epsilon^{(i)}\sim\mathcal N(0,\sigma^2)\). Gaussian is <em>principled</em>, not arbitrary: total error is a sum of many small independent unmodeled effects, and by the CLT a sum tends to Gaussian regardless of each piece's shape. Then:</p>
+  $$p(y^{(i)} \mid x^{(i)};\theta) = \frac{1}{\sqrt{2\pi}\,\sigma}\exp\!\left(-\frac{(y^{(i)} - \theta^\top x^{(i)})^2}{2\sigma^2}\right)$$
+  <p>The likelihood (product, by independence) and its log:</p>
+  $$L(\theta) = \prod_{i=1}^m p(y^{(i)}\mid x^{(i)};\theta), \qquad \ell(\theta) = m\log\tfrac{1}{\sqrt{2\pi}\sigma} - \frac{1}{\sigma^2}\cdot\frac{1}{2}\sum_{i=1}^m (y^{(i)} - \theta^\top x^{(i)})^2$$
+  <p>The constant and the positive \(1/\sigma^2\) don't move the argmax, so:</p>
+  $$\text{maximize } \ell(\theta) \iff \text{minimize } \tfrac{1}{2}\sum_i (y^{(i)} - \theta^\top x^{(i)})^2$$
+  <div class="keynote">
+    <span class="tag">The payoff</span>
+    <strong>Maximizing likelihood under Gaussian noise = minimizing squared error.</strong> The square comes straight from the Gaussian's exponent. \(L_1\)/absolute error is the MLE under <em>Laplace</em> noise (heavier tails) — which is exactly why MAE is more robust to outliers. <strong>Choice of loss is secretly a choice of noise distribution.</strong> Also: \(\sigma^2\) dropped out — the fitted line is the same whether data is noisy or clean. This same recipe with a Bernoulli gives cross-entropy → logistic regression.
+  </div>
+</section>
+
+<div class="big-divider"><span>Part II · Classification &amp; the unifying framework</span></div>
+
+<!-- ============ 13 ============ -->
+<section id="logistic">
+  <span class="sec-num">SECTION 13</span>
+  <h2 class="sec">Logistic Regression</h2>
+  <p>Linear regression fails at classification: outputs are unbounded, and outliers drag the line and swing the threshold. We need a hypothesis bounded in \([0,1]\) that <em>saturates</em> (stops caring once a point is confidently on the right side).</p>
+  $$h_\theta(x) = g(\theta^\top x) = \frac{1}{1+e^{-\theta^\top x}}, \qquad g(z) = \frac{1}{1+e^{-z}}$$
+  <p>The sigmoid squashes the real line into \((0,1)\); \(h_\theta(x)\) is now \(P(y=1\mid x)\). Decision boundary at \(\theta^\top x=0\) (still linear in \(x\)).</p>
+
+  <figure>
+    <svg viewBox="0 0 560 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The sigmoid function">
+      <g font-family="monospace" font-size="12" fill="#4a4438">
+        <line x1="40" y1="200" x2="520" y2="200" stroke="#d8cfb8"/>
+        <line x1="280" y1="30" x2="280" y2="215" stroke="#d8cfb8"/>
+        <line x1="40" y1="115" x2="520" y2="115" stroke="#d8cfb8" stroke-dasharray="4,4"/>
+        <text x="46" y="60">1.0</text><text x="46" y="128">0.5</text><text x="46" y="214">0.0</text>
+        <text x="500" y="218">z = θᵀx</text>
+        <path d="M40,198 C160,196 220,180 280,115 C340,50 400,34 520,32" fill="none" stroke="#7c2d12" stroke-width="2.6"/>
+        <circle cx="280" cy="115" r="4.5" fill="#1d4d4f"/>
+        <text x="290" y="110" fill="#1d4d4f">boundary (P=0.5)</text>
+      </g>
+    </svg>
+    <figcaption>The sigmoid bends the linear score into a probability. Its slope is highest at z=0 and vanishes at the extremes — that flat tail is the saturation that gives outlier-robustness.</figcaption>
+  </figure>
+
+  <h4>Key derivative</h4>
+  $$g'(z) = g(z)\big(1 - g(z)\big)$$
+  <p>This makes the gradient collapse cleanly, and its vanishing at large \(|z|\) <em>is</em> the saturation: confidently-classified points have ≈0 gradient and stop pulling on the parameters.</p>
+
+  <h4>The Bernoulli model &amp; log-likelihood</h4>
+  $$P(y\mid x;\theta) = h_\theta(x)^y\,(1-h_\theta(x))^{1-y}$$
+  $$\ell(\theta) = \sum_i \Big[ y^{(i)}\log h(x^{(i)}) + (1-y^{(i)})\log(1-h(x^{(i)})) \Big]$$
+  <div class="keynote">
+    <span class="tag">Cross-entropy = negative Bernoulli log-likelihood</span>
+    "Maximize log-likelihood under Bernoulli" and "minimize binary cross-entropy" are literally the same objective. Gaussian gave squared error; Bernoulli gives cross-entropy. Same machinery, swapped distribution.
+  </div>
+
+  <h4>The gradient — same form as LMS</h4>
+  $$\frac{\partial\ell}{\partial\theta_j} = \big(y - h_\theta(x)\big)x_j \quad\Rightarrow\quad \theta_j := \theta_j + \alpha\big(y^{(i)} - h_\theta(x^{(i)})\big)x_j^{(i)}$$
+  <p>Character-for-character the Widrow-Hoff rule — the <em>only</em> difference is that here \(h_\theta(x)=g(\theta^\top x)\) (squashed) rather than \(\theta^\top x\) (raw). Not a coincidence: both are GLMs (§16).</p>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="newton">
+  <span class="sec-num">SECTION 14</span>
+  <h2 class="sec">Newton's Method</h2>
+  <p>Gradient ascent takes many small steps; Newton takes huge curvature-aware steps and converges in &lt;10 iterations for logistic regression. Root-finding intuition: at a guess, follow the <strong>tangent line</strong> to where it crosses zero — the tangent is the best local linear approximation, so each step leaps most of the remaining distance.</p>
+  $$\theta := \theta - \frac{f(\theta)}{f'(\theta)}$$
+  <p>To <em>maximize</em> \(\ell\), find where \(\ell'=0\), i.e. run root-finding on \(f=\ell'\):</p>
+  $$\theta := \theta - \frac{\ell'(\theta)}{\ell''(\theta)} \qquad\xrightarrow{\text{vector form}}\qquad \theta := \theta - H^{-1}\nabla_\theta\ell(\theta)$$
+  <p>The first derivative says which way and how steeply; the second (curvature, the Hessian \(H\)) sizes the step.</p>
+  <div class="keynote">
+    <span class="tag">Two facts</span>
+    <strong>Quadratic convergence</strong> — correct digits roughly double each step (error 0.01 → 0.0001 → 1e-8). But the <strong>Hessian inverse is \(O(n^3)\)</strong> in parameter count — prohibitive for deep nets (millions of params), which is why they use SGD/Adam. Newton applied to logistic regression is called <strong>Fisher Scoring</strong>.
+  </div>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="perceptron">
+  <span class="sec-num">SECTION 15</span>
+  <h2 class="sec">The Perceptron</h2>
+  <p>Replace the sigmoid with a hard step:</p>
+  $$g(z) = \begin{cases}1 & z\ge0\\ 0 & z<0\end{cases} \qquad \theta_j := \theta_j + \alpha\big(y^{(i)} - h_\theta(x^{(i)})\big)x_j^{(i)}$$
+  <p>Same update form (only moves on mistakes), but a fundamentally different algorithm.</p>
+  <div class="trap">
+    <span class="tag">Interview trap</span>
+    The perceptron looks "cosmetically similar" to logistic/linear regression but the step function is <strong>not a probability distribution</strong> — so the perceptron has <strong>no probabilistic interpretation and cannot be derived as an MLE</strong>. There's no likelihood it maximizes. It sits outside the GLM framework — a conceptual stepping-stone, not a probabilistic model.
+  </div>
+</section>
+
+<!-- ============ 16 ============ -->
+<section id="glm">
+  <span class="sec-num">SECTION 16</span>
+  <h2 class="sec">Generalized Linear Models — the keystone</h2>
+  <p>Linear regression, logistic regression, softmax, Poisson regression are all <strong>one recipe</strong>: pick an exponential-family distribution for the output, set its natural parameter \(=\theta^\top x\), and predict the mean.</p>
+
+  <h4>The exponential family</h4>
+  $$P(y;\eta) = b(y)\,\exp\big(\eta^\top T(y) - a(\eta)\big)$$
+  <ul>
+    <li><strong>\(\eta\)</strong> — natural (canonical) parameter; the GLM links this to the linear model.</li>
+    <li><strong>\(T(y)\)</strong> — sufficient statistic (usually \(T(y)=y\)).</li>
+    <li><strong>\(a(\eta)\)</strong> — log partition function; \(e^{-a(\eta)}\) is the normalizing constant forcing \(\int P=1\).</li>
+    <li><strong>\(b(y)\)</strong> — base measure.</li>
+  </ul>
+  <p>Members: Bernoulli (binary), Gaussian (continuous), Poisson (counts), Gamma/Exponential (waiting times), Beta/Dirichlet (distributions over probabilities), multinomial (categories).</p>
+
+  <h4>Bernoulli is exponential-family — and the sigmoid appears</h4>
+  $$\phi^y(1-\phi)^{1-y} = \exp\Big(y\log\tfrac{\phi}{1-\phi} + \log(1-\phi)\Big)$$
+  <p>So \(\eta = \log\frac{\phi}{1-\phi}\) (the log-odds). Invert it:</p>
+  $$e^\eta = \frac{\phi}{1-\phi} \;\Rightarrow\; \phi = \frac{1}{1+e^{-\eta}}$$
+  <div class="keynote">
+    <span class="tag">Why the sigmoid is forced</span>
+    The sigmoid is precisely the function mapping the Bernoulli's natural parameter \(\eta\) back to its probability \(\phi\). Logistic regression doesn't "choose an S-curve" — the Bernoulli's structure produces the sigmoid automatically.
+  </div>
+
+  <h4>Gaussian is exponential-family too</h4>
+  <p>With \(\sigma^2=1\): \(\eta=\mu\) (the natural parameter <em>is</em> the mean), \(T(y)=y\), \(a(\eta)=\tfrac12\eta^2\). That's why linear regression connects \(\theta^\top x\) directly to the prediction with no squashing — its link is the identity.</p>
+
+  <h4>Properties (why GLMs are well-behaved)</h4>
+  <ol>
+    <li>MLE w.r.t. \(\eta\) is concave — the NLL is <strong>convex</strong> (no bad local optima).</li>
+    <li>\(\mathbb E[y;\eta] = \dfrac{\partial a}{\partial\eta}\) — the mean is the first derivative of \(a\).</li>
+    <li>\(\mathrm{Var}(y;\eta) = \dfrac{\partial^2 a}{\partial\eta^2}\) — the variance is the second derivative (Hessian if \(\eta\) is a vector).</li>
+  </ol>
+
+  <h4>The three GLM assumptions</h4>
+  <ol>
+    <li>\(y\mid x;\theta \sim\) ExponentialFamily\((\eta)\) — pick the member matching the output type.</li>
+    <li><strong>Design choice:</strong> \(\eta = \theta^\top x\) (the "linear" in GLM).</li>
+    <li><strong>Prediction:</strong> output \(\mathbb E[y\mid x]\).</li>
+  </ol>
+
+  <p><strong>Recipe in action.</strong> Gaussian → \(h(x)=\mathbb E[y\mid x]=\mu=\eta=\theta^\top x\) → <em>linear regression</em>. Bernoulli → \(h(x)=\phi=\frac{1}{1+e^{-\theta^\top x}}\) → <em>logistic regression</em>, sigmoid for free.</p>
+
+  <figure>
+    <svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GLM parameterization chain">
+      <g font-family="monospace" font-size="13" fill="#23201a">
+        <rect x="30" y="100" width="120" height="50" rx="4" fill="#eef4f1" stroke="#1d4d4f" stroke-width="1.5"/>
+        <text x="90" y="122" text-anchor="middle" fill="#1d4d4f">model θ</text>
+        <text x="90" y="140" text-anchor="middle" font-size="10">(we learn this)</text>
+
+        <rect x="260" y="100" width="120" height="50" rx="4" fill="#f7ede9" stroke="#7c2d12" stroke-width="1.5"/>
+        <text x="320" y="128" text-anchor="middle" fill="#7c2d12">natural η</text>
+
+        <rect x="490" y="100" width="120" height="50" rx="4" fill="#f3ede0" stroke="#9a7b2e" stroke-width="1.5"/>
+        <text x="550" y="122" text-anchor="middle" fill="#9a7b2e">mean</text>
+        <text x="550" y="140" text-anchor="middle" font-size="10">φ / μ / λ</text>
+
+        <line x1="150" y1="125" x2="258" y2="125" stroke="#4a4438" stroke-width="1.6" marker-end="url(#ah)"/>
+        <text x="204" y="116" text-anchor="middle" font-size="11">η = θᵀx</text>
+        <line x1="380" y1="125" x2="488" y2="125" stroke="#4a4438" stroke-width="1.6" marker-end="url(#ah)"/>
+        <text x="434" y="116" text-anchor="middle" font-size="11">response g</text>
+        <text x="434" y="160" text-anchor="middle" font-size="10" fill="#7c2d12">(sigmoid / identity / exp)</text>
+
+        <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 z" fill="#4a4438"/></marker></defs>
+        <text x="320" y="40" text-anchor="middle" font-size="14" fill="#1d4d4f">The one chain behind every GLM</text>
+      </g>
+    </svg>
+    <figcaption>You learn θ; it produces η linearly; the canonical response function g maps η to the distribution's mean (sigmoid for Bernoulli, identity for Gaussian, exp for Poisson).</figcaption>
+  </figure>
+
+  <h4>Unified training</h4>
+  <p>Every GLM shares the identical update — the reason linear, logistic, and Poisson regression all use "error × feature":</p>
+  $$\theta_j := \theta_j + \alpha\big(y^{(i)} - h_\theta(x^{(i)})\big)x_j^{(i)}$$
+  <p>Only \(h_\theta(x)\) changes (identity vs sigmoid vs exp). Newton/Fisher Scoring is the common optimizer because GLMs are low-dimensional and convex. Terminology: <strong>canonical response function</strong> \(g(\eta)=\mathbb E[y;\eta]\) maps \(\eta\to\) mean; <strong>canonical link</strong> \(g^{-1}\) maps mean \(\to\eta\).</p>
+</section>
+
+<!-- ============ 17 ============ -->
+<section id="softmax">
+  <span class="sec-num">SECTION 17</span>
+  <h2 class="sec">Softmax Regression (multiclass)</h2>
+  <p>For \(K\) classes, the matching family member is the multinomial → softmax. Each class gets a parameter vector \(\theta_k\); labels are one-hot. Compute \(K\) logits \(\theta_k^\top x\), then exponentiate (forces positivity) and normalize (forces sum to 1):</p>
+  $$P(y=k\mid x) = \frac{e^{\theta_k^\top x}}{\sum_{i\in\text{classes}} e^{\theta_i^\top x}}$$
+  <p>The loss is <strong>cross-entropy</strong> between the one-hot truth \(P\) and the predicted bars \(\hat P\):</p>
+  $$\text{CrossEntropy}(P,\hat P) = -\sum_{y\in\text{classes}} P(y)\log\hat P(y)$$
+  <p>Since \(P\) is one-hot, this collapses to \(-\log\hat P(\text{true class})\) — minimizing it maximizes the predicted log-probability of the correct class. \(K=2\) softmax reduces to the sigmoid; this is the same cross-entropy as the negative Bernoulli log-likelihood from §13.</p>
+</section>
+
+<div class="big-divider"><span>Part III · Generative learning</span></div>
+
+<!-- ============ 18 ============ -->
+<section id="gen">
+  <span class="sec-num">SECTION 18</span>
+  <h2 class="sec">Generative Learning &amp; GDA</h2>
+  <p><strong>Discriminative</strong> models (everything so far) learn \(P(y\mid x)\) directly — where's the boundary. <strong>Generative</strong> models learn \(P(x\mid y)\) (what each class's data looks like) plus priors \(P(y)\), then invert with Bayes. Intuition: instead of "where's the line between cats and dogs," learn "what cats look like" and "what dogs look like" separately, then ask which model better explains a new point.</p>
+  $$P(y\mid x) = \frac{P(x\mid y)P(y)}{P(x)}, \qquad \arg\max_y P(y\mid x) = \arg\max_y P(x\mid y)P(y)$$
+  <p>(\(P(x)\) is constant across classes, so it drops out of the argmax — you never compute the denominator at prediction time.)</p>
+
+  <h4>Gaussian Discriminant Analysis</h4>
+  <p>Assume each class's features are multivariate Gaussian:</p>
+  $$P(x;\mu,\Sigma) = \frac{1}{(2\pi)^{n/2}|\Sigma|^{1/2}}\exp\!\Big(-\tfrac12(x-\mu)^\top\Sigma^{-1}(x-\mu)\Big)$$
+  <p>The exponent is the squared <em>Mahalanobis distance</em> (distance from the mean, stretched by the covariance). The 2-class model:</p>
+  <ul>
+    <li>\(y\sim\) Bernoulli\((\phi)\) — the class prior.</li>
+    <li>\(x\mid y=0\sim\mathcal N(\mu_0,\Sigma)\), \(x\mid y=1\sim\mathcal N(\mu_1,\Sigma)\).</li>
+  </ul>
+  <div class="keynote">
+    <span class="tag">Shared Σ is the key detail</span>
+    Both classes share <strong>one</strong> covariance \(\Sigma\) (different means). This makes the decision boundary <strong>linear</strong> (and cheaper). Per-class \(\Sigma\) would give a quadratic boundary — that's QDA.
+  </div>
+
+  <h4>Closed-form training (no gradient descent)</h4>
+  <p>Maximize the joint log-likelihood \(\sum_i\log P(x^{(i)}\mid y^{(i)})P(y^{(i)})\); the estimates are intuitive "count and average":</p>
+  $$\phi = \tfrac1m\sum_i \mathbb{1}\{y^{(i)}=1\}, \qquad \mu_c = \frac{\sum_i \mathbb{1}\{y^{(i)}=c\}\,x^{(i)}}{\sum_i \mathbb{1}\{y^{(i)}=c\}}$$
+  $$\Sigma = \tfrac1m\sum_i (x^{(i)}-\mu_{y^{(i)}})(x^{(i)}-\mu_{y^{(i)}})^\top$$
+  <p>Priors by counting, class centers by averaging within class, shape by pooling deviations.</p>
+</section>
+
+<!-- ============ 19 ============ -->
+<section id="gda-logistic">
+  <span class="sec-num">SECTION 19</span>
+  <h2 class="sec">GDA ↔ Logistic Regression</h2>
+  <p>View the GDA posterior as a function of \(x\). Because \(\Sigma\) is shared, the quadratic-in-\(x\) terms cancel and you get:</p>
+  $$P(y=1\mid x) = \frac{1}{1+\exp(-\theta^\top x)}$$
+  <p>for a \(\theta\) built from \((\phi,\mu_0,\mu_1,\Sigma)\). <strong>Exactly the logistic form.</strong></p>
+  <div class="trap">
+    <span class="tag">The asymmetry (top interview question)</span>
+    \(P(x\mid y)\) Gaussian (shared Σ) \(\Rightarrow\) \(P(y\mid x)\) logistic — <strong>TRUE</strong>.<br>
+    \(P(y\mid x)\) logistic \(\not\Rightarrow\) \(P(x\mid y)\) Gaussian — <strong>does NOT hold</strong>. Logistic posteriors arise from <em>any</em> exponential-family class-conditional (Poisson too). Gaussian is just one road to logistic.
+  </div>
+  <div class="keynote">
+    <span class="tag">Bias-variance reading (the practical takeaway)</span>
+    <strong>GDA = stronger assumptions</strong> → more data-efficient <em>if the data really is Gaussian</em> (then GDA &gt; logistic). <strong>Logistic = weaker assumptions</strong> → more robust (if not Gaussian, logistic &gt; GDA). Corollary: <strong>for larger datasets, prefer logistic</strong> — with enough data you don't need GDA's efficiency boost, so you take logistic's robustness for free. GDA's niche is small data + believable Gaussian structure.
+  </div>
+</section>
+
+<!-- ============ 20 ============ -->
+<section id="synthesis">
+  <span class="sec-num">SECTION 20</span>
+  <h2 class="sec">The whole arc in one paragraph</h2>
+  <div class="keynote" style="font-size:17px;">
+  Linear and logistic regression aren't two tricks — they're two instances of one recipe (GLMs): pick an exponential-family distribution for your output (Gaussian → linear, Bernoulli → logistic, multinomial → softmax, Poisson → Poisson regression), set the natural parameter \(\eta=\theta^\top x\), and predict \(\mathbb E[y\mid x]\); the link function (identity, sigmoid, softmax) is <strong>forced</strong> by the distribution, not chosen, and every one of them trains with the identical "error × feature" update because that's a structural GLM property. Squared error itself is the Gaussian MLE; cross-entropy is the Bernoulli MLE — the loss is secretly a noise assumption. Regularization adds a budget on weights (Ridge's circle shrinks all, Lasso's corners zero some), fixing both overfitting and the \(p>n\) weight-explosion by tie-breaking toward small weights. Newton's method (Fisher Scoring) is the fast curvature-aware optimizer for these low-dimensional convex problems; the perceptron mimics the update but sits outside the framework (no probabilistic meaning). Then generative models attack from the opposite side — model \(P(x\mid y)\) and \(P(y)\), invert with Bayes — and GDA, using shared-covariance Gaussians, lands provably back on the logistic form, but via stronger assumptions, which is exactly why Gaussian-true data favors GDA and everything else favors logistic.
+  </div>
+  <p style="text-align:center;margin-top:30px;"><a class="backtop" href="#top">↑ back to top</a></p>
+</section>
+
+<footer>
+  Session study reference · linear regression → regularization → optimizers → logistic regression → GLMs → generative learning (GDA).<br>
+  Every derivation, analogy, and Q&amp;A preserved. Math rendered with MathJax. Keep, revisit, drill.
+</footer>
+
+</div>
+</body>
+</html>

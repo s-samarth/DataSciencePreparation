@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability Distributions — Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']], displayMath: [['\\[', '\\]'], ['$$', '$$']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --paper: #f4efe6;
+    --paper-2: #ece4d6;
+    --ink: #211d18;
+    --ink-soft: #4a443b;
+    --line: #cabfac;
+    --accent: #8a2f22;
+    --accent-2: #1d5d54;
+    --gold: #b07d2a;
+    --disc: #1d5d54;
+    --cont: #8a2f22;
+    --multi: #5a4a8a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    background-image: radial-gradient(circle at 12% 18%, rgba(176,125,42,0.05), transparent 40%),
+                      radial-gradient(circle at 88% 8%, rgba(29,93,84,0.05), transparent 35%);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 56px 28px 120px; }
+
+  header.masthead {
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 22px;
+    margin-bottom: 14px;
+  }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin: 0 0 10px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    line-height: 0.98;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+  .sub {
+    font-family: 'Spectral', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+    margin: 14px 0 0;
+    max-width: 760px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin: 26px 0 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .dot.d { background: var(--disc); }
+  .dot.c { background: var(--cont); }
+  .dot.m { background: var(--multi); }
+
+  .nav {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 28px 0 40px;
+  }
+  .nav a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    text-decoration: none;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 6px 12px;
+    border-radius: 2px;
+    background: var(--paper-2);
+    transition: all 0.18s ease;
+  }
+  .nav a:hover { background: var(--ink); color: var(--paper); }
+
+  h2.section {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    margin: 56px 0 6px;
+    display: flex; align-items: baseline; gap: 14px;
+  }
+  h2.section .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    color: #fff;
+    font-weight: 500;
+  }
+  h2.section .tag.d { background: var(--disc); }
+  h2.section .tag.c { background: var(--cont); }
+  .section-note { color: var(--ink-soft); font-style: italic; margin: 2px 0 18px; font-size: 0.96rem; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--ink); border-radius: 4px; box-shadow: 6px 6px 0 rgba(33,29,24,0.08); }
+  table { border-collapse: collapse; width: 100%; min-width: 1180px; background: #fbf8f1; }
+  thead th {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 13px 14px;
+    border-right: 1px solid #3a342c;
+  }
+  tbody td {
+    padding: 16px 14px;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid #e4dccc;
+    font-size: 0.92rem;
+  }
+  tbody tr:nth-child(even) { background: #f5f0e6; }
+  tbody tr:hover { background: #fdf6e3; }
+
+  .dname {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 1.06rem;
+    line-height: 1.15;
+    margin-bottom: 5px;
+    color: var(--ink);
+  }
+  .dnotation {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent-2);
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    color: #fff;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .badge.mv { background: var(--multi); }
+  .badge.ml { background: var(--gold); }
+
+  .params { font-size: 0.86rem; color: var(--ink-soft); }
+  .params b { color: var(--ink); font-weight: 600; }
+  .formula { font-size: 0.9rem; }
+  .ev { font-family: 'IBM Plex Mono', monospace; font-size: 0.92rem; }
+  .why b { color: var(--accent); font-weight: 600; }
+  .key-term { color: var(--accent-2); font-weight: 600; }
+  .ml-tag { display:block; margin-top:6px; font-size:0.82rem; color: var(--ink-soft); }
+  .ml-tag::before { content:"ML ▸ "; font-family:'IBM Plex Mono',monospace; font-size:0.66rem; letter-spacing:0.1em; color: var(--gold); }
+
+  /* relationships */
+  .rel {
+    margin-top: 64px;
+    background: #fbf8f1;
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    padding: 32px 34px;
+    box-shadow: 6px 6px 0 rgba(33,29,24,0.08);
+  }
+  .rel h2 { font-family:'Fraunces',serif; font-weight:800; font-size:1.8rem; margin:0 0 6px; }
+  .rel ul { list-style: none; padding: 0; margin: 18px 0 0; }
+  .rel li {
+    padding: 11px 0 11px 30px;
+    border-bottom: 1px dashed var(--line);
+    position: relative;
+    font-size: 0.96rem;
+  }
+  .rel li::before {
+    content: "→";
+    position: absolute; left: 0; top: 11px;
+    font-family:'IBM Plex Mono',monospace;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .rel li b { font-family:'Fraunces',serif; color: var(--ink); }
+  .pill {
+    font-family:'IBM Plex Mono',monospace; font-size:0.72rem;
+    background: var(--paper-2); border:1px solid var(--line);
+    padding:1px 6px; border-radius:2px;
+  }
+
+  .callout {
+    margin-top: 30px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 18px;
+  }
+  .card {
+    background: #fbf8f1; border:1px solid var(--line); border-left: 4px solid var(--accent-2);
+    padding: 18px 20px; border-radius: 3px;
+  }
+  .card h3 { font-family:'Fraunces',serif; margin:0 0 8px; font-size:1.1rem; }
+  .card.gold { border-left-color: var(--gold); }
+  .card.red { border-left-color: var(--accent); }
+
+  footer { margin-top: 70px; border-top: 3px double var(--ink); padding-top: 18px; font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color: var(--ink-soft); letter-spacing:0.04em; }
+
+  ::selection { background: var(--gold); color: #fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Probability &amp; Statistics · Part 3 · Reference</p>
+    <h1>The Distribution <em>Cheat Sheet</em></h1>
+    <p class="sub">Every distribution worth knowing, in one comparable grid: what it models, when to reach for it, its PMF/PDF, and its mean &amp; variance. Intuition first, formulas as scaffolding.</p>
+    <div class="legend">
+      <span><i class="dot d"></i> Discrete</span>
+      <span><i class="dot c"></i> Continuous</span>
+      <span><i class="dot m"></i> Multivariate</span>
+      <span><span class="badge ml" style="margin:0">ML</span> heavy ML relevance</span>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <a href="#discrete">Discrete</a>
+    <a href="#continuous">Continuous</a>
+    <a href="#relationships">How they connect</a>
+    <a href="#bigideas">Big ideas</a>
+  </nav>
+
+  <!-- ===================== DISCRETE ===================== -->
+  <h2 class="section" id="discrete"><span class="tag d">Discrete</span> Counting &amp; integer outcomes</h2>
+  <p class="section-note">Outcomes you can list and count. Probability lives in a PMF (probability <b>mass</b> function): the height at each value <em>is</em> the probability of that value.</p>
+
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th style="min-width:185px">Distribution</th>
+        <th style="min-width:150px">Parameters (symbols)</th>
+        <th style="min-width:210px">What it models</th>
+        <th style="min-width:240px">When &amp; why you use it</th>
+        <th style="min-width:200px">PMF / CDF</th>
+        <th style="min-width:90px">E[X]</th>
+        <th style="min-width:130px">Var(X)</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- Bernoulli -->
+      <tr>
+        <td><div class="dname">Bernoulli</div><span class="dnotation">X ~ Bern(p)</span></td>
+        <td class="params"><b>p</b> = probability of success, \(0\le p\le1\)</td>
+        <td>A single yes/no trial. One coin flip, one click-or-not.</td>
+        <td class="why">The <b>atom</b> of probability — every other counting distribution is built from it. Use whenever an event has exactly two outcomes.<span class="ml-tag">A binary label, a single binary feature, a dropout keep/drop mask.</span></td>
+        <td class="formula">\(P(X=k)=p^k(1-p)^{1-k}\), \(k\in\{0,1\}\)<br><span class="params">i.e. \(P(1)=p,\ P(0)=1-p\)</span></td>
+        <td class="ev">\(p\)</td>
+        <td class="ev">\(p(1-p)\)</td>
+      </tr>
+
+      <!-- Binomial -->
+      <tr>
+        <td><div class="dname">Binomial</div><span class="dnotation">X ~ Bin(n,p)</span></td>
+        <td class="params"><b>n</b> = number of independent trials<br><b>p</b> = success prob per trial</td>
+        <td>Count of successes in \(n\) independent identical Bernoulli trials. "How many heads in \(n\) flips."</td>
+        <td class="why">Counting successes over <b>independent repeats</b> (sampling <em>with</em> replacement).<span class="ml-tag">Correct predictions out of n; conversion counts in an A/B test.</span></td>
+        <td class="formula">\(P(X=k)=\binom{n}{k}p^k(1-p)^{n-k}\)<br><span class="params">\(\binom{n}{k}=\frac{n!}{k!(n-k)!}\) = "n choose k"</span></td>
+        <td class="ev">\(np\)</td>
+        <td class="ev">\(np(1-p)\)</td>
+      </tr>
+
+      <!-- Hypergeometric -->
+      <tr>
+        <td><div class="dname">Hypergeometric</div><span class="dnotation">X ~ HGeom(N,K,n)</span></td>
+        <td class="params"><b>N</b> = population size<br><b>K</b> = successes in population<br><b>n</b> = draws (no replacement)</td>
+        <td>Successes in \(n\) draws <b>without replacement</b>. "Draw n cards, how many aces?"</td>
+        <td class="why">Sampling <b>without replacement</b> from a finite pool, where each draw changes the odds. The without-replacement twin of the Binomial.<span class="ml-tag">Enrichment / over-representation tests (e.g. gene-set, feature significance).</span></td>
+        <td class="formula">\(P(X=k)=\dfrac{\binom{K}{k}\binom{N-K}{\,n-k}}{\binom{N}{n}}\)</td>
+        <td class="ev">\(n\dfrac{K}{N}\)</td>
+        <td class="ev">\(n\dfrac{K}{N}\!\left(1-\dfrac{K}{N}\right)\dfrac{N-n}{N-1}\)<br><span class="params">last factor = finite-population correction</span></td>
+      </tr>
+
+      <!-- Geometric -->
+      <tr>
+        <td><div class="dname">Geometric</div><span class="dnotation">X ~ Geom(p)</span></td>
+        <td class="params"><b>p</b> = success prob per trial</td>
+        <td>Number of trials up to and <b>including</b> the first success. "Flips until first head."</td>
+        <td class="why">Waiting for the <b>first</b> success. The <span class="key-term">discrete memoryless</span> distribution — past failures don't change future odds.<span class="ml-tag">Run-lengths, discrete time-to-event, retry modeling.</span></td>
+        <td class="formula">\(P(X=k)=(1-p)^{k-1}p\), \(k=1,2,\dots\)<br><span class="params">alt convention: failures <em>before</em> 1st success, \(k=0,1,2,\dots\)</span></td>
+        <td class="ev">\(\dfrac{1}{p}\)</td>
+        <td class="ev">\(\dfrac{1-p}{p^2}\)</td>
+      </tr>
+
+      <!-- Negative Binomial -->
+      <tr>
+        <td><div class="dname">Negative Binomial</div><span class="dnotation">X ~ NB(r,p)</span></td>
+        <td class="params"><b>r</b> = number of successes to wait for<br><b>p</b> = success prob per trial</td>
+        <td>Number of trials until the \(r\)-th success. Generalizes Geometric (which is \(r=1\)).</td>
+        <td class="why">Waiting for \(r\) successes. Also the go-to <b>over-dispersed count model</b> (variance &gt; mean), where Poisson is too rigid.<span class="ml-tag">Negative-binomial regression for count data with extra spread.</span></td>
+        <td class="formula">\(P(X=k)=\binom{k-1}{r-1}p^r(1-p)^{k-r}\)<br><span class="params">\(k=r,r+1,\dots\)</span></td>
+        <td class="ev">\(\dfrac{r}{p}\)</td>
+        <td class="ev">\(\dfrac{r(1-p)}{p^2}\)</td>
+      </tr>
+
+      <!-- Poisson -->
+      <tr>
+        <td><div class="dname">Poisson</div><span class="dnotation">X ~ Pois(\(\lambda\))</span></td>
+        <td class="params"><b>\(\lambda\)</b> (lambda) = average events per interval (the rate)</td>
+        <td>Count of rare independent events in a fixed window of time/space, given a known average rate. "Emails per hour."</td>
+        <td class="why">Counting events when you know the <b>average rate</b> and events are independent &amp; rare. It's the limit of Binomial as \(n\to\infty,\ p\to0\) with \(np=\lambda\). Signature: <b>mean = variance</b>.<span class="ml-tag">Poisson regression, arrival/queue modeling, count features.</span></td>
+        <td class="formula">\(P(X=k)=\dfrac{e^{-\lambda}\lambda^{k}}{k!}\), \(k=0,1,2,\dots\)<br><span class="params">\(e\approx2.718\), \(k!\) = factorial</span></td>
+        <td class="ev">\(\lambda\)</td>
+        <td class="ev">\(\lambda\)</td>
+      </tr>
+
+      <!-- Discrete Uniform -->
+      <tr>
+        <td><div class="dname">Discrete Uniform</div><span class="dnotation">X ~ Unif{1..n}</span></td>
+        <td class="params"><b>n</b> = number of equally likely outcomes</td>
+        <td>\(n\) equally likely outcomes. A fair die.</td>
+        <td class="why">Maximum ignorance over a <b>finite</b> set of equally-likely options — no reason to prefer any.<span class="ml-tag">Random choice baselines, uniform sampling of indices.</span></td>
+        <td class="formula">\(P(X=k)=\dfrac{1}{n}\) for each outcome</td>
+        <td class="ev">\(\dfrac{n+1}{2}\)</td>
+        <td class="ev">\(\dfrac{n^2-1}{12}\)</td>
+      </tr>
+
+      <!-- Multinomial -->
+      <tr>
+        <td><div class="dname">Multinomial <span class="badge mv">multivariate</span></div><span class="dnotation">X ~ Mult(n; p₁..p_k)</span></td>
+        <td class="params"><b>n</b> = trials<br><b>\(p_i\)</b> = prob of category \(i\) (\(\sum p_i=1\))<br><b>k</b> = number of categories</td>
+        <td>Generalizes Binomial to \(k>2\) outcomes. "Roll a die \(n\) times, count each face." Output is a vector of counts.</td>
+        <td class="why">Counts spread across <b>multiple categories</b>.<span class="ml-tag">The likelihood math behind softmax / multiclass classification; bag-of-words count vectors; topic models.</span></td>
+        <td class="formula">\(P=\dfrac{n!}{x_1!\cdots x_k!}\,p_1^{x_1}\!\cdots p_k^{x_k}\)</td>
+        <td class="ev">\(E[X_i]=np_i\)</td>
+        <td class="ev">\(\mathrm{Var}(X_i)=np_i(1-p_i)\)<br>\(\mathrm{Cov}(X_i,X_j)=-np_ip_j\)</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ===================== CONTINUOUS ===================== -->
+  <h2 class="section" id="continuous"><span class="tag c">Continuous</span> Smooth, real-valued outcomes</h2>
+  <p class="section-note">Outcomes on a continuum. Probability lives in a PDF (probability <b>density</b> function): height is <em>density</em>, not probability — the <b>area</b> under a stretch of the curve gives the probability. For a single exact point, probability is 0.</p>
+
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th style="min-width:185px">Distribution</th>
+        <th style="min-width:155px">Parameters (symbols)</th>
+        <th style="min-width:210px">What it models</th>
+        <th style="min-width:245px">When &amp; why you use it</th>
+        <th style="min-width:230px">PDF / CDF</th>
+        <th style="min-width:95px">E[X]</th>
+        <th style="min-width:120px">Var(X)</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- Continuous Uniform -->
+      <tr>
+        <td><div class="dname">Continuous Uniform</div><span class="dnotation">X ~ Unif(a,b)</span></td>
+        <td class="params"><b>a</b> = lower bound<br><b>b</b> = upper bound</td>
+        <td>Equally likely anywhere on the interval \([a,b]\). Flat-topped.</td>
+        <td class="why">Maximum ignorance on an <b>interval</b>. Also the <b>raw material of all simulation</b> (universality of the uniform: feed it into an inverse CDF to make any distribution).<span class="ml-tag">Weight-init ranges, random sampling, dropout thresholds.</span></td>
+        <td class="formula">PDF: \(f(x)=\dfrac{1}{b-a}\), \(a\le x\le b\)<br>CDF: \(F(x)=\dfrac{x-a}{b-a}\)</td>
+        <td class="ev">\(\dfrac{a+b}{2}\)</td>
+        <td class="ev">\(\dfrac{(b-a)^2}{12}\)</td>
+      </tr>
+
+      <!-- Normal -->
+      <tr>
+        <td><div class="dname">Normal / Gaussian <span class="badge ml">ML</span></div><span class="dnotation">X ~ N(\(\mu,\sigma^2\))</span></td>
+        <td class="params"><b>\(\mu\)</b> (mu) = mean / center<br><b>\(\sigma^2\)</b> = variance<br><b>\(\sigma\)</b> = std-dev (spread)</td>
+        <td>The bell curve. The distribution of sums &amp; averages of many small independent effects.</td>
+        <td class="why">The <b>default</b> for noise, errors, and anything that's a sum of many small effects (justified by the <span class="key-term">CLT</span>). It's the max-entropy choice given only a mean and variance.<span class="ml-tag">Weight init, Gaussian priors, regression residuals, diffusion noise, VAE latents.</span></td>
+        <td class="formula">\(f(x)=\dfrac{1}{\sigma\sqrt{2\pi}}\,e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}\)<br><span class="params">CDF \(\Phi\) has no closed form</span></td>
+        <td class="ev">\(\mu\)</td>
+        <td class="ev">\(\sigma^2\)</td>
+      </tr>
+
+      <!-- Exponential -->
+      <tr>
+        <td><div class="dname">Exponential <span class="badge ml">ML</span></div><span class="dnotation">X ~ Exp(\(\lambda\))</span></td>
+        <td class="params"><b>\(\lambda\)</b> (lambda) = rate (events per unit time)</td>
+        <td>Waiting time <b>until the next event</b> in a Poisson process. The continuous cousin of Geometric.</td>
+        <td class="why">Time between independent events arriving at a constant rate. The <b>only</b> continuous <span class="key-term">memoryless</span> distribution — elapsed waiting tells you nothing about the remaining wait.<span class="ml-tag">Survival analysis, time-to-failure, queueing, hazard models.</span></td>
+        <td class="formula">PDF: \(f(x)=\lambda e^{-\lambda x}\), \(x\ge0\)<br>CDF: \(F(x)=1-e^{-\lambda x}\)</td>
+        <td class="ev">\(\dfrac{1}{\lambda}\)</td>
+        <td class="ev">\(\dfrac{1}{\lambda^2}\)</td>
+      </tr>
+
+      <!-- Gamma -->
+      <tr>
+        <td><div class="dname">Gamma</div><span class="dnotation">X ~ Gamma(\(\alpha,\beta\))</span></td>
+        <td class="params"><b>\(\alpha\)</b> = shape (number of events)<br><b>\(\beta\)</b> = rate<br><span class="params">(alt: scale \(\theta=1/\beta\))</span></td>
+        <td>Waiting time until the \(\alpha\)-th event in a Poisson process — a sum of \(\alpha\) exponentials. Generalizes Exponential (\(\alpha=1\)).</td>
+        <td class="why">Positive, right-skewed waiting times or aggregated amounts. Bayesian workhorse: <b>conjugate prior</b> for a Poisson rate and for the precision of a Normal.<span class="ml-tag">Priors on rates/variances; modeling positive continuous quantities.</span></td>
+        <td class="formula">\(f(x)=\dfrac{\beta^{\alpha}}{\Gamma(\alpha)}x^{\alpha-1}e^{-\beta x}\), \(x>0\)<br><span class="params">\(\Gamma(\alpha)=\!\int_0^\infty\! t^{\alpha-1}e^{-t}dt\) — the gamma function, extends factorial: \(\Gamma(n)=(n-1)!\)</span></td>
+        <td class="ev">\(\dfrac{\alpha}{\beta}\)</td>
+        <td class="ev">\(\dfrac{\alpha}{\beta^2}\)</td>
+      </tr>
+
+      <!-- Beta -->
+      <tr>
+        <td><div class="dname">Beta <span class="badge ml">ML</span></div><span class="dnotation">X ~ Beta(\(\alpha,\beta\))</span></td>
+        <td class="params"><b>\(\alpha\)</b> &gt; 0, <b>\(\beta\)</b> &gt; 0 = shape parameters</td>
+        <td>A distribution <b>over probabilities</b> — it lives entirely on \([0,1]\). Shape flexes from U-shaped to bell to flat.</td>
+        <td class="why">The natural way to express belief about an <b>unknown probability or proportion</b>. <b>Conjugate prior</b> for Bernoulli/Binomial: see \(s\) successes, \(f\) failures, posterior is just \(\text{Beta}(\alpha+s,\beta+f)\).<span class="ml-tag">Bayesian A/B testing, Thompson sampling in bandits, modeling CTRs.</span></td>
+        <td class="formula">\(f(x)=\dfrac{x^{\alpha-1}(1-x)^{\beta-1}}{B(\alpha,\beta)}\)<br><span class="params">\(B(\alpha,\beta)=\frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha+\beta)}\) — beta function, the normalizer</span></td>
+        <td class="ev">\(\dfrac{\alpha}{\alpha+\beta}\)</td>
+        <td class="ev">\(\dfrac{\alpha\beta}{(\alpha+\beta)^2(\alpha+\beta+1)}\)</td>
+      </tr>
+
+      <!-- Log-normal -->
+      <tr>
+        <td><div class="dname">Log-Normal</div><span class="dnotation">X ~ LogN(\(\mu,\sigma^2\))</span></td>
+        <td class="params"><b>\(\mu,\sigma^2\)</b> = mean &amp; variance <em>of</em> \(\ln X\) (NOT of \(X\))</td>
+        <td>A variable whose <b>logarithm</b> is normal. Arises from <b>multiplying</b> many positive random factors (multiplicative CLT).</td>
+        <td class="why">Positive, right-skewed quantities spanning orders of magnitude: incomes, file sizes, prices, response times.<span class="ml-tag">Log-transform a skewed positive target, then treat it as normal.</span></td>
+        <td class="formula">\(f(x)=\dfrac{1}{x\sigma\sqrt{2\pi}}\,e^{-\frac{(\ln x-\mu)^2}{2\sigma^2}}\), \(x>0\)</td>
+        <td class="ev">\(e^{\mu+\sigma^2/2}\)</td>
+        <td class="ev">\((e^{\sigma^2}\!-1)\,e^{2\mu+\sigma^2}\)</td>
+      </tr>
+
+      <!-- Cauchy -->
+      <tr>
+        <td><div class="dname">Cauchy</div><span class="dnotation">X ~ Cauchy(\(x_0,\gamma\))</span></td>
+        <td class="params"><b>\(x_0\)</b> = location (peak / median)<br><b>\(\gamma\)</b> (gamma) = scale (half-width)</td>
+        <td>The ratio of two independent standard normals. Bell-ish peak but with <b>monstrously heavy tails</b>.</td>
+        <td class="why">The cautionary tale. Tails so fat that <b>mean and variance do not exist</b>, and sample averages never settle (<b>CLT fails</b>). Used to model extreme outliers and in physics (resonance).<span class="ml-tag">A stress-test for "robust to outliers" claims.</span></td>
+        <td class="formula">\(f(x)=\dfrac{1}{\pi\gamma\left[1+\left(\frac{x-x_0}{\gamma}\right)^2\right]}\)<br><span class="params">standard: \(\frac{1}{\pi(1+x^2)}\)</span></td>
+        <td class="ev">undefined</td>
+        <td class="ev">undefined</td>
+      </tr>
+
+      <!-- Chi-squared -->
+      <tr>
+        <td><div class="dname">Chi-Squared</div><span class="dnotation">X ~ \(\chi^2(k)\)</span></td>
+        <td class="params"><b>k</b> = degrees of freedom (how many squared normals are summed)</td>
+        <td>Sum of \(k\) independent <b>squared</b> standard normals: \(Z_1^2+\dots+Z_k^2\). A special case of Gamma.</td>
+        <td class="why">The sampling distribution of a sample variance, and the test statistic for <b>goodness-of-fit</b> and <b>independence</b> (the chi-squared test). Foundation of frequentist hypothesis testing.<span class="ml-tag">Feature-independence tests, variance inference.</span></td>
+        <td class="formula">\(f(x)=\dfrac{1}{2^{k/2}\Gamma(k/2)}x^{k/2-1}e^{-x/2}\), \(x>0\)</td>
+        <td class="ev">\(k\)</td>
+        <td class="ev">\(2k\)</td>
+      </tr>
+
+      <!-- Student t -->
+      <tr>
+        <td><div class="dname">Student's t</div><span class="dnotation">X ~ \(t(\nu)\)</span></td>
+        <td class="params"><b>\(\nu\)</b> (nu) = degrees of freedom</td>
+        <td>Like a standard normal but with <b>heavier tails</b>. Appears when you estimate a mean using the <em>sample</em> std-dev from a small sample (true \(\sigma\) unknown).</td>
+        <td class="why">Small-sample inference about a mean — the <b>t-test</b>. As \(\nu\to\infty\) it converges to the Normal; small \(\nu\) means fatter tails (more caution with little data).<span class="ml-tag">Robust regression with t-distributed errors; heavy-tailed Bayesian models.</span></td>
+        <td class="formula">\(f(t)\propto\left(1+\dfrac{t^2}{\nu}\right)^{-\frac{\nu+1}{2}}\)</td>
+        <td class="ev">\(0\) (for \(\nu>1\))</td>
+        <td class="ev">\(\dfrac{\nu}{\nu-2}\) (for \(\nu>2\))</td>
+      </tr>
+
+      <!-- MVN -->
+      <tr>
+        <td><div class="dname">Multivariate Normal <span class="badge mv">multivariate</span> <span class="badge ml">ML</span></div><span class="dnotation">X ~ N(\(\boldsymbol\mu,\Sigma\))</span></td>
+        <td class="params"><b>\(\boldsymbol\mu\)</b> = mean vector (length \(d\))<br><b>\(\Sigma\)</b> (Sigma) = \(d\times d\) covariance matrix (\(\Sigma_{ij}\) = cov of dims \(i,j\))</td>
+        <td>The bell curve in many <b>correlated</b> dimensions. Generalizes the Normal to vectors.</td>
+        <td class="why">Modeling several continuous variables jointly with their correlations. One of the most-used objects in all of ML.<span class="ml-tag">Gaussian Mixture Models, Gaussian Processes, LDA/QDA, Kalman filters, VAE priors.</span></td>
+        <td class="formula">\(f(\mathbf{x})=\dfrac{1}{(2\pi)^{d/2}|\Sigma|^{1/2}}e^{-\frac{1}{2}(\mathbf{x}-\boldsymbol\mu)^{\!\top}\Sigma^{-1}(\mathbf{x}-\boldsymbol\mu)}\)<br><span class="params">\(|\Sigma|\)=determinant, \(\Sigma^{-1}\)=inverse, \(\top\)=transpose, \(d\)=dimension</span></td>
+        <td class="ev">\(\boldsymbol\mu\) (vector)</td>
+        <td class="ev">\(\Sigma\) (matrix)</td>
+      </tr>
+
+    </tbody>
+  </table>
+  </div>
+
+  <!-- ===================== RELATIONSHIPS ===================== -->
+  <div class="rel" id="relationships">
+    <h2>How they all connect</h2>
+    <p class="section-note" style="margin-top:4px">This map is the real memory trick. Don't memorize 18 islands — memorize one family tree. Almost everything sprouts from Bernoulli trials and the Normal.</p>
+    <ul>
+      <li>Sum of \(n\) independent <b>Bernoulli(p)</b> trials <span class="pill">=</span> <b>Binomial(n,p)</b>.</li>
+      <li><b>Binomial</b> done <em>without</em> replacement <span class="pill">becomes</span> <b>Hypergeometric</b>.</li>
+      <li><b>Binomial</b> with \(n\) huge, \(p\) tiny, \(np=\lambda\) fixed <span class="pill">limits to</span> <b>Poisson(\(\lambda\))</b>.</li>
+      <li><b>Geometric</b> = wait for the 1st success; <b>Negative Binomial</b> = wait for the \(r\)-th success (Geometric is NB with \(r=1\)).</li>
+      <li><b>Geometric</b> is the <em>discrete</em> memoryless distribution; <b>Exponential</b> is the <em>continuous</em> one — same idea, different clock.</li>
+      <li><b>Exponential</b> = wait for the 1st event; <b>Gamma</b> = wait for the \(\alpha\)-th event (a sum of \(\alpha\) exponentials). Exponential is Gamma with \(\alpha=1\).</li>
+      <li>Sum of \(k\) squared standard <b>Normals</b> <span class="pill">=</span> <b>Chi-Squared(\(k\))</b>, which is itself a special <b>Gamma</b>.</li>
+      <li>A standard <b>Normal</b> divided by \(\sqrt{\chi^2/\nu}\) <span class="pill">=</span> <b>Student's t(\(\nu\))</b>; as \(\nu\to\infty\), t \(\to\) Normal.</li>
+      <li>Ratio of two standard <b>Normals</b> <span class="pill">=</span> <b>Cauchy</b> <span class="pill">=</span> Student's t with \(\nu=1\).</li>
+      <li><b>Multinomial</b> generalizes <b>Binomial</b> to \(k\) categories; <b>Multivariate Normal</b> generalizes <b>Normal</b> to \(d\) correlated dimensions.</li>
+      <li><b>Beta</b> is the conjugate prior for <b>Binomial</b>; <b>Gamma</b> is the conjugate prior for <b>Poisson</b>. (Bayesian pairings.)</li>
+      <li>The grand unifier — <b>Central Limit Theorem</b>: the average of many independent things, whatever their distribution, drifts toward the <b>Normal</b>. (Cauchy is the famous exception, because it has no mean.)</li>
+    </ul>
+  </div>
+
+  <!-- ===================== BIG IDEAS ===================== -->
+  <h2 class="section" id="bigideas" style="margin-top:64px"><span class="tag c" style="background:var(--gold)">Big ideas</span> the threads to hold onto</h2>
+  <div class="callout">
+    <div class="card">
+      <h3>PMF vs PDF</h3>
+      Discrete → <b>mass</b>: the bar height <em>is</em> the probability. Continuous → <b>density</b>: height is not probability, <b>area</b> is. A single point on a continuous variable has probability 0.
+    </div>
+    <div class="card">
+      <h3>Memoryless = no aging</h3>
+      Only <b>Geometric</b> (discrete) and <b>Exponential</b> (continuous) are memoryless. Having waited a while gives you zero information about how much longer you'll wait. \(P(X>s+t\mid X>s)=P(X>t)\).
+    </div>
+    <div class="card gold">
+      <h3>Conjugate priors</h3>
+      Pick a prior so the posterior stays in the same family — updating becomes arithmetic. <b>Beta</b>↔Binomial, <b>Gamma</b>↔Poisson, <b>Normal</b>↔Normal-mean. The backbone of tractable Bayesian inference and bandits.
+    </div>
+    <div class="card red">
+      <h3>When mean/variance don't exist</h3>
+      <b>Cauchy</b> has tails so heavy that its integrals diverge — no mean, no variance, and the CLT does not apply. A reminder that "average it out" silently assumes finite moments.
+    </div>
+    <div class="card">
+      <h3>Mean = Variance tell</h3>
+      If a count's variance \(\approx\) its mean, think <b>Poisson</b>. If variance noticeably exceeds the mean (over-dispersion), reach for <b>Negative Binomial</b> instead.
+    </div>
+    <div class="card">
+      <h3>Why the Normal is everywhere</h3>
+      Not magic — it's the <b>CLT</b>. Anything built from a sum of many small independent contributions ends up bell-shaped, regardless of the parts. Hence noise, errors, and aggregates default to Normal.
+    </div>
+  </div>
+
+  <footer>
+    Probability &amp; Statistics · Part 3 · Distribution reference · intuition-first, formulas as scaffolding
+  </footer>
+
+</div>
+</body>
+</html>

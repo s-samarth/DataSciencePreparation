@@ -20,6 +20,7 @@ knowledge bases. Open the hub, click a card, and you're routed into that topic's
 - [Deployment](#deployment)
 - [Configuration reference](#configuration-reference)
 - [Troubleshooting](#troubleshooting)
+- [Raw notes](#raw-notes)
 
 ---
 
@@ -40,6 +41,10 @@ Each folder is a **fully self-contained MkDocs site** — its own `mkdocs.yml`, 
 navigation, and search index. They are **not** merged into one giant navigation. The hub just
 links to them, and at deploy time all eight are stacked side by side as sub-folders of one
 GitHub Pages site.
+
+There is also a **`RawNotes/`** folder — the original source material (standalone HTML pages,
+Jupyter notebooks, and Markdown) the sites were distilled from. It is kept in the repo but is
+**not** built or deployed. See [Raw notes](#raw-notes) for what's in it and how to use it.
 
 ---
 
@@ -88,6 +93,7 @@ DataSciencePreparation/
 ├── AgenticAI/                 # │
 ├── MLCaseStudies/             # │
 ├── ProductionizingML/         # ┘
+├── RawNotes/                  # source material (HTML / notebooks / Markdown) — NOT built or deployed
 ├── build.sh                   # builds all 8 sites → assembles ./_site
 ├── .github/workflows/deploy.yml   # CI: build + publish to GitHub Pages on push to main
 ├── .gitignore                 # ignores build output (site/, _site/, _serve/) + envs
@@ -249,3 +255,42 @@ update it the same way if you rename the repo.
 | **Links broken after renaming the repo** | Update the base URL everywhere — see [Configuration reference](#configuration-reference). |
 | **`mkdocs: command not found`** | Activate the env that has `mkdocs-material` (conda or `.venv`). |
 | **Stale page after deploy** | Hard-refresh the browser (Cmd/Ctrl + Shift + R) to bypass cached assets. |
+
+---
+
+## Raw notes
+
+`RawNotes/` holds the **original source material** the polished study sites were distilled
+from — the standalone reference HTML pages, Jupyter notebooks, and Markdown files created
+while studying. It is kept in the repo on purpose, but it is **not** part of any MkDocs
+site: nothing here is built, themed, navigated, or deployed, and the hub and its sub-sites
+never link into it.
+
+Reach for it when you want the **raw, unprocessed version** — the original standalone page or
+the runnable notebook — rather than the curated, cross-linked site.
+
+It's organized into one subfolder per topic, mirroring the study sites (plus **`DSA`**, a
+data-structures-and-algorithms set that exists only as raw notes, with no published site):
+
+```
+RawNotes/
+├── Mathematics/        # probability, inferential statistics, linear algebra  (HTML)
+├── ClassicalML/        # classical ML references + notebooks                  (HTML, ipynb, md)
+├── DeepLearning/       # neural nets, CNN/RNN                                 (HTML, ipynb)
+├── AgenticAI/          # RAG, agents, LangGraph, protocols                    (HTML, ipynb, py)
+├── MLCaseStudies/      # the 20 case studies as raw Markdown                  (md)
+├── ProductionizingML/  # system design, data, training, serving, infra       (HTML, ipynb)
+└── DSA/                # data structures & algorithms masterclasses           (ipynb)  ← no site
+```
+
+**How to open each file type:**
+
+- **`.html`** — open directly in a browser (double-click, or `open <file>.html`). These are
+  self-contained standalone pages; no server or build step needed.
+- **`.ipynb`** — open in Jupyter / VS Code / Colab to read or run the code cells
+  (e.g. `jupyter notebook <file>.ipynb`).
+- **`.md` / `.py`** — open in any text editor or Markdown viewer.
+
+Roughly 24 HTML references, 21 Markdown files, 19 notebooks, and 1 Python script across the
+seven topic folders. Think of these as the archival "working notes"; the deployed sites are
+the cleaned-up version of the same material.

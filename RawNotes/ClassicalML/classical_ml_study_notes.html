@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classical ML — Study Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<style>
+:root{
+  --bg:#f4f1ea;
+  --paper:#fbf9f4;
+  --ink:#26231d;
+  --ink-soft:#56514698;
+  --ink-soft-solid:#6b6557;
+  --rule:#d8d2c4;
+  --accent:#9a3b1f;
+  --accent-soft:#c2643f;
+  --blue:#2d5a7a;
+  --green:#3b6d2f;
+  --gold:#b07d24;
+  --teal:#1d7a63;
+  --code-bg:#2a2722;
+  --code-ink:#e8e2d4;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+.layout{display:flex;max-width:1280px;margin:0 auto;}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  width:268px;flex:0 0 268px;position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:34px 22px 60px;border-right:1px solid var(--rule);background:var(--paper);
+}
+.sidebar h2{
+  font-family:"Fraunces",serif;font-size:15px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 4px;font-weight:600;
+}
+.sidebar .sub{font-size:13px;color:var(--ink-soft-solid);margin:0 0 24px;font-style:italic;}
+.sidebar nav a{
+  display:block;text-decoration:none;color:var(--ink);font-size:15.5px;line-height:1.35;
+  padding:5px 10px;border-radius:5px;margin-bottom:1px;border-left:2px solid transparent;
+}
+.sidebar nav a:hover{background:#ece7db;border-left-color:var(--accent-soft);}
+.sidebar nav a.major{font-family:"Fraunces",serif;font-weight:600;margin-top:16px;font-size:16px;color:var(--accent);}
+.sidebar nav a.minor{padding-left:22px;font-size:14px;color:var(--ink-soft-solid);}
+
+/* ---------- Main ---------- */
+main{flex:1;min-width:0;padding:48px 64px 120px;max-width:920px;}
+.kicker{
+  font-family:"Fraunces",serif;text-transform:uppercase;letter-spacing:.22em;font-size:13px;
+  color:var(--accent-soft);font-weight:600;margin-bottom:8px;
+}
+h1.title{
+  font-family:"Fraunces",serif;font-weight:600;font-size:50px;line-height:1.04;margin:0 0 12px;
+  letter-spacing:-.01em;
+}
+.lede{font-size:20px;color:var(--ink-soft-solid);font-style:italic;max-width:62ch;margin-bottom:10px;}
+.meta{font-size:14px;color:var(--ink-soft-solid);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin:28px 0 8px;display:flex;gap:26px;flex-wrap:wrap;}
+.meta span b{color:var(--accent);font-family:"Fraunces",serif;}
+
+section{margin-top:30px;scroll-margin-top:20px;}
+h2.sec{
+  font-family:"Fraunces",serif;font-weight:600;font-size:33px;margin:64px 0 6px;
+  padding-top:30px;border-top:2px solid var(--ink);letter-spacing:-.01em;
+}
+h2.sec .num{color:var(--accent);font-size:24px;vertical-align:middle;margin-right:12px;}
+h3.sub{font-family:"Fraunces",serif;font-weight:600;font-size:23px;margin:38px 0 4px;color:var(--ink);}
+h4.subsub{font-family:"Fraunces",serif;font-weight:500;font-size:18.5px;letter-spacing:.02em;margin:26px 0 2px;color:var(--accent);}
+p{margin:12px 0;}
+strong{font-weight:600;color:#1a1813;}
+em.term{font-style:normal;font-weight:600;color:var(--blue);}
+a.inline{color:var(--accent);}
+
+ul,ol{margin:12px 0;padding-left:24px;}
+li{margin:7px 0;}
+
+code{font-family:"JetBrains Mono",monospace;font-size:14.5px;background:#ece7db;padding:1px 6px;border-radius:4px;color:#5a3210;}
+pre{
+  background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:18px 20px;overflow-x:auto;
+  font-family:"JetBrains Mono",monospace;font-size:14px;line-height:1.6;margin:18px 0;
+  border:1px solid #000;box-shadow:0 2px 0 rgba(0,0,0,.08);
+}
+pre code{background:none;padding:0;color:inherit;font-size:14px;}
+.tok-c{color:#8a8474;font-style:italic;}
+.tok-k{color:#d99a4e;}
+.tok-s{color:#a8c986;}
+
+/* callouts */
+.box{border-radius:10px;padding:16px 20px 16px 22px;margin:20px 0;border:1px solid var(--rule);background:var(--paper);}
+.box .lab{font-family:"Fraunces",serif;font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.box.intuition{border-left:4px solid var(--teal);}
+.box.intuition .lab{color:var(--teal);}
+.box.trap{border-left:4px solid var(--accent);background:#f7eee9;}
+.box.trap .lab{color:var(--accent);}
+.box.interview{border-left:4px solid var(--gold);background:#f8f2e2;}
+.box.interview .lab{color:var(--gold);}
+.box.key{border-left:4px solid var(--blue);background:#eef2f6;}
+.box.key .lab{color:var(--blue);}
+.box.math-note{border-left:4px solid var(--green);background:#eef3e9;}
+.box.math-note .lab{color:var(--green);}
+
+.eqwrap{margin:18px 0;padding:6px 0;overflow-x:auto;}
+
+table{border-collapse:collapse;width:100%;margin:22px 0;font-family:"Newsreader",serif;font-size:15.5px;}
+th,td{border:1px solid var(--rule);padding:9px 13px;text-align:left;vertical-align:top;}
+th{background:#ece7db;font-family:"Fraunces",serif;font-weight:600;font-size:14px;color:var(--ink);}
+tbody tr:nth-child(even){background:#f7f4ed;}
+td code{font-size:13px;}
+
+.qa{margin:16px 0;padding:2px 0 2px 18px;border-left:3px solid var(--rule);}
+.qa .q{font-weight:600;color:var(--blue);font-family:"Fraunces",serif;font-size:17px;}
+.qa .a{margin-top:4px;}
+
+.pill{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.05em;
+  padding:2px 9px;border-radius:20px;background:#ece7db;color:var(--accent);margin-left:8px;vertical-align:middle;text-transform:uppercase;}
+
+.tldr{background:#2a2722;color:#f0ebde;border-radius:12px;padding:22px 26px;margin:26px 0;}
+.tldr .lab{font-family:"Fraunces",serif;font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:var(--gold);display:block;margin-bottom:8px;}
+.tldr p{margin:0;font-size:17px;line-height:1.7;color:#ece7db;font-style:italic;}
+
+hr.soft{border:none;border-top:1px solid var(--rule);margin:34px 0;}
+
+.toplink{display:block;text-align:right;font-size:13px;color:var(--ink-soft-solid);text-decoration:none;margin-top:8px;font-style:italic;}
+.toplink:hover{color:var(--accent);}
+
+/* small inline svg figures */
+.fig{margin:24px 0;padding:20px;background:var(--paper);border:1px solid var(--rule);border-radius:12px;text-align:center;}
+.fig svg{max-width:100%;height:auto;}
+.fig .cap{font-size:14px;color:var(--ink-soft-solid);font-style:italic;margin-top:12px;}
+
+@media(max-width:980px){
+  .sidebar{display:none;}
+  main{padding:32px 24px 80px;}
+  h1.title{font-size:38px;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <h2>Classical ML</h2>
+  <p class="sub">Study notes &middot; one session</p>
+  <nav>
+    <a href="#top" class="major">Overview</a>
+    <a href="#svm" class="major">1 &middot; SVM</a>
+    <a href="#svm-what" class="minor">What it is</a>
+    <a href="#svm-margin" class="minor">Margin &amp; scaling</a>
+    <a href="#svm-dual" class="minor">Dual &amp; support vectors</a>
+    <a href="#svm-kernel" class="minor">Kernel trick</a>
+    <a href="#svm-C" class="minor">Soft margin &amp; C</a>
+    <a href="#svm-infinite" class="minor">Why not always best</a>
+    <a href="#svm-use" class="minor">2026 relevance</a>
+    <a href="#nb" class="major">2 &middot; Naive Bayes</a>
+    <a href="#nb-what" class="minor">What it is</a>
+    <a href="#nb-bayes" class="minor">Bayes &amp; total prob.</a>
+    <a href="#nb-naive" class="minor">The naive assumption</a>
+    <a href="#nb-mle" class="minor">MLE &amp; variants</a>
+    <a href="#nb-use" class="minor">2026 relevance</a>
+    <a href="#knn" class="major">3 &middot; KNN</a>
+    <a href="#knn-what" class="minor">What it is</a>
+    <a href="#knn-how" class="minor">How it works</a>
+    <a href="#knn-k" class="minor">K &amp; bias-variance</a>
+    <a href="#knn-use" class="minor">2026 relevance</a>
+    <a href="#curse" class="major">4 &middot; Curse of dim.</a>
+    <a href="#kdtree" class="minor">KD-trees</a>
+    <a href="#kmeans" class="major">5 &middot; K-Means</a>
+    <a href="#km-what" class="minor">What it is</a>
+    <a href="#km-em" class="minor">EM algorithm</a>
+    <a href="#km-pp" class="minor">K-Means++</a>
+    <a href="#km-k" class="minor">Choosing K / silhouette</a>
+    <a href="#km-use" class="minor">2026 relevance</a>
+    <a href="#pca" class="major">6 &middot; PCA</a>
+    <a href="#decomp" class="minor">Matrix decomposition</a>
+    <a href="#eigen" class="minor">Eigendecomposition</a>
+    <a href="#svd" class="minor">SVD &amp; the bridge</a>
+    <a href="#pca-how" class="minor">PCA steps</a>
+    <a href="#pca-matryoshka" class="minor">Matryoshka link</a>
+    <a href="#pca-use" class="minor">2026 relevance</a>
+    <a href="#compare" class="major">Comparison table</a>
+  </nav>
+</aside>
+<main id="top">
+<div class="kicker">Interview-grade study notes</div>
+<h1 class="title">Classical Machine&nbsp;Learning</h1>
+<p class="lede">SVM &middot; Naive Bayes &middot; KNN &middot; K-Means &middot; PCA — intuition, full math, and where each one survives in 2026.</p>
+<div class="meta">
+  <span><b>Topics</b> 5 algorithms</span>
+  <span><b>Deep dives</b> kernels, EM, curse of dimensionality, SVD</span>
+  <span><b>Focus</b> intuition + derivations + interview framing</span>
+</div>
+<p>These notes consolidate and re-order an entire session. The original discussion jumped around — SVM, then Naive Bayes, back to SVM, back to Naive Bayes — so everything here is sorted into a clean topic order, with every sub-thread (new concepts, revisions, intuitions, and Q&amp;A) folded into the right place. Math is kept in full: the equations are the point.</p>
+
+<!-- ============================ SVM ============================ -->
+<section id="svm">
+<h2 class="sec"><span class="num">1</span>Support Vector Machine</h2>
+
+<h3 class="sub" id="svm-what">What an SVM actually is</h3>
+<p>A linear classifier draws a hyperplane $\mathbf{w}\cdot\mathbf{x}+b=0$. Infinitely many hyperplanes separate two linearly-separable classes — logistic regression picks one by maximizing likelihood, the perceptron picks whatever it stumbles into first. <strong>SVM picks the one specific hyperplane that sits as far as possible from the closest points of either class.</strong> That "as far as possible" is the entire idea; everything else is machinery serving it.</p>
+
+<div class="box intuition"><span class="lab">Why the margin generalizes</span>
+The test points you'll see later are noisy perturbations of training points. A boundary jammed against your training data flips its prediction the moment a test point drifts slightly. A boundary with a wide buffer is robust to that drift. SVM explicitly optimizes for the <em>worst-case nearest point</em>, not average fit — that's the geometric argument for why a large margin generalizes.</div>
+
+<h3 class="sub" id="svm-margin">How it finds the boundary — margin &amp; the scaling fix</h3>
+<p>The signed distance from a point $\mathbf{x}$ to the hyperplane is:</p>
+<div class="eqwrap">$$\text{distance} = \frac{\mathbf{w}\cdot\mathbf{x}+b}{\lVert \mathbf{w}\rVert}$$</div>
+<p>We want the closest points as far as possible. There's a <em class="term">scaling redundancy</em>: $\mathbf{w}\cdot\mathbf{x}+b=0$ and $2\mathbf{w}\cdot\mathbf{x}+2b=0$ describe the <em>same plane</em>. SVM fixes the scale by declaring the closest points satisfy $\lvert \mathbf{w}\cdot\mathbf{x}+b\rvert = 1$. Those closest points are the <em class="term">support vectors</em>.</p>
+
+<div class="box key"><span class="lab">Why a scaling redundancy when distance already divides by ‖w‖?</span>
+<p style="margin-top:0">The <strong>distance</strong> is scale-free — multiply $(\mathbf{w},b)$ by any $c$ and it cancels top and bottom. That immunity is exactly the problem. The <strong>constraint quantity</strong> $y_i(\mathbf{w}\cdot\mathbf{x}_i+b)$ is <em>not</em> scale-free; scaling $(\mathbf{w},b)$ by $c$ scales it by $c$ too. So infinitely many $(\mathbf{w},b)$ describe the same plane with the same margin, differing only by scale — the optimization is underdetermined. Pinning the support vectors to $\lvert\cdot\rvert=1$ nails down that free scale and makes the problem well-posed.</p></div>
+
+<div class="box trap"><span class="lab">What breaks if you leave everything scale-free</span>
+The real goal is "maximize $1/\lVert\mathbf{w}\rVert$," i.e. <strong>minimize $\lVert\mathbf{w}\rVert$</strong>. Alone, that has a trivial broken answer: shrink $\mathbf{w}\to 0$, margin $\to\infty$ — meaningless. The constraint $y_i(\mathbf{w}\cdot\mathbf{x}_i+b)\ge 1$ is the anchor that forbids the collapse: the closest points are forced to produce an output of magnitude $\ge 1$, pinning $\lVert\mathbf{w}\rVert$ to a finite minimum. <strong>Distance is scale-free → the optimizer can cheat by shrinking w to fake an infinite margin → the non-scale-free constraint blocks the cheat.</strong></div>
+
+<p>With the closest points at $\lvert\mathbf{w}\cdot\mathbf{x}+b\rvert=1$, the distance from a support vector to the plane is $1/\lVert\mathbf{w}\rVert$ and the full margin is $2/\lVert\mathbf{w}\rVert$. Maximizing $2/\lVert\mathbf{w}\rVert$ = minimizing $\lVert\mathbf{w}\rVert^2$. The hard-margin program:</p>
+<div class="eqwrap">$$\min_{\mathbf{w},b}\ \tfrac{1}{2}\lVert\mathbf{w}\rVert^2 \quad\text{s.t.}\quad y_i(\mathbf{w}\cdot\mathbf{x}_i+b)\ge 1\ \ \forall i$$</div>
+<p>The label $y_i\in\{-1,+1\}$ folds both classes into one clean inequality (positive points $\ge +1$, negative points $\le -1$). This is a <strong>convex quadratic program</strong> — one global optimum, no local minima, solvable reliably. That convexity is a genuine selling point versus neural nets.</p>
+
+<h3 class="sub" id="svm-dual">The dual — and what support vectors really are</h3>
+<p>Solving with Lagrange multipliers $\alpha_i\ge 0$ converts the primal (solve for $\mathbf{w},b$) into the <em class="term">dual</em> (solve for the $\alpha_i$). Two results matter enormously:</p>
+
+<h4 class="subsub">Result 1 — w is built from support vectors only</h4>
+<div class="eqwrap">$$\mathbf{w} = \sum_i \alpha_i y_i \mathbf{x}_i$$</div>
+<p>From the KKT conditions, $\alpha_i = 0$ for every point comfortably outside the margin. Only the <strong>support vectors</strong> (points exactly on the margin, or inside it in the soft case) get $\alpha_i>0$.</p>
+
+<div class="box intuition"><span class="lab">What is a support vector — plainly</span>
+A training point that lands <em>exactly on the edge of the margin</em> (or inside it). It's one of the closest points to the boundary — touching the "pipe wall." The boundary is held in place only by the points pressing against it, like a tent held up only by the poles touching the fabric. Points far away touch nothing, so removing them changes nothing — and mathematically they have $\alpha_i=0$, so they contribute zero to $\mathbf{w}$. <strong>That is literally why "delete a non-support-vector and the boundary doesn't move."</strong></div>
+
+<h4 class="subsub">Result 2 — data appears only as dot products</h4>
+<div class="eqwrap">$$\max_{\alpha}\ \sum_i \alpha_i - \tfrac{1}{2}\sum_i\sum_j \alpha_i\alpha_j\, y_i y_j\,(\mathbf{x}_i\cdot\mathbf{x}_j)\quad\text{s.t.}\quad 0\le\alpha_i\le C,\ \ \sum_i\alpha_i y_i=0$$</div>
+<p>The data never appears alone — only through pairwise dot products $\mathbf{x}_i\cdot\mathbf{x}_j$. The algorithm never needs the <em>coordinates</em> of points, only the <em>dot products between pairs</em>. <strong>This is the hinge the entire kernel trick swings on.</strong></p>
+
+<h3 class="sub" id="svm-kernel">The kernel trick</h3>
+<p>A dot product is a similarity score: how aligned two vectors are. The trick is one observation:</p>
+<div class="box key"><span class="lab">The core idea</span>
+If the algorithm only ever touches the data through dot products, you can swap $\mathbf{x}_i\cdot\mathbf{x}_j$ for any function $K(\mathbf{x}_i,\mathbf{x}_j)$ that <em>behaves like</em> a dot product in some other space — without ever visiting that space. The SVM optimizes happily using $K$, never noticing the swap.</div>
+
+<p>Concretely: map data into a richer space via $\varphi(\mathbf{x})$ and run a linear SVM there. The dual would need $\varphi(\mathbf{x}_i)\cdot\varphi(\mathbf{x}_j)$. For many useful $\varphi$, a function $K$ computes that dot product directly from the original vectors, far cheaper than building $\varphi$.</p>
+
+<h4 class="subsub">Why a degree-2 map of a 2D point becomes 6D</h4>
+<p>A degree-2 polynomial feature map writes every term up to degree 2:</p>
+<div class="eqwrap">$$\varphi(\mathbf{x}) = \big(1,\ \sqrt2\,x_1,\ \sqrt2\,x_2,\ x_1^2,\ x_2^2,\ \sqrt2\,x_1 x_2\big)$$</div>
+<p>Count them: constant, two linear, two squares, one cross term = <strong>6 features</strong>. The $\sqrt2$ factors are bookkeeping so the dot product comes out clean. Those $x_1^2, x_2^2, x_1x_2$ terms are what let a <em>linear</em> boundary in 6D be a <em>curved</em> boundary back in 2D — you buy nonlinearity by adding dimensions.</p>
+
+<div class="box math-note"><span class="lab">Where the advantage is</span>
+The naive way builds the 6D vector and dots it (6 mults + construction cost). The kernel does the identical thing on the original 2D vectors:
+<div class="eqwrap" style="margin-bottom:4px">$$K(\mathbf{x},\mathbf{z}) = (\mathbf{x}\cdot\mathbf{z}+1)^2 = \varphi(\mathbf{x})\cdot\varphi(\mathbf{z})$$</div>
+One 2D dot product, an add, a square. For 2D→6D the saving is small. But degree-$d$ on $n$ features makes roughly $\binom{n+d}{d}$ terms: a 1000-dim input at degree 4 has <em>billions</em> of entries in $\varphi$, impossible to build — yet $K=(\mathbf{x}\cdot\mathbf{z}+1)^4$ is still one 1000-dim dot product, an add, a 4th power. <strong>The kernel cost stays tied to the original dimension no matter how violently the implicit space explodes.</strong></div>
+
+<h4 class="subsub">The RBF kernel — where K comes from, and what φ is</h4>
+<p>With polynomials you start from $\varphi$ and find $K$. With RBF you go the other way: start from the similarity you <em>want</em> — high when points are close, decaying as they separate:</p>
+<div class="eqwrap">$$K(\mathbf{x},\mathbf{z}) = \exp\!\big(-\gamma\,\lVert\mathbf{x}-\mathbf{z}\rVert^2\big)$$</div>
+<p>You always "know" $K$ — it's a closed-form formula on the original vectors (squared distance, scale by $-\gamma$, exponentiate). That's all the SVM ever needs. <strong>What is $\varphi$ for RBF?</strong> Expand the exponential as a Taylor series and you get polynomial terms of <em>every</em> degree — so $\varphi(\mathbf{x})$ has <em>infinitely many</em> coordinates. You literally could never write it down, and never have to: $K$ hands you the dot product in that infinite space with a single exponential. The $\gamma$ knob controls how fast similarity decays — large $\gamma$ = influence dies quickly = wiggly boundary.</p>
+
+<div class="box math-note"><span class="lab">Mercer's condition</span>
+"Behaves like a dot product" is precise: the kernel matrix must be symmetric positive semi-definite. Naming Mercer's condition signals you understand kernels aren't arbitrary similarity functions.</div>
+
+<h4 class="subsub">The kernels and when to use them</h4>
+<table>
+<thead><tr><th>Kernel</th><th>Form</th><th>Implicit space</th><th>Use when</th></tr></thead>
+<tbody>
+<tr><td><strong>Linear</strong></td><td>$\mathbf{x}\cdot\mathbf{z}$</td><td>original</td><td>features ≫ samples (text/TF-IDF), want speed &amp; interpretability. Always the baseline.</td></tr>
+<tr><td><strong>RBF (Gaussian)</strong></td><td>$\exp(-\gamma\lVert\mathbf{x}-\mathbf{z}\rVert^2)$</td><td>infinite-dim</td><td>default for nonlinear, low-to-medium dim, no strong prior. The workhorse.</td></tr>
+<tr><td><strong>Polynomial</strong></td><td>$(\mathbf{x}\cdot\mathbf{z}+c)^d$</td><td>monomials up to degree $d$</td><td>when feature <em>interactions</em> matter. Sensitive to $d$, numerically touchy.</td></tr>
+<tr><td><strong>Sigmoid</strong></td><td>$\tanh(\kappa\,\mathbf{x}\cdot\mathbf{z}+c)$</td><td>—</td><td>mimics a 2-layer net; rarely used, often not a valid Mercer kernel. Historical.</td></tr>
+</tbody></table>
+<p>Discipline: <strong>try linear first.</strong> High-dimensional (text) → usually already separable, stop there. Linear underfits + small/medium data → RBF. Polynomial only with a genuine reason to believe interactions of a known degree drive the label.</p>
+
+<h4 class="subsub">Inference: why kernel SVM is slow but linear SVM collapses to one w</h4>
+<p><strong>Linear case.</strong> $f(\mathbf{x})=\text{sign}(\mathbf{w}\cdot\mathbf{x}+b)$ with $\mathbf{w}=\sum_i\alpha_i y_i\mathbf{x}_i$. The $\mathbf{x}_i$ are plain vectors, so you carry out that sum <em>once at training time</em> and collapse all support vectors into a single $\mathbf{w}$. Throw the support vectors away; keep $\mathbf{w}$ and $b$. Inference is one dot product, independent of how many support vectors there were.</p>
+<p><strong>Kernel case.</strong> Substituting $K$:</p>
+<div class="eqwrap">$$f(\mathbf{x}) = \text{sign}\!\Big(\sum_i \alpha_i y_i\, K(\mathbf{x}_i,\mathbf{x}) + b\Big)$$</div>
+<p>To collapse, you'd need $\mathbf{w}=\sum_i\alpha_i y_i\varphi(\mathbf{x}_i)$ — but $\varphi(\mathbf{x}_i)$ lives in the high- or infinite-dimensional space. <strong>You can't store $\mathbf{w}$; for RBF it's an infinite vector.</strong> The new point $\mathbf{x}$ is locked <em>inside</em> $K(\mathbf{x}_i,\mathbf{x})$, paired with each support vector individually, and only available at prediction time. So you must keep every support vector and loop over all of them per prediction.</p>
+<div class="box key"><span class="lab">The contrast in one line</span>
+Linear SVM sums its support vectors into a single $\mathbf{w}$ once and discards them; kernel SVM can't form $\mathbf{w}$ (it lives in an unbuildable space), so it must keep every support vector and re-evaluate the kernel against each one for every prediction. More support vectors → slower inference and a fatter model. High $C$ or $\gamma$ tend to produce <em>more</em> support vectors — a real deployment cost, not just trivia.</div>
+
+<h3 class="sub" id="svm-C">Soft margin and C — where C was hiding</h3>
+<p>The hard-margin program demands <em>zero</em> violations. If even one point is on the wrong side (noise, outlier, non-separable classes), <strong>no $(\mathbf{w},b)$ satisfies all constraints and the problem has no solution at all.</strong> Hard-margin SVM literally can't run on real data. The fix: allow violations but charge a penalty, via slack variables $\xi_i$ and the penalty weight $C$:</p>
+<div class="eqwrap">$$\min_{\mathbf{w},b,\xi}\ \tfrac{1}{2}\lVert\mathbf{w}\rVert^2 + C\sum_i \xi_i \quad\text{s.t.}\quad y_i(\mathbf{w}\cdot\mathbf{x}_i+b)\ge 1-\xi_i,\ \ \xi_i\ge 0$$</div>
+<p>Each point gets an allowance $\xi_i$ to fall short: $\xi_i=0$ obeys fully; $0<\xi_i<1$ inside margin but still correct; $\xi_i>1$ misclassified. The total slack used is added to the cost, scaled by $C$.</p>
+
+<div class="box key"><span class="lab">What C does — the bias-variance dial</span>
+$C$ is the <strong>exchange rate</strong> between a wide margin (small $\lVert\mathbf{w}\rVert^2$) and few violations (small $\sum\xi_i$). <strong>Large $C$</strong> → slack is expensive → refuses violations → narrow, contorted margin (high variance; $C\to\infty$ recovers hard margin). <strong>Small $C$</strong> → slack is cheap → tolerates violations for a wider, smoother margin (high bias). In the dual it appears as the cap $0\le\alpha_i\le C$ — it limits how much influence any single point can exert, which is also literally why soft margin is solvable where hard margin wasn't.</div>
+
+<div class="box trap"><span class="lab">C vs γ — the confusion interviewers exploit</span>
+Both large $C$ and large $\gamma$ push toward overfitting, but for different reasons. <strong>$C$ = error tolerance</strong> (how hard you punish margin violations). <strong>$\gamma$ = boundary flexibility</strong> (how far one RBF point's influence reaches). You grid-search them <em>together</em> on a log scale because they interact — the right $C$ depends on the $\gamma$ you picked.</div>
+
+<h3 class="sub" id="svm-infinite">If RBF builds an infinite polynomial space, why isn't it the best classifier?</h3>
+<p>Sharp question — and the "infinite space" is exactly the <em>problem</em>, not the superpower.</p>
+<ul>
+<li><strong>More capacity is the central danger.</strong> An infinitely flexible model fits any training set perfectly, noise included. With high $\gamma$ you can <em>always</em> find a large-margin separator in the infinite space — but around a boundary contorted into nonsense. Separability in infinite dimensions is trivial and therefore meaningless; <em>everything</em> is separable up there. The whole game becomes controlling capacity back down with $C$ and $\gamma$, so RBF-SVM is only as good as your tuning.</li>
+<li><strong>Scaling.</strong> Training is $O(n^2)$–$O(n^3)$ and inference loops over every support vector. Dead on a million rows. Neural nets train on mini-batches and scale to billions; logistic regression is linear-time.</li>
+<li><strong>No feature learning.</strong> RBF gives a <em>fixed, generic</em> similarity — "close in raw input space = similar." It does not <em>learn</em> what features matter. Neural nets learn the representation (edges → faces → separation). On images/audio/language, raw-input similarity is worthless, so no amount of margin helps. The infinite space RBF builds is infinite but <em>dumb</em> — polynomial combinations of raw inputs, not learned abstractions.</li>
+</ul>
+<div class="box interview"><span class="lab">Interview answer</span>
+"RBF-SVM's infinite capacity means it can fit anything, which means it can overfit anything — so it's not a free win, it's a tuning burden. And it uses a fixed, generic similarity rather than learning features, so it loses to deep nets on perceptual data and to XGBoost on tabular scale, and can't scale past ~100K rows regardless. Capacity was never the bottleneck; controlling capacity, learning representations, and scaling were."</div>
+
+<h3 class="sub" id="svm-use">Do we even care about SVMs in 2026?</h3>
+<p>Not dead, but pushed into a narrow corner — and in that corner still the right tool, not nostalgia.</p>
+<ul>
+<li><strong>High-dimensional, low-sample data ($d\gg n$)</strong> — the core survival niche. The margin acts as strong regularization where deep learning starves. <em>Genomics</em> (20,000 features, 200 patients) is the textbook case. <em>Small-data text</em> (TF-IDF + LinearSVC) is shockingly competitive, sometimes beating fine-tuned transformers on a few thousand labeled docs — cheap, no GPU, inference is one dot product.</li>
+<li><strong>One-Class SVM</strong> for anomaly/novelty detection (though Isolation Forest often beats it now).</li>
+<li><strong>Fast baseline</strong> — LinearSVC alongside logistic regression in the "beat this before reaching for anything heavier" set.</li>
+</ul>
+<p><strong>Genuinely dead for:</strong> tabular at scale (XGBoost/LightGBM win), anything &gt;100K rows ($O(n^2)$ training), images/audio/sequence/language (deep learning), and calibrated probabilities (SVM gives distances; Platt scaling is a bolt-on hack).</p>
+<div class="box key"><span class="lab">The one distinction to keep crisp</span>
+<strong>LinearSVC scales and is alive; kernel SVM (RBF) is the part that's mostly gone</strong>, because the $O(n^2{+})$ training is what kills it at modern scale. When people say "SVMs are dead," they almost always mean kernel SVMs. Linear SVMs are just regularized linear classifiers and quietly persist.</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ NAIVE BAYES ============================ -->
+<section id="nb">
+<h2 class="sec"><span class="num">2</span>Naive Bayes</h2>
+
+<div class="box trap"><span class="lab">Two corrections for interview hygiene</span>
+Naive Bayes is <strong>not</strong> a large-margin classifier (that's SVM) and it has <strong>no kernels</strong> (also SVM). It's a <em>probabilistic generative classifier</em>. The NB analog of "different kinds" is its variants — Gaussian / Multinomial / Bernoulli — chosen by feature type.</div>
+
+<h3 class="sub" id="nb-what">What it is</h3>
+<p>A classifier that asks a probability question directly: <strong>given the observed features, which class is most probable?</strong> It computes $P(y\mid\mathbf{x})$ for each class and picks the largest. It's called <em class="term">generative</em> because, instead of learning a boundary between classes (like logistic regression or SVM — <em>discriminative</em>), it learns what each class's data <em>looks like</em> — a model of $P(\mathbf{x}\mid y)$ — then uses Bayes' theorem to flip that into $P(y\mid\mathbf{x})$. It models how data was generated per class, then asks which generator most likely produced this point.</p>
+
+<h3 class="sub" id="nb-bayes">Bayes' theorem &amp; the law of total probability</h3>
+<p>We want $P(y\mid\mathbf{x})$ but can't estimate it directly — too many feature combinations to ever see enough labeled examples. We <em>can</em> estimate the reverse $P(\mathbf{x}\mid y)$ by counting (within spam, how often does "free" appear?). Bayes' theorem is the bridge:</p>
+<div class="eqwrap">$$P(y\mid\mathbf{x}) = \frac{P(\mathbf{x}\mid y)\,P(y)}{P(\mathbf{x})}$$</div>
+<ul>
+<li>$P(y\mid\mathbf{x})$ — <strong>posterior</strong>: what we want, belief in class $y$ after seeing data.</li>
+<li>$P(\mathbf{x}\mid y)$ — <strong>likelihood</strong>: how probable the features are if the class were $y$. Estimated from training data.</li>
+<li>$P(y)$ — <strong>prior</strong>: how common class $y$ is before looking at features.</li>
+<li>$P(\mathbf{x})$ — <strong>evidence</strong>: how probable the features are overall.</li>
+</ul>
+
+<h4 class="subsub">Where the law of total probability comes in</h4>
+<p>The denominator is computed by the law of total probability — sum over every class of the within-class probability weighted by class frequency:</p>
+<div class="eqwrap">$$P(\mathbf{x}) = \sum_k P(\mathbf{x}\mid y_k)\,P(y_k)$$</div>
+<p>The classes are mutually exclusive and exhaustive (a partition), so this normalizer guarantees the posteriors sum to 1.</p>
+<div class="box key"><span class="lab">The key practical move</span>
+$P(\mathbf{x})$ is the <em>same constant for every class</em> — it doesn't depend on $y$. Since we only want the <strong>argmax</strong> over classes, we drop the denominator entirely:
+<div class="eqwrap" style="margin-bottom:2px">$$\hat y = \arg\max_y\ P(\mathbf{x}\mid y)\,P(y)$$</div>
+You only compute $P(\mathbf{x})$ when you want actual calibrated posterior numbers.</div>
+
+<h3 class="sub" id="nb-naive">The "naive" assumption — the part that makes it work</h3>
+<p>The wall: $P(\mathbf{x}\mid y) = P(x_1,x_2,\dots,x_n\mid y)$ is the joint probability of <em>all features together</em>. For a 50,000-word vocabulary that's the probability of one specific full word-combination — you'd need astronomically more data than exists. Intractable.</p>
+<p>The naive assumption smashes through it: <strong>assume features are conditionally independent given the class.</strong> The joint factorizes:</p>
+<div class="eqwrap">$$P(x_1,\dots,x_n\mid y) = \prod_i P(x_i\mid y)$$</div>
+<p>Now each $P(x_i\mid y)$ is trivial to estimate. One impossible joint estimation becomes $n$ easy marginal estimations.</p>
+<div class="box intuition"><span class="lab">Why a blatantly false assumption still classifies well</span>
+"Free" and "money" co-occur in spam — they're correlated, not independent. But NB doesn't need accurate probabilities, only the right <em>argmax</em>. Correlated features make the estimates <em>overconfident</em> (too close to 0/1, double-counting correlated evidence), but the <em>ranking</em> of classes usually survives. <strong>The independence assumption corrupts the calibration but usually preserves the argmax, so accuracy holds even though the probabilities are garbage.</strong></div>
+
+<p>Decision rule, moved to <strong>log space</strong> (multiplying thousands of small probabilities underflows to zero):</p>
+<div class="eqwrap">$$\hat y = \arg\max_y\ \Big[\log P(y) + \sum_i \log P(x_i\mid y)\Big]$$</div>
+
+<h3 class="sub" id="nb-mle">The ML math — MLE, smoothing, and the variants</h3>
+<p>"Training" is estimating $P(y)$ and each $P(x_i\mid y)$ by <strong>maximum likelihood estimation</strong>, which for the common cases reduces to counting frequencies — one pass, $O(n\cdot d)$.</p>
+<p><strong>Prior</strong> — MLE of a class probability is its observed frequency:</p>
+<div class="eqwrap">$$P(y=k) = \frac{\#\{\text{examples in class }k\}}{\#\{\text{total examples}\}}$$</div>
+
+<h4 class="subsub">Multinomial NB (counts) + the zero-frequency catastrophe</h4>
+<div class="eqwrap">$$P(x_i\mid y=k) = \frac{\text{count}(x_i,k)+\alpha}{\sum_j \text{count}(x_j,k)+\alpha\,\lvert V\rvert}$$</div>
+<p>Without smoothing, an unseen word has MLE probability exactly 0 — and since the decision is a product (or sum of logs, $\log 0=-\infty$), <strong>one unseen word zeroes out the entire class</strong> no matter how strongly everything else voted. <em class="term">Laplace (additive) smoothing</em> adds a pseudocount $\alpha$ (usually 1) to every count, as if each word were seen $\alpha$ times in each class before training. $\lvert V\rvert$ is the vocabulary size; the denominator adds $\alpha$ per possible word so it still sums to 1. The single most important NB implementation detail.</p>
+
+<h4 class="subsub">Gaussian NB (continuous features)</h4>
+<p>You can't count a real number, so assume each feature is normally distributed within each class and estimate mean &amp; variance by MLE:</p>
+<div class="eqwrap">$$P(x_i\mid y=k) = \frac{1}{\sqrt{2\pi\sigma_{ik}^2}}\exp\!\Big(-\frac{(x_i-\mu_{ik})^2}{2\sigma_{ik}^2}\Big)$$</div>
+<p>Failure mode: if a feature isn't actually bell-shaped within the class, this density is wrong and Gaussian NB degrades.</p>
+
+<h4 class="subsub">When to use which</h4>
+<table>
+<thead><tr><th>Variant</th><th>Feature type</th><th>Canonical use</th></tr></thead>
+<tbody>
+<tr><td><strong>Multinomial</strong></td><td>counts / frequencies</td><td>text classification with word counts or TF-IDF — the NLP default</td></tr>
+<tr><td><strong>Bernoulli</strong></td><td>binary present/absent</td><td>short text, where <em>whether</em> a word appears matters more than how often; penalizes absent words too</td></tr>
+<tr><td><strong>Gaussian</strong></td><td>continuous real-valued</td><td>numeric features roughly normal within each class</td></tr>
+<tr><td><strong>Complement</strong></td><td>counts, imbalanced</td><td>imbalanced text; usually beats Multinomial when classes are skewed</td></tr>
+</tbody></table>
+<p>Picking the variant = matching the likelihood model to your feature type. That choice <em>is</em> the modeling decision; there's nothing like a kernel because NB never computes similarities between points — it estimates per-class distributions.</p>
+
+<h3 class="sub" id="nb-use">When does Naive Bayes survive the LLM era?</h3>
+<p>In a pure accuracy contest it loses to embeddings-plus-a-classifier almost everywhere. It survives where <strong>constraints favor a near-free model</strong>:</p>
+<ul>
+<li><strong>Brutal latency / volume / cost floors</strong> — spam &amp; abuse filtering at email-provider scale: billions of messages, microsecond budgets, no GPU. NB is a dot-product-free lookup of precomputed log-probabilities. An embedding per message at that volume is economically absurd.</li>
+<li><strong>The "beat this before you spend money" baseline</strong> — TF-IDF + NB in thirty seconds. If it hits 92%, the expensive approach must justify the gap. Its most durable role; reaching for it signals maturity.</li>
+<li><strong>Tiny labeled data</strong> — with dozens-to-hundreds of examples, NB's strong bias (the independence assumption is a regularizer) often <em>beats</em> a fancier model that overfits.</li>
+<li><strong>Edge / offline / no-infra</strong> — a few KB of count tables; runs where a transformer can't deploy.</li>
+<li><strong>Interpretability/audit</strong> — point at exact per-word log-probabilities that drove a decision.</li>
+</ul>
+<p><strong>Genuinely finished</strong> wherever <em>meaning</em> matters and you have data + compute. NB sees "not good" as {not, good} voting independently — it structurally cannot grasp negation, sarcasm, word order, or context. Embeddings capture exactly that.</p>
+<div class="box interview"><span class="lab">Interview framing</span>
+"Naive Bayes survives as a cost/latency play and as the baseline you must beat — high-volume spam filtering, tiny-data cold starts, edge devices, the thirty-second sanity check before anyone spends on embeddings or LLMs. It's never chosen for accuracy anymore; it's chosen when compute, data, or latency constraints make a near-free, transparent model rational. The moment semantics and context matter and you have data, embeddings replace it — because the independence assumption that makes it cheap is also what makes it semantically blind."</div>
+<div class="box key"><span class="lab">The meta-point</span>
+The survival of classical models in the LLM era is almost never about <em>capability</em>. It's about cost, latency, data scarcity, interpretability, and deployment constraints. That lens applies to SVM, NB, logistic regression — all of them.</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ KNN ============================ -->
+<section id="knn">
+<h2 class="sec"><span class="num">3</span>K-Nearest Neighbors</h2>
+
+<h3 class="sub" id="knn-what">What it is</h3>
+<p>Predict for a new point by one rule: <strong>find the $K$ training points closest to it and let them vote</strong> — majority class (classification) or average value (regression). No model, no weights, no fitted equation.</p>
+<p>It's a <em class="term">lazy, non-parametric, instance-based</em> learner:</p>
+<ul>
+<li><strong>Lazy</strong> — no work at training time; it just stores the dataset. All computation is deferred to prediction.</li>
+<li><strong>Non-parametric</strong> — assumes no fixed functional form; effective parameters grow with the data. The data <em>is</em> the model.</li>
+<li><strong>Instance-based</strong> — decides by comparing to stored individual examples, not a learned summary.</li>
+</ul>
+<p>Contrast: logistic regression <em>compresses</em> training data into a few weights and discards it. KNN <em>keeps every point</em> and compresses nothing. Zero training cost, heavy inference cost and memory — that tradeoff is its whole personality.</p>
+
+<h3 class="sub" id="knn-how">How it works, step by step</h3>
+<ol>
+<li><strong>Compute the distance</strong> from query $\mathbf{q}$ to <em>every</em> training point. Usually Euclidean: $d(\mathbf{q},\mathbf{x}_i)=\sqrt{\sum_j (q_j-x_{ij})^2}$.</li>
+<li><strong>Sort</strong> training points by distance.</li>
+<li><strong>Take the $K$ smallest</strong> — the $K$ nearest neighbors.</li>
+<li><strong>Aggregate</strong> labels: majority vote or mean.</li>
+</ol>
+<p>Step 1 touches all $n$ points for <em>every</em> prediction — that's the $O(n\cdot d)$ inference cost that kills naive KNN at scale.</p>
+<div class="box intuition"><span class="lab">The hidden assumption</span>
+<strong>Smoothness / local consistency</strong>: points close in feature space tend to share labels. "You are like your neighbors." If true, looking nearby is informative. If labels flip chaotically between adjacent points, KNN is worthless. The boundary KNN produces is implicit and arbitrarily shaped — wherever the neighbor-vote tips — which is why it's flexible and also why it can overfit.</div>
+
+<h3 class="sub" id="knn-k">K — the bias-variance dial</h3>
+<ul>
+<li><strong>$K=1$</strong> — predict from the single nearest point. Boundary hugs every point; one noisy example makes its own island of wrong predictions. <em>Maximum variance, minimum bias.</em> Training error is exactly zero (every point's nearest neighbor is itself).</li>
+<li><strong>$K=n$</strong> — every prediction polls the whole dataset → always returns the global majority. <em>Maximum bias, minimum variance.</em></li>
+<li>In between, larger $K$ smooths (averages over more neighbors, raises bias); smaller $K$ sharpens (fits local detail, risks noise).</li>
+</ul>
+<p>Pick $K$ by <strong>cross-validation</strong> — sweep $K$, the validation error forms a U-shape, take the bottom. Start near $K=\sqrt{n}$; keep $K$ <strong>odd</strong> for binary classification to avoid ties.</p>
+<div class="box trap"><span class="lab">Trap: "KNN has no training, so it can't overfit, right?"</span>
+Wrong. $K=1$ achieves zero training error by memorizing every point — the textbook definition of overfitting. <strong>Overfitting is about failure to generalize, not about whether a fitting step occurred.</strong> KNN proves the two concepts are independent.</div>
+
+<h4 class="subsub">Two refinements</h4>
+<p><strong>Distance weighting</strong> — plain KNN gives all $K$ neighbors equal votes; weighted KNN weights each by $1/\text{distance}$ so closer points dominate. Usually helps, especially at larger $K$ (<code>weights='distance'</code>).</p>
+<p><strong>Distance metric is a real modeling choice:</strong> Euclidean (straight-line, default); Manhattan (sum of absolute differences, robust to outliers, often better in higher dim); <strong>Cosine</strong> (angle, ignoring magnitude — what text/embedding similarity uses, the one that matters in 2026).</p>
+<div class="box key"><span class="lab">Why you MUST scale features</span>
+Distance is the entire algorithm, and it's dominated by the largest-range feature. If income is in [0, 200000] and age in [0, 100], the income differences swamp age — the model effectively ignores age. <code>StandardScaler</code> puts every feature on equal footing. Non-negotiable. (SVM and K-Means need it for the same reason; logistic regression and trees don't.)</div>
+
+<h3 class="sub" id="knn-use">When to use / ignore, and where KNN lives in 2026</h3>
+<p><strong>Use</strong> for small, low-dimensional data; a quick assumption-free baseline; genuinely irregular boundaries; or when "we predicted this because these 5 most-similar past cases were class X" is a clean human explanation. <strong>Ignore</strong> for large $n$ ($O(n)$ per query + stores everything), high raw dimensionality (curse below), fast-inference needs, or tabular accuracy (XGBoost wins).</p>
+<div class="box intuition"><span class="lab">The twist — KNN is more important than ever, wearing a different name</span>
+Every <strong>vector database and semantic search / RAG system is KNN at its core.</strong> An embedding model maps text/images/audio into dense vectors where <em>semantic</em> similarity becomes <em>geometric</em> closeness; retrieval finds the nearest vectors to your query — that retrieval step <em>is</em> K-nearest-neighbors. FAISS, HNSW, Pinecone, Weaviate, pgvector are industrial <strong>approximate nearest neighbor (ANN)</strong> engines.</div>
+<p>Two things revived it by fixing its two weaknesses: (1) <strong>embeddings beat the curse of dimensionality</strong> — learned dense vectors live on a low intrinsic-dimensional manifold where cosine distance is meaningful again; (2) <strong>ANN beats the $O(n)$ cost</strong> — HNSW finds approximate neighbors in roughly $O(\log n)$. And the lazy property that was a curse for classification is a gift here: add a document by inserting its vector, no retraining.</p>
+<div class="box interview"><span class="lab">Interview framing</span>
+"Classic KNN as a classifier is mostly a baseline now — it doesn't scale and the curse breaks it on raw high-dim data. But KNN as a <em>retrieval primitive</em> is foundational to modern AI: every vector DB and RAG system does approximate nearest-neighbor search, which is KNN. Embeddings solved the curse by giving semantically meaningful spaces, and ANN like HNSW solved the cost. The algorithm didn't die — it moved from being a model to being the retrieval engine under semantic search."</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ CURSE + KDTREE ============================ -->
+<section id="curse">
+<h2 class="sec"><span class="num">4</span>Curse of Dimensionality &amp; KD-Trees</h2>
+
+<h3 class="sub">The general idea</h3>
+<p>An umbrella term: as the number of features grows, many things go wrong at once. The unifying theme — <strong>high-dimensional space is mostly empty, and 2D/3D intuitions are actively misleading.</strong> Manifestations:</p>
+<ol>
+<li><strong>Volume explodes, data becomes sparse.</strong> 10 bins per feature: 1D = 10 cells, 2D = 100, 10D = 10 billion. Keeping the same density needs <em>exponentially</em> more samples per added dimension. With fixed data, every added dimension makes points exponentially more isolated. The root cause; the rest are consequences.</li>
+<li><strong>Distances stop discriminating</strong> (this kills KNN). Nearest and farthest distances converge: $(d_{\max}-d_{\min})/d_{\min}\to 0$. Distance is a sum of per-dimension differences; add hundreds and by the law of large numbers all pairwise distances pile near the same value. "Nearest neighbor" becomes meaningless.</li>
+<li><strong>Everything lives in the shell.</strong> Almost all volume of a high-dim sphere sits in a thin outer crust; almost all points in a cube are near a face. No "central, typical" region — so "local neighborhood" loses meaning.</li>
+<li><strong>Everything looks far and orthogonal.</strong> Random high-dim vectors are nearly orthogonal and nearly equal length. The structure that lets you separate or cluster in low dimensions isn't there.</li>
+</ol>
+<p><strong>Across all of ML:</strong> any method relying on local distance or density — KNN, K-Means, RBF kernels, density estimation, clustering — degrades. It's <em>the</em> argument for dimensionality reduction (PCA) and for <em>learned</em> representations (embeddings).</p>
+<div class="box key"><span class="lab">Crucial nuance: intrinsic dimensionality</span>
+It's the <strong>intrinsic</strong> dimensionality that bites, not the raw feature count. A 1000-dim dataset whose points actually lie on a 5-dimensional manifold isn't really cursed — the <em>effective</em> dimension is 5. This is exactly why embeddings work: high-dimensional vectors whose meaningful structure lives on a low-dimensional manifold where distances stay informative.</div>
+
+<h3 class="sub" id="kdtree">KD-trees — what they are, and why they suffer the same curse</h3>
+<p>A KD-tree is <strong>not</strong> a learning algorithm — it's a <em class="term">spatial index</em> that finds nearest neighbors <em>without</em> comparing against all points, fixing KNN's $O(n)$ inference cost.</p>
+<p><strong>Construction</strong> (a binary tree, built once in $O(n\log n)$): pick a dimension, split the points at the median along it into two halves, recurse picking the next dimension, stop when nodes hold few points. Each node owns an axis-aligned box; descending narrows you to a small region.</p>
+<p><strong>Search</strong> for the nearest neighbor of query $\mathbf{q}$:</p>
+<ol>
+<li>Walk down to the leaf whose box contains $\mathbf{q}$ — $O(\log n)$, gives a candidate fast.</li>
+<li><strong>Backtrack</strong> up. At each parent, ask: could a closer point exist on the <em>other</em> side of this split? Check whether a sphere of radius (current best distance) around $\mathbf{q}$ crosses the splitting plane.</li>
+<li>If it <strong>can't cross</strong>, <strong>prune</strong> the entire subtree unseen. If it might, descend there too.</li>
+</ol>
+<p>In low dimensions, pruning eliminates most of the tree → roughly $O(\log n)$ per query. That pruning is the entire speedup.</p>
+<div class="box trap"><span class="lab">Why KD-trees collapse in high dimensions</span>
+The speedup comes <em>entirely</em> from pruning, and the curse destroys pruning. (1) Every point is roughly equidistant, so your "current best distance" isn't meaningfully small — the pruning sphere is large relative to region gaps and crosses almost every splitting plane, so you can't prune. (2) A query's neighborhood spills across exponentially many splits ($2^d$ orthant-neighbors). The prunable fraction shrinks toward zero; search degrades from $O(\log n)$ back to $O(n)$ — actually slightly worse than a flat scan, because of tree-traversal overhead. Rule of thumb: KD-trees help when $d<20$; past that, use brute force or approximate methods. Ball-trees (nested hyperspheres) push the breakdown a bit higher but succumb the same way.</div>
+<div class="box interview"><span class="lab">Interview one-liner</span>
+"The curse of dimensionality is that high-dim space is exponentially sparse, so distances converge to near-equal and 'nearest' loses meaning — breaking any distance- or density-based method. KD-trees speed up KNN by pruning regions that can't contain a closer point, but in high dimensions the pruning sphere crosses every boundary so nothing gets pruned, collapsing back to $O(n)$. That's why modern vector search uses approximate methods like HNSW on low-intrinsic-dimension embeddings instead of exact spatial trees."</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ K-MEANS ============================ -->
+<section id="kmeans">
+<h2 class="sec"><span class="num">5</span>K-Means Clustering</h2>
+
+<h3 class="sub" id="km-what">What it is</h3>
+<p><strong>Unsupervised</strong> — no labels. Given data and a number $K$, it partitions points into $K$ groups by one principle: <strong>each point belongs to the cluster whose center it's closest to, and each center sits at the mean of its members.</strong> Those two conditions are circular, so it alternates until they agree.</p>
+<p>What it actually <em>optimizes</em> is the <em class="term">within-cluster sum of squares</em> (inertia / WCSS):</p>
+<div class="eqwrap">$$J = \sum_{c=1}^{K}\ \sum_{\mathbf{x}_i\in C_c} \lVert \mathbf{x}_i - \boldsymbol{\mu}_c\rVert^2$$</div>
+<p>The total squared distance from every point to its own cluster's center. Tight, compact clusters = low $J$. Everything the algorithm does is descent on this one number.</p>
+
+<h4 class="subsub">Step by step</h4>
+<ol>
+<li><strong>Initialize</strong> $K$ centroids (randomly, or smartly — see K-Means++).</li>
+<li><strong>Assignment step:</strong> assign each point to its nearest centroid. Carves space into $K$ regions.</li>
+<li><strong>Update step:</strong> move each centroid to the mean of its assigned points.</li>
+<li><strong>Repeat</strong> 2–3 until assignments stop changing.</li>
+</ol>
+
+<h3 class="sub" id="km-em">Why alternating works — and what EM actually means</h3>
+<p>Each step is <strong>provably the optimal move for one half of the problem, holding the other half fixed:</strong></p>
+<ul>
+<li><strong>Assignment step is optimal given centers.</strong> With centers frozen, the best assignment minimizing $J$ is "send each point to its nearest center." Any other increases its distance term.</li>
+<li><strong>Update step is optimal given assignments.</strong> The single point minimizing the sum of squared distances to a set of points is the <strong>mean</strong> — a calculus fact: $\frac{d}{d\mu}\sum_i(x_i-\mu)^2=0 \Rightarrow \mu=\text{mean}$.</li>
+</ul>
+<div class="box math-note"><span class="lab">The convergence proof</span>
+Each step cannot increase $J$, and $J$ is bounded below by zero. A quantity that only decreases and can't go below zero <strong>must converge.</strong> That's why K-Means terminates. <strong>The catch:</strong> it converges to a <em>local</em> minimum, not the global one (finding the true global optimum of $J$ is NP-hard). Which valley you land in depends entirely on initialization.</div>
+
+<h4 class="subsub">EM = Expectation-Maximization (clearing the confusion)</h4>
+<p>"Expectation" here is <strong>not</strong> the statistical mean. EM names the <em>two alternating steps</em> of a general algorithm for models with <em class="term">hidden/latent variables</em> — here, <em>which cluster each point came from</em>. To estimate centers you'd need assignments; to know assignments you'd need centers. EM breaks the cycle:</p>
+<ul>
+<li><strong>E-step (Expectation):</strong> given current parameters (centers), figure out the hidden variables — which cluster each point probably belongs to.</li>
+<li><strong>M-step (Maximization):</strong> given those assignments, re-estimate parameters to <strong>maximize the likelihood</strong> of the data — i.e. the centers that best fit the assigned points.</li>
+</ul>
+<p>The "maximization" maximizes the <em>likelihood</em> (how well the model explains the data), not an expectation. Each round improves the likelihood until convergence.</p>
+<div class="box key"><span class="lab">K-Means is a special case of EM</span>
+E-step = assignment step, but where general EM gives <em>soft</em> assignments (70% cluster A, 30% B — a probability), K-Means uses <strong>hard</strong> assignments (100% to nearest). M-step = update step (move to mean). So <strong>K-Means is "EM with hard assignments and equal spherical clusters."</strong> The fully soft general version is the <em>Gaussian Mixture Model (GMM)</em> — soft membership probabilities, elliptical clusters of varying size.</div>
+
+<h3 class="sub" id="km-pp">Why initialization matters &amp; what K-Means++ does</h3>
+<p>Because K-Means only finds a local minimum, <strong>bad initial centroids → bad final clusters.</strong> Classic failure: two centroids land inside one true cluster while a genuinely separate cluster gets none. Cheap historical fix: run many random starts, keep the lowest $J$ (<code>n_init</code>). Wasteful.</p>
+<p><strong>K-Means++</strong> fixes it at the source by choosing initial centroids that are spread out:</p>
+<ol>
+<li>Pick the first centroid uniformly at random.</li>
+<li>For every remaining point, compute $D(\mathbf{x})$ = distance to the <em>nearest already-chosen</em> centroid.</li>
+<li>Pick the next centroid randomly, with probability <strong>proportional to $D(\mathbf{x})^2$.</strong></li>
+<li>Repeat until $K$ centroids, then run normal K-Means.</li>
+</ol>
+<p>Each new seed is pushed <em>away</em> from existing ones, so you start with roughly one centroid per natural cluster. Why probability (not deterministically the farthest point)? Robustness to outliers — a lone far-flung outlier just has higher odds, not a guarantee. Gives faster convergence and provably better expected final $J$. It's sklearn's default (<code>init='k-means++'</code>).</p>
+
+<h3 class="sub" id="km-k">Choosing K — elbow &amp; silhouette</h3>
+<p>$K$ is an input you must supply — awkward for an unsupervised method. Two standard approaches:</p>
+<ul>
+<li><strong>Elbow method:</strong> plot $J$ (inertia) vs $K$. It always decreases ($K=n\Rightarrow J=0$). Look for the "elbow" where extra clusters stop buying much reduction. Subjective.</li>
+<li><strong>Silhouette score:</strong> more principled (below).</li>
+</ul>
+<div class="box math-note"><span class="lab">Silhouette score</span>
+<p style="margin-top:0">For one point: $a$ = average distance to other points <em>in its own cluster</em> (tightness, want small); $b$ = average distance to all points in the <em>nearest neighboring cluster</em> (separation, want large).</p>
+<div class="eqwrap" style="margin:6px 0">$$s = \frac{b-a}{\max(a,b)}$$</div>
+<ul style="margin-bottom:0">
+<li>$s\approx +1$ → much closer to own cluster than the next → well clustered.</li>
+<li>$s\approx 0$ → on the boundary → ambiguous.</li>
+<li>$s<0$ → closer to a neighboring cluster than its own → probably misassigned.</li>
+</ul>
+<p style="margin-bottom:0">Average $s$ over all points gives one score; pick the $K$ that maximizes it. Unlike the elbow it's a concrete number to maximize, and because it rewards <em>separation</em> (not just tightness) it won't keep improving as you add clusters the way inertia does. Caveat: $O(n^2)$ — compute on a sample for big data.</p></div>
+
+<h4 class="subsub">Assumptions &amp; failure modes</h4>
+<ul>
+<li><strong>Clusters are spherical and equal-sized</strong> — raw Euclidean distance to a center carves round, equal Voronoi blobs. Elongated/crescent/unequal clusters get mangled. (GMM → ellipses; DBSCAN → arbitrary shapes.)</li>
+<li><strong>Must pick $K$.</strong></li>
+<li><strong>Scale-sensitive</strong> — distance-based; <code>StandardScaler</code> first.</li>
+<li><strong>Outlier-sensitive</strong> — centroids are means, dragged by outliers. (K-Medoids resists this.)</li>
+<li><strong>Hard assignments</strong> — a boundary point is forced fully into one cluster. (GMM gives soft probabilities.)</li>
+</ul>
+
+<h3 class="sub" id="km-use">When to use / ignore, and 2026 relevance</h3>
+<p><strong>Use</strong> for fast simple clustering on large data, roughly round comparable-size clusters, a reasonable guess for $K$; it's $O(n\cdot K\cdot d\cdot \text{iters})$, near-linear in $n$ — scales far better than most clustering. <strong>Ignore</strong> for non-convex/unequal clusters (DBSCAN, spectral), unknown $K$ (DBSCAN infers it), soft membership (GMM), heavy outliers (K-Medoids/DBSCAN), or high-dim raw data (reduce with PCA first).</p>
+<p><strong>Alive in 2026</strong> because clustering is a need LLMs don't remove and K-Means is the cheapest scalable tool:</p>
+<ul>
+<li><strong>Clustering embeddings</strong> — embed documents/users/images with a transformer, then K-Means the vectors for topic discovery, user segmentation, dedup, organizing a vector store. The embedding step solves K-Means' dimensionality problem.</li>
+<li><strong>Vector quantization for ANN</strong> — inside FAISS's IVF index, K-Means partitions vector space into cells so search scans only nearby cells. K-Means is literally a component <em>inside</em> the vector DBs powering RAG.</li>
+<li><strong>Classic segmentation</strong> — customer/market segmentation, image color quantization, anomaly detection (far from any centroid).</li>
+</ul>
+<div class="box interview"><span class="lab">Interview one-liner</span>
+"K-Means partitions data into $K$ groups by minimizing within-cluster squared distance, alternating between assigning points to the nearest centroid and moving each centroid to its members' mean. It's the hard-assignment special case of EM — assignment is the E-step, mean-update the M-step — and each step provably can't increase the objective, so it converges, but only to a local optimum, which is why K-Means++ seeds centroids spread out by sampling proportional to squared distance. In 2026 it's the go-to cheap clustering for embeddings and a building block inside FAISS's IVF index."</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ PCA ============================ -->
+<section id="pca">
+<h2 class="sec"><span class="num">6</span>Principal Component Analysis</h2>
+<p>PCA is one sentence on top of linear algebra: <strong>find the orthogonal directions along which the data varies most, and re-express the data using only the top few.</strong> To understand it properly we build up matrix decomposition → eigendecomposition → SVD first.</p>
+
+<h3 class="sub" id="decomp">Matrix decomposition — what it even means</h3>
+<p>Decomposing a matrix means factoring it into simpler matrices each with a clean geometric meaning — like $12=2\times2\times3$. A matrix <em>is</em> a linear transformation: multiplying a vector rotates, stretches, and reflects it. Decomposition splits that complicated transformation into "rotate, then stretch, then rotate" — simple, understandable pieces.</p>
+
+<h3 class="sub" id="eigen">Eigenvalue decomposition — the foundation</h3>
+<p>Multiply most vectors by a matrix $A$ and they get rotated off their direction. For <em>special</em> directions, multiplying by $A$ only <strong>stretches or shrinks</strong> the vector — it stays pointing the same way. Those directions are <em class="term">eigenvectors</em>; the stretch factor is the <em class="term">eigenvalue</em>:</p>
+<div class="eqwrap">$$A\mathbf{v} = \lambda\mathbf{v}$$</div>
+<p>$\mathbf{v}$ is a direction $A$ doesn't rotate; $\lambda$ is how much $A$ scales along it. For <strong>symmetric</strong> matrices (a covariance matrix is symmetric), you can decompose $A$ fully:</p>
+<div class="eqwrap">$$A = Q\,\Lambda\,Q^{\mathsf T}$$</div>
+<p>$Q$ = matrix of eigenvectors (orthogonal for symmetric $A$); $\Lambda$ = diagonal of eigenvalues. Geometrically: $Q^{\mathsf T}$ rotates into the eigenvector coordinate system, $\Lambda$ scales along each axis, $Q$ rotates back. The eigenvectors <em>are</em> the natural axes; the eigenvalues say how important each is. <strong>Limitation:</strong> only works on square (nicely, symmetric) matrices. A data matrix $X$ ($n$ samples × $d$ features) is rectangular — which is why SVD exists.</p>
+
+<h3 class="sub" id="svd">SVD &amp; the bridge to eigendecomposition</h3>
+<p>SVD factors <em>any</em> matrix, rectangular included:</p>
+<div class="eqwrap">$$X = U\,\Sigma\,V^{\mathsf T}$$</div>
+
+<div class="fig">
+<svg width="100%" viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SVD as rotate, stretch, rotate">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#6b6557" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text x="80" y="36" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#26231d">Input</text>
+<text x="80" y="54" text-anchor="middle" font-family="Newsreader,serif" font-size="13" font-style="italic" fill="#6b6557">unit circle</text>
+<circle cx="80" cy="130" r="42" fill="none" stroke="#534AB7" stroke-width="2"/>
+<line x1="80" y1="130" x2="122" y2="130" stroke="#534AB7" stroke-width="2.5"/>
+<line x1="80" y1="130" x2="80" y2="88" stroke="#534AB7" stroke-width="2.5"/>
+<text x="210" y="122" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#9a3b1f">Vᵀ</text>
+<text x="210" y="140" text-anchor="middle" font-family="Newsreader,serif" font-size="12" font-style="italic" fill="#6b6557">rotate</text>
+<line x1="148" y1="130" x2="262" y2="130" stroke="#6b6557" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="340" y="36" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#26231d">Rotated</text>
+<text x="340" y="54" text-anchor="middle" font-family="Newsreader,serif" font-size="13" font-style="italic" fill="#6b6557">still a circle</text>
+<circle cx="340" cy="130" r="42" fill="none" stroke="#1d7a63" stroke-width="2"/>
+<line x1="340" y1="130" x2="370" y2="160" stroke="#1d7a63" stroke-width="2.5"/>
+<line x1="340" y1="130" x2="310" y2="100" stroke="#1d7a63" stroke-width="2.5"/>
+<text x="470" y="122" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="15" fill="#9a3b1f">Σ</text>
+<text x="470" y="140" text-anchor="middle" font-family="Newsreader,serif" font-size="12" font-style="italic" fill="#6b6557">stretch</text>
+<line x1="408" y1="130" x2="512" y2="130" stroke="#6b6557" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="592" y="36" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#26231d">Stretched + U</text>
+<text x="592" y="54" text-anchor="middle" font-family="Newsreader,serif" font-size="13" font-style="italic" fill="#6b6557">ellipse, rotated</text>
+<ellipse cx="592" cy="130" rx="50" ry="26" fill="none" stroke="#b07d24" stroke-width="2" transform="rotate(-25 592 130)"/>
+<line x1="592" y1="130" x2="637" y2="109" stroke="#b07d24" stroke-width="2.5"/>
+<line x1="592" y1="130" x2="580" y2="105" stroke="#b07d24" stroke-width="2.5"/>
+</svg>
+<div class="cap">Every matrix does exactly three things to space: rotate ($V^{\mathsf T}$), stretch ($\Sigma$), rotate ($U$). $U$ and $V$ are rotations; $\Sigma$ is the only step that changes lengths. The long axis of the output ellipse is $\sigma_1$, the biggest singular value.</div>
+</div>
+
+<ul>
+<li><strong>$V$</strong> (columns = <em>right singular vectors</em>): orthogonal directions in the <em>input/feature</em> space — the natural axes of your features.</li>
+<li><strong>$\Sigma$</strong> (diagonal of <em>singular values</em> $\sigma_i$, sorted largest first): how much the data stretches along each direction.</li>
+<li><strong>$U$</strong> (columns = <em>left singular vectors</em>): orthogonal directions in the <em>output/sample</em> space.</li>
+</ul>
+<p>A large $\sigma$ means the data spreads a lot along that direction (informative); a tiny $\sigma$ means it barely varies there (low information). SVD exists for <em>any</em> matrix because every matrix has a "rotate-stretch-rotate" form, while eigendecomposition needs the simpler "rotate-stretch-rotate-back-the-same-way" form that only special matrices have.</p>
+
+<h4 class="subsub">Deriving the bridge — multiply X by its transpose</h4>
+<p>To find $U,\Sigma,V$, multiply $X$ by its own transpose, which collapses one rotation and leaves an eigenvalue problem. Assume $X=U\Sigma V^{\mathsf T}$ and compute:</p>
+<div class="eqwrap">$$X^{\mathsf T}X = (U\Sigma V^{\mathsf T})^{\mathsf T}(U\Sigma V^{\mathsf T}) = V\Sigma^{\mathsf T}U^{\mathsf T}U\Sigma V^{\mathsf T}$$</div>
+<p>The middle is $U^{\mathsf T}U$. Because $U$ is a rotation (orthogonal), $U^{\mathsf T}U=I$ — a rotation followed by its own inverse is nothing. <strong>$U$ vanishes.</strong> That's the point of multiplying by the transpose: it annihilates one rotation. Left with:</p>
+<div class="eqwrap">$$X^{\mathsf T}X = V\,\Sigma^2\,V^{\mathsf T}$$</div>
+<p>Compare to $A=Q\Lambda Q^{\mathsf T}$ — the same form. Therefore:</p>
+<div class="box key"><span class="lab">The eigen–SVD bridge</span>
+<ul style="margin:0">
+<li>$V$ (right singular vectors) <strong>= eigenvectors of $X^{\mathsf T}X$</strong> (sits in the $Q$ slot).</li>
+<li>$\Sigma^2$ (singular values squared) <strong>= eigenvalues of $X^{\mathsf T}X$</strong> (sits in the $\Lambda$ slot), so $\sigma_i=\sqrt{\lambda_i}$.</li>
+</ul>
+<p style="margin-bottom:0">It didn't have to be assumed — it <em>dropped out</em> of multiplying $X$ by its transpose. And $X^{\mathsf T}X$ is (proportional to) the covariance of centered data, which is why PCA — which wants covariance eigenvectors — is secretly just the $V$ of the SVD.</p></div>
+
+<h4 class="subsub">Where U went — the left singular vectors</h4>
+<p>Do the mirror move, $XX^{\mathsf T}$. By identical algebra $V^{\mathsf T}V=I$ kills $V$:</p>
+<div class="eqwrap">$$XX^{\mathsf T} = U\,\Sigma^2\,U^{\mathsf T}$$</div>
+<ul>
+<li>$V$ = eigenvectors of $X^{\mathsf T}X$ — the $d\times d$ <em>feature-side</em> matrix ("how features co-vary").</li>
+<li>$U$ = eigenvectors of $XX^{\mathsf T}$ — the $n\times n$ <em>sample-side</em> matrix ("how samples co-vary").</li>
+<li>Both share the <em>same</em> non-zero eigenvalues $\sigma_i^2$.</li>
+</ul>
+<p>Or, without a second eigendecomposition: rearranging $XV=U\Sigma$ gives $\mathbf{u}_i = X\mathbf{v}_i/\sigma_i$ — push each right singular vector through $X$ and normalize. That's how $U$ is computed in practice instead of eigendecomposing the huge $n\times n$ matrix.</p>
+
+<div class="box math-note"><span class="lab">Why PCA uses SVD instead of eigendecomposing the covariance</span>
+PCA wants $V$. Route 1: form $X^{\mathsf T}X$ then eigendecompose — but forming it <em>squares</em> the singular values ($\sigma\to\sigma^2$). If the largest singular value is $10^6\times$ the smallest, squaring makes the ratio $10^{12}$ and tiny directions get swallowed by floating-point error before you start. Route 2: SVD of $X$ directly gets $V$ and $\sigma$ <em>without ever forming $X^{\mathsf T}X$</em>, so the values are never squared and conditioning stays as good as the data allows. Same answer, far more stable — which is why sklearn's PCA runs SVD on the centered data matrix.</div>
+
+<h3 class="sub" id="pca-how">PCA — the steps</h3>
+<p>PCA's directions are precisely the eigenvectors of the covariance matrix (= right singular vectors of centered data), ranked by eigenvalue (= variance captured). <strong>Why "directions of maximum variance"?</strong> Variance = information: a direction where data spreads a lot distinguishes samples (useful); a near-constant direction tells you almost nothing (drop it).</p>
+<ol>
+<li><strong>Center</strong> the data — subtract each feature's mean (PCA is about variance <em>around the mean</em>; skip it and the first PC just points at the mean). Often also <strong>standardize</strong> to unit variance — mandatory on different scales, else the large-scale feature dominates by units alone.</li>
+<li><strong>Covariance matrix</strong> $C=\frac{1}{n}X^{\mathsf T}X$ (centered $X$) — how features co-vary.</li>
+<li><strong>Eigendecompose</strong> $C$ (or SVD the centered $X$). Eigenvectors = PC directions; eigenvalues = variance along each.</li>
+<li><strong>Sort</strong> by eigenvalue, descending.</li>
+<li><strong>Keep top $k$</strong> — the $k$ directions capturing the most variance.</li>
+<li><strong>Project:</strong> $X_{\text{reduced}} = X V_k$. Each point is now $k$ numbers instead of $d$.</li>
+</ol>
+<p>Each PC is a linear combination of original features, orthogonal to the others, ordered by variance explained. Pick $k$ by the <strong>cumulative explained-variance ratio</strong> (eigenvalue $i$ / sum of all eigenvalues), keeping enough PCs to reach ~95%. A <strong>scree plot</strong> (eigenvalue vs PC index) shows the elbow where extra PCs stop earning their keep.</p>
+
+<h3 class="sub" id="pca-matryoshka">The Matryoshka instinct — where it's right, where it breaks</h3>
+<p>The shared property is <strong>nested truncation</strong>: with PCA the top $k$ components form a valid representation on their own, and they're a <em>prefix</em> of the full set — components are ranked by importance, so "take the top $n$" always gives the most information-dense $n$-dim summary. Drop the tail, keep meaning. That ordered-by-importance, truncate-the-prefix structure is exactly the property <em>Matryoshka Representation Learning (MRL)</em> embeddings are engineered to have — where the first 64, 256, 768 dims each work standalone. The instinct is correct on the structural level.</p>
+<div class="box trap"><span class="lab">Where it breaks — flag this yourself</span>
+<ol style="margin:0">
+<li><strong>PCA is linear &amp; unsupervised, found by eigen/SVD. MRL is learned by a neural net</strong> with a loss that explicitly forces every prefix to be useful (trains on multiple truncation lengths at once). PCA's ordering <em>emerges</em> from variance; MRL's is <em>imposed</em> by the loss.</li>
+<li><strong>PCA orders by variance; MRL by task usefulness.</strong> PCA's top components are highest-variance — not necessarily the most discriminative for a downstream task. MRL prefixes are optimized to be predictive.</li>
+<li><strong>PCA components are orthogonal linear axes; MRL dimensions are entangled learned features</strong> with no orthogonality guarantee.</li>
+</ol>
+<p style="margin-bottom:0">Same <em>interface</em> (truncatable, importance-ordered), completely different <em>machinery</em>. "PCA is the classical, linear, variance-based ancestor of the Matryoshka idea" is fair and sharp; calling them the same thing is wrong.</p></div>
+
+<h3 class="sub" id="pca-use">When to use / ignore, and 2026 relevance</h3>
+<p><strong>Use</strong> for: preprocessing before a model (compress correlated features, speed training, reduce overfitting); multicollinearity (produces uncorrelated components); visualization (2–3 PCs, though UMAP/t-SNE look better); noise reduction/compression (low-variance components are often noise). <strong>Ignore</strong> when: you need interpretability (PCs are blends of all features); relationships are non-linear (Kernel PCA, UMAP, autoencoders); the task-relevant signal is low-variance (PCA is unsupervised and blind to labels — LDA, which maximizes class separation, can beat it); or features are categorical (use MCA).</p>
+<p><strong>Alive in 2026</strong> — cheap, deterministic, still the default first move for linear dimensionality reduction:</p>
+<ul>
+<li><strong>Compressing embeddings</strong> — squash 768–3072-dim transformer embeddings to a few hundred dims to cut vector-DB storage and speed similarity search, with minimal recall loss. (MRL is the <em>learned</em> alternative to this exact problem.)</li>
+<li><strong>Preprocessing / EDA</strong> — the standard quick look at high-dim tabular data and redundancy removal before classical models.</li>
+<li><strong>Inside other methods</strong> — denoising, compression, anomaly detection (large reconstruction error = anomaly), PCA → K-Means pipelines.</li>
+</ul>
+<p>Displaced for pure visualization (UMAP/t-SNE) and non-linear structure (autoencoders), but for fast linear compression and as a preprocessing default it hasn't moved.</p>
+<div class="box interview"><span class="lab">Interview one-liner</span>
+"PCA finds the orthogonal directions of maximum variance — the eigenvectors of the covariance matrix, equivalently the right singular vectors from the SVD of centered data — ranks them by eigenvalue (variance explained), and projects onto the top $k$ to reduce dimensions while keeping the most information. It's computed via SVD rather than eigendecomposing the covariance for numerical stability. It's linear, unsupervised, and assumes high variance means high information — so it fails when the signal is low-variance or the structure is non-linear, where LDA, Kernel PCA, or autoencoders take over."</div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+<!-- ============================ COMPARISON ============================ -->
+<section id="compare">
+<h2 class="sec">Comparison &amp; the thread that ties it together</h2>
+<table>
+<thead><tr><th></th><th>SVM</th><th>Naive Bayes</th><th>KNN</th><th>K-Means</th><th>PCA</th></tr></thead>
+<tbody>
+<tr><th>Type</th><td>Supervised</td><td>Supervised (gen.)</td><td>Supervised</td><td>Unsupervised (cluster)</td><td>Unsupervised (dim. reduce)</td></tr>
+<tr><th>Training</th><td>$O(n^2$–$n^3)$</td><td>$O(n\cdot d)$</td><td>$O(1)$ (lazy)</td><td>$O(n K d\,\text{iter})$</td><td>$O(d^2 n + d^3)$</td></tr>
+<tr><th>Scaling needed?</th><td>Yes (critical)</td><td>No</td><td>Yes (critical)</td><td>Yes (critical)</td><td>Yes (critical)</td></tr>
+<tr><th>Key hyperparam</th><td>$C$, $\gamma$, kernel</td><td>$\alpha$ (smoothing)</td><td>$K$, metric</td><td>$K$, init</td><td>$k$ components</td></tr>
+<tr><th>Curse of dim?</th><td>OK (kernel)</td><td>Excellent (text)</td><td>Fatal</td><td>Poor</td><td>This is the fix</td></tr>
+<tr><th>2026 niche</th><td>$d\gg n$, baseline</td><td>cost/latency, baseline</td><td>ANN / RAG retrieval</td><td>embedding clustering, IVF</td><td>embedding compression</td></tr>
+</tbody></table>
+
+<div class="box trap"><span class="lab">Classic gotcha: K-Means vs KNN</span>
+Both have $K$, both use distance — that's where similarity ends. <strong>KNN</strong>: supervised, $K$ = number of neighbors, no training (lazy), outputs a class/value. <strong>K-Means</strong>: unsupervised, $K$ = number of clusters, iterative centroid training, outputs a cluster label. Mixing these up is an immediate red flag.</div>
+
+<div class="tldr"><span class="lab">The thread tying the whole session together</span>
+<p>Classical methods didn't die — they became the components of the modern stack. <strong>SVM</strong> survives where $d\gg n$ and the margin is strong regularization. <strong>KNN</strong> became approximate nearest-neighbor search — the retrieval engine under every RAG system. <strong>K-Means</strong> clusters embeddings and lives inside FAISS's IVF index. <strong>PCA</strong> still compresses the very transformer embeddings that replaced it elsewhere — and its ordered, truncatable representation is the linear ancestor of Matryoshka embeddings. The eigenvectors/SVD that power PCA, the dot-products that power kernels, the distance that powers KNN and K-Means — these are the same ideas the modern stack is built on. Their survival is almost never about capability; it's about cost, latency, data scarcity, interpretability, and deployment.</p></div>
+</section>
+<a href="#top" class="toplink">↑ back to top</a>
+
+</main>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  renderMathInElement(document.body,{
+    delimiters:[
+      {left:"$$",right:"$$",display:true},
+      {left:"$",right:"$",display:false}
+    ],
+    throwOnError:false
+  });
+});
+</script>
+</body>
+</html>

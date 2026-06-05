@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG &amp; Retrieval — Study Reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --paper: #fbfaf6;
+    --ink: #1f1c17;
+    --ink-soft: #4a443b;
+    --rule: #d8d2c4;
+    --accent: #9a3412;
+    --accent2: #1d4e57;
+    --accent3: #5b6e2f;
+    --gold: #a67c1a;
+    --code-bg: #2a2620;
+    --code-ink: #e8e2d4;
+    --shadow: rgba(40,34,24,0.10);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 18px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .layout { display: flex; max-width: 1280px; margin: 0 auto; }
+
+  /* Sidebar nav */
+  nav.toc {
+    width: 270px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 36px 22px 60px 28px;
+    border-right: 1px solid var(--rule);
+    background: linear-gradient(180deg, #efe9dc 0%, #f4f1ea 100%);
+    font-family: "Newsreader", serif;
+    font-size: 14.5px;
+  }
+  nav.toc .navtitle {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 17px;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px 0;
+    color: var(--accent);
+  }
+  nav.toc .navsub { font-size: 12px; color: var(--ink-soft); margin-bottom: 22px; font-style: italic;}
+  nav.toc a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 3px 0;
+    border-left: 2px solid transparent;
+    padding-left: 10px;
+    transition: all 0.15s ease;
+    line-height: 1.35;
+    margin-bottom: 2px;
+  }
+  nav.toc a:hover { color: var(--accent); border-left-color: var(--accent); }
+  nav.toc .navgroup {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    margin: 18px 0 6px 0;
+    padding-left: 10px;
+  }
+
+  /* Main content */
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: 52px 64px 120px 64px;
+    background: var(--paper);
+    box-shadow: 0 0 40px var(--shadow);
+  }
+
+  header.masthead { margin-bottom: 48px; border-bottom: 3px double var(--ink); padding-bottom: 28px; }
+  header.masthead .kicker {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  header.masthead h1 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 52px;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px 0;
+  }
+  header.masthead h1 em { font-style: italic; color: var(--accent); }
+  header.masthead .standfirst {
+    font-size: 19px;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    font-style: italic;
+  }
+
+  section { margin-bottom: 30px; scroll-margin-top: 20px; }
+  h2.sec {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 30px;
+    letter-spacing: -0.015em;
+    margin: 56px 0 6px 0;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    line-height: 1.1;
+  }
+  h2.sec .num {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+    letter-spacing: 0.1em;
+  }
+  h3 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 21px;
+    margin: 30px 0 8px 0;
+    color: var(--accent2);
+    letter-spacing: -0.01em;
+  }
+  h4 {
+    font-family: "Fraunces", serif;
+    font-weight: 600;
+    font-size: 17px;
+    margin: 20px 0 6px 0;
+    color: var(--ink);
+  }
+  p { margin: 0 0 14px 0; }
+  strong { font-weight: 600; color: #000; }
+  em.term { font-style: normal; font-weight: 600; color: var(--accent); }
+
+  .lead { font-size: 19.5px; color: var(--ink-soft); }
+
+  ul, ol { margin: 0 0 16px 0; padding-left: 26px; }
+  li { margin-bottom: 7px; }
+
+  code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82em;
+    background: #ece6d8;
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #5a3210;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 18px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin: 16px 0;
+    border: 1px solid #000;
+    box-shadow: 0 4px 14px rgba(40,34,24,0.18);
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  .cm { color: #9a948a; }
+  .kw { color: #d98c5f; }
+  .st { color: #a9bd7a; }
+
+  /* Callout boxes */
+  .box {
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 18px 0;
+    font-size: 16.5px;
+    line-height: 1.55;
+    position: relative;
+  }
+  .box .boxlabel {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+  }
+  .intuition { background: #eef4ee; border-left: 4px solid var(--accent3); }
+  .intuition .boxlabel { color: var(--accent3); }
+  .trap { background: #fbeee6; border-left: 4px solid var(--accent); }
+  .trap .boxlabel { color: var(--accent); }
+  .interview { background: #1f1c17; color: #f0ebe0; border-left: 4px solid var(--gold); font-style: italic; }
+  .interview .boxlabel { color: var(--gold); font-style: normal; }
+  .interview strong { color: #fff; }
+  .keypoint { background: #eaf0f1; border-left: 4px solid var(--accent2); }
+  .keypoint .boxlabel { color: var(--accent2); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 18px 0; font-size: 15px; font-family: "Newsreader", serif; }
+  th { background: var(--ink); color: var(--paper); text-align: left; padding: 9px 13px; font-weight: 500; font-family: "Fraunces", serif; font-size: 14px; }
+  td { padding: 9px 13px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:nth-child(even) td { background: #f3eee2; }
+  td code { font-size: 12.5px; }
+
+  /* Q&A blocks */
+  .qa { margin: 14px 0; padding-left: 18px; border-left: 2px solid var(--rule); }
+  .qa .q { font-family: "Fraunces", serif; font-weight: 600; color: var(--accent2); font-size: 16.5px; }
+  .qa .a { font-size: 16px; color: var(--ink-soft); margin-top: 2px; }
+
+  /* SVG figures */
+  figure { margin: 24px 0; text-align: center; }
+  figure svg { max-width: 100%; height: auto; }
+  figcaption { font-size: 14px; color: var(--ink-soft); font-style: italic; margin-top: 8px; }
+  .svgwrap { background: #fcfbf7; border: 1px solid var(--rule); border-radius: 10px; padding: 18px; box-shadow: 0 2px 10px var(--shadow); }
+
+  .formula { text-align: center; font-family: "Newsreader", serif; font-size: 19px; margin: 14px 0; padding: 10px; background: #f3eee2; border-radius: 6px; }
+  .formula .frac { display: inline-block; vertical-align: middle; text-align: center; }
+  .formula .frac .top { display: block; border-bottom: 1.5px solid var(--ink); padding: 0 8px; }
+  .formula .frac .bot { display: block; padding: 0 8px; }
+
+  .pill { display:inline-block; font-family:"JetBrains Mono",monospace; font-size:11px; padding:2px 8px; border-radius:20px; background:#ece6d8; color:#5a3210; margin-right:4px;}
+
+  hr.fancy { border: none; text-align: center; margin: 40px 0; }
+  hr.fancy::before { content: "❧"; color: var(--accent); font-size: 22px; }
+
+  a.backtop { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--ink-soft); text-decoration: none; float: right; margin-top: 8px;}
+  a.backtop:hover { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    nav.toc { display: none; }
+    main { padding: 32px 22px 80px 22px; }
+    header.masthead h1 { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <div class="navtitle">RAG &amp; Retrieval</div>
+  <div class="navsub">Study reference · everything covered</div>
+
+  <div class="navgroup">Foundations</div>
+  <a href="#chunking">1 · Chunking strategies</a>
+  <a href="#storage">2 · Where vectors live</a>
+  <a href="#deployment">3 · Deployment models</a>
+
+  <div class="navgroup">ANN Algorithms</div>
+  <a href="#hnsw">4 · HNSW</a>
+  <a href="#ivf">5 · IVF + k-means</a>
+  <a href="#pq">6 · Product Quantization</a>
+  <a href="#lsh-kd">7 · LSH &amp; KD-trees</a>
+  <a href="#complexity">8 · Complexity table</a>
+  <a href="#matryoshka">9 · Matryoshka &amp; dims</a>
+
+  <div class="navgroup">Retrieval Mechanics</div>
+  <a href="#hybrid">10 · Hybrid &amp; fusion</a>
+  <a href="#tfidf-bm25">11 · TF-IDF &amp; BM25</a>
+  <a href="#elastic">12 · Elasticsearch / Lucene</a>
+  <a href="#crossencoder">13 · Cross-encoder rerank</a>
+  <a href="#infonce">14 · InfoNCE</a>
+
+  <div class="navgroup">RAG Architectures</div>
+  <a href="#patterns">15 · HyDE→GraphRAG</a>
+  <a href="#agentic">16 · Agentic RAG</a>
+
+  <div class="navgroup">Evaluation</div>
+  <a href="#metrics-rank">17 · MRR &amp; nDCG</a>
+  <a href="#metrics-context">18 · Precision &amp; recall</a>
+  <a href="#faithfulness">19 · Faithfulness</a>
+  <a href="#goldenset">20 · Golden sets &amp; judges</a>
+
+  <div class="navgroup">Systems &amp; Frontier</div>
+  <a href="#loaders">21 · Document loaders</a>
+  <a href="#tables">22 · Table handling</a>
+  <a href="#citations">23 · How citations work</a>
+  <a href="#ragtraining">24 · RAG-aware training</a>
+  <a href="#redis">25 · Redis &amp; caching</a>
+  <a href="#websearch">26 · Web search &amp; research</a>
+  <a href="#longcontext">27 · Long-context vs RAG</a>
+  <a href="#hfmodel">28 · HF model files</a>
+</nav>
+<main>
+<header class="masthead">
+  <div class="kicker">Session Reference · Retrieval-Augmented Generation</div>
+  <h1>The <em>RAG</em> &amp; Retrieval Compendium</h1>
+  <div class="standfirst">Everything worked through in one session — from chunking and ANN algorithms to evaluation, agentic systems, and the long-context debate. Built to be re-read before interviews.</div>
+</header>
+<!-- ============ FOUNDATIONS ============ -->
+<section id="chunking">
+<h2 class="sec"><span class="num">SECTION 01 — FOUNDATIONS</span>Chunking strategies</h2>
+<p class="lead">How you split documents before embedding decides the ceiling on retrieval quality. No reranker fixes a bad chunk.</p>
+
+<h3>Recursive chunking</h3>
+<p>Split text by a <strong>priority list of separators</strong>, biggest semantic unit first, dropping finer only when a chunk is still too big. Order: <code>\n\n</code> (paragraphs) → <code>\n</code> (lines) → <code>. </code> (sentences) → <code> </code> (words) → characters.</p>
+<p>Logic: try splitting on <code>\n\n</code>; if any piece still exceeds <code>chunk_size</code>, re-split that piece on <code>\n</code>, then <code>. </code>, and so on. You cut at the most natural boundary that fits the budget instead of slicing blindly at character N. This is the <strong>2026 default for unstructured prose</strong> — preserves meaning better than fixed-size, without semantic chunking's embedding cost.</p>
+
+<h3>Parent-child chunking</h3>
+<p>Decouple <em class="term">what you match against</em> from <em class="term">what you feed the LLM</em>. Index small chunks for retrieval precision, return their larger parent for generation context.</p>
+<ol>
+<li>Split doc into large <strong>parent</strong> chunks (~2048 tok).</li>
+<li>Split each parent into small <strong>child</strong> chunks (~256 tok).</li>
+<li>Embed and index <strong>only the children</strong>.</li>
+<li>At query time, match a child → but return its <strong>parent</strong>.</li>
+</ol>
+<div class="intuition"><span class="boxlabel">Why it works</span>Small chunks embed cleanly (one idea = sharp match) but a stranded 256-token hit often lacks context to answer well. So <strong>match small, serve big</strong>. The cost: more tokens per query, and over-fetch if parents are huge.</div>
+
+<h3>Chunk sizing in practice</h3>
+<ul>
+<li>General range: <strong>256–512 tokens</strong> for the embedded (child) chunk. Smaller = sharper embeddings; larger = more context but blurrier vector.</li>
+<li>Dense / conditional text (legal, policy) pushes toward the <strong>larger end (512)</strong> or parent-child, because a clause's meaning depends on definitions stated nearby — chopping too small severs the logic.</li>
+<li><strong>Overlap</strong> ~10–15% catches rules that straddle a boundary.</li>
+<li><strong>Count tokens with the same tokenizer the embedder uses</strong> — otherwise a "512-token chunk" may truncate silently.</li>
+</ul>
+<div class="trap"><span class="boxlabel">Honest position</span>Chunk size is <strong>tuned, not decreed</strong>. The right answer is to sweep sizes against your golden eval set and measure nDCG@k — the optimum depends on your query and document distribution. A confident single number is a weak answer; "here's my prior, and I'd measure it" is the strong one.</div>
+</section>
+
+<section id="storage">
+<h2 class="sec"><span class="num">SECTION 02</span>Why not just a CSV? Where vectors live</h2>
+<p>Retrieval isn't a lookup, it's a <strong>similarity search</strong>: given a query vector, find the top-k closest of N. A CSV + Python can only brute-force — compute similarity against every vector, every query: O(N·d).</p>
+<ul>
+<li>~1,000 chunks → numpy is fine, milliseconds. <strong>Genuinely no DB needed.</strong></li>
+<li>~100K → sluggish.</li>
+<li>10M+ → dead on arrival.</li>
+</ul>
+<p>What a vector DB actually adds is an <strong>ANN index</strong> (HNSW, IVF) — approximate nearest neighbor, trading a sliver of recall to go from O(N) to ~O(log N). That's the whole game.</p>
+
+<h3>What a flat CSV lacks</h3>
+<ul>
+<li><strong>No concurrency</strong> — one process writing at a time; two simultaneous writers corrupt the file. A DB handles many readers/writers with locking.</li>
+<li><strong>No metadata filtering</strong> — you often want "similar chunks <em>where source='invoices' AND date&gt;2024</em>". A DB filters during search; CSV forces a manual Python loop, unindexed.</li>
+<li><strong>No persistence guarantees</strong> — a crash mid-write leaves a half-broken file. DBs use transactions + write-ahead logs so data survives crashes.</li>
+</ul>
+
+<h3>The decision ladder</h3>
+<table>
+<tr><th>Tier</th><th>Examples</th><th>Use when</th></tr>
+<tr><td><strong>In-memory library</strong></td><td>FAISS, numpy, hnswlib</td><td>Fits in RAM (&lt;1–5M vec), single app, you own the lifecycle. "Local file but smart."</td></tr>
+<tr><td><strong>On-disk embedded</strong></td><td>Chroma, LanceDB, DuckDB-VSS</td><td>Exceeds RAM but you want zero ops — index spills to disk, no server.</td></tr>
+<tr><td><strong>Self-hosted server</strong></td><td>Qdrant, Milvus, Weaviate, pgvector</td><td>Concurrent users, live writes+reads, filtering at scale, decoupled from app.</td></tr>
+<tr><td><strong>Managed SaaS</strong></td><td>Pinecone, Qdrant Cloud</td><td>Don't want to run infra, billions of vectors, SLAs — at cost + data leaves your network.</td></tr>
+</table>
+<div class="keypoint"><span class="boxlabel">The decision rule</span>You graduate tiers when you hit a <em>specific</em> wall: RAM (→ on-disk), concurrency/writes (→ server), or ops/scale (→ SaaS). Most systems that "need Pinecone" run great on pgvector or LanceDB. The interview question is never "which DB" — it's "what's your N, QPS, write pattern, and latency budget?" Answer those four and the DB picks itself.</div>
+</section>
+
+<section id="deployment">
+<h2 class="sec"><span class="num">SECTION 03</span>Embedded vs. server — deployment models</h2>
+<p>"Embedded," "SQLite-like," "Postgres extension" describe <strong>how a DB runs</strong>, not what it stores.</p>
+<table>
+<tr><th>Model</th><th>Meaning</th><th>Vector examples</th></tr>
+<tr><td><strong>Embedded</strong></td><td>Runs inside your app's process as a library. No server, no network hop. <code>pip install</code> and go.</td><td>Chroma, LanceDB, FAISS</td></tr>
+<tr><td><strong>SQLite-like</strong></td><td>Embedded + stores to a single file on disk, zero server. Borrows SQLite's reputation as the gold standard of simple file-based DBs.</td><td>LanceDB, Chroma</td></tr>
+<tr><td><strong>Postgres extension</strong></td><td>A plugin (<code>pgvector</code>) adding vector search into existing Postgres. Vectors sit in a normal table beside relational data, queried with SQL.</td><td>pgvector</td></tr>
+</table>
+
+<h3>Key clarifications</h3>
+<p><strong>SQL vs. Postgres:</strong> SQL is a <em>language</em>; PostgreSQL is a <em>product</em> that speaks it (so do MySQL, SQLite, SQL Server). "Postgres vs SQL" is a category error — Postgres <em>is</em> a SQL database.</p>
+<p><strong>SQLite</strong> is a famous library storing an entire SQL database in one file, with no server — the engine is compiled <em>into</em> your app. Postgres/MySQL run a separate server you connect to over a socket; SQLite reads/writes a single <code>.db</code> file from inside your process.</p>
+
+<h3>Why most DBs run as servers</h3>
+<p>Not for "decoupling code changes" — that's a minor side benefit. The real reasons are runtime properties an embedded library can't give:</p>
+<ul>
+<li><strong>Shared state across many clients</strong> — API, batch jobs, dashboards, teammates all hit the <em>same</em> live data. Embedded lives in one process's memory.</li>
+<li><strong>Concurrent writes</strong> — servers handle thousands of simultaneous reads+writes with transaction isolation.</li>
+<li><strong>Data outlives any process</strong> — app can crash/restart/scale; the server and data are untouched. Run many stateless app copies against one DB.</li>
+<li><strong>Resource isolation</strong> — give the DB a beefy machine, scale the app layer separately.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">Chroma vs Qdrant for a DS team</span>Notebook / experiment / one person → <strong>Chroma</strong> (embedded). Shared index the team queries / production / an API → <strong>Qdrant</strong> (server). The trigger to go server is never "we felt like it" — it's a concrete event: a second consumer appears, you need writes while serving, or the index outgrows one machine's RAM.</div>
+</section>
+
+<!-- ============ ANN ALGORITHMS ============ -->
+<section id="hnsw">
+<h2 class="sec"><span class="num">SECTION 04 — ANN ALGORITHMS</span>HNSW — Hierarchical Navigable Small World</h2>
+<p class="lead">The 2026 default in-memory ANN index. Built from two ideas stacked together.</p>
+
+<h3>Idea 1 — Small-world graphs, navigate by greedy hops</h3>
+<p>Like "six degrees of separation": most links are local, a few are long-range, and those long links let you cross the network fast. Each vector is a node linked to nearby vectors plus a few longer links. To search, start somewhere and <strong>greedily walk toward the query</strong> — move to whichever neighbor is closest to the query, repeat, stop when no neighbor is closer. The flaw: a flat graph gets stuck in tiny local steps early on. You need big jumps first, small jumps near the end.</p>
+
+<h3>Idea 2 — Hierarchy (the skip-list trick)</h3>
+<figure><div class="svgwrap">
+<svg viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+<text x="14" y="28" font-size="12" fill="#9a3412">Layer 2 — sparse, long jumps</text>
+<circle cx="90" cy="50" r="7" fill="#fbeee6" stroke="#9a3412" stroke-width="1.5"/>
+<circle cx="540" cy="50" r="7" fill="#fbeee6" stroke="#9a3412" stroke-width="1.5"/>
+<line x1="97" y1="50" x2="533" y2="50" stroke="#9a3412" stroke-width="1" opacity="0.5"/>
+<text x="90" y="74" font-size="10" fill="#4a443b" text-anchor="middle">entry</text>
+<text x="14" y="120" font-size="12" fill="#a67c1a">Layer 1 — medium</text>
+<circle cx="90" cy="142" r="6" fill="#f7efd8" stroke="#a67c1a" stroke-width="1.5"/>
+<circle cx="260" cy="142" r="6" fill="#f7efd8" stroke="#a67c1a" stroke-width="1.5"/>
+<circle cx="400" cy="142" r="6" fill="#f7efd8" stroke="#a67c1a" stroke-width="1.5"/>
+<circle cx="540" cy="142" r="6" fill="#f7efd8" stroke="#a67c1a" stroke-width="1.5"/>
+<line x1="96" y1="142" x2="254" y2="142" stroke="#a67c1a" stroke-width="1" opacity="0.5"/>
+<line x1="266" y1="142" x2="394" y2="142" stroke="#a67c1a" stroke-width="1" opacity="0.5"/>
+<line x1="406" y1="142" x2="534" y2="142" stroke="#a67c1a" stroke-width="1" opacity="0.5"/>
+<text x="14" y="210" font-size="12" fill="#1d4e57">Layer 0 — all nodes, dense</text>
+<circle cx="90" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<circle cx="175" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<circle cx="260" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<circle cx="330" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<circle cx="400" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<circle cx="470" cy="232" r="6.5" fill="#5b6e2f" stroke="#3a4a1c" stroke-width="1.5"/>
+<circle cx="540" cy="232" r="5" fill="#eaf0f1" stroke="#1d4e57" stroke-width="1.5"/>
+<line x1="95" y1="232" x2="535" y2="232" stroke="#1d4e57" stroke-width="0.8" opacity="0.35"/>
+<line x1="540" y1="57" x2="540" y2="135" stroke="#888" stroke-width="0.8" stroke-dasharray="3 3"/>
+<line x1="400" y1="148" x2="400" y2="226" stroke="#888" stroke-width="0.8" stroke-dasharray="3 3"/>
+<text x="470" y="258" font-size="10" fill="#5b6e2f" text-anchor="middle">query target</text>
+</svg>
+</div><figcaption>Enter at the top, hop far across the sparse layer, drop down, refine. Big jumps first (few nodes), small jumps last (dense).</figcaption></figure>
+<p>Layer 0 has <em>every</em> node; each layer up keeps ~1/M of the layer below (exponentially fewer). Top = sparse with long links; bottom = dense. <strong>Search descends top-down:</strong> greedily walk each layer toward the query, drop down a layer, repeat; do the thorough search on layer 0. Top layers are an express highway to the right city; layer 0 is local streets to the exact address.</p>
+
+<h3>Library usage &amp; the three hyperparameters</h3>
+<pre><code><span class="kw">import</span> hnswlib
+index = hnswlib.Index(space=<span class="st">'cosine'</span>, dim=768)
+index.init_index(max_elements=N, <span class="kw">M</span>=16, <span class="kw">ef_construction</span>=200)
+index.add_items(data, ids)
+index.set_ef(50)        <span class="cm"># ef_search — tune live, no rebuild</span>
+labels, dist = index.knn_query(query, k=10)</code></pre>
+<table>
+<tr><th>Param</th><th>What it does</th><th>Trade</th></tr>
+<tr><td><code>M</code></td><td>Links per node (graph degree). 12–16 typical, 32–64 for high-dim/high recall.</td><td>↑ recall, ↑ RAM, ↑ build time. Memory ~linear in M.</td></tr>
+<tr><td><code>ef_construction</code></td><td>Candidates considered while inserting. 100–200 typical.</td><td>↑ graph quality, ↑ build time only (one-time).</td></tr>
+<tr><td><code>ef</code> (search)</td><td>Candidate list size per query. Must be ≥ k.</td><td>↑ recall, ↑ latency. <strong>Tuned live, the production dial.</strong></td></tr>
+</table>
+<div class="intuition"><span class="boxlabel">Mental split</span><strong>M &amp; ef_construction = build-time</strong> (fix graph quality, pay once). <strong>ef = query-time</strong> (trade latency for recall every request).</div>
+
+<h3>Strengths, weaknesses, the ceiling</h3>
+<ul>
+<li><strong>Strengths:</strong> SOTA recall/latency in RAM; ~O(log N) search; query-time tunable; no training step (unlike IVF).</li>
+<li><strong>Weaknesses:</strong> <em>memory hungry</em> — graph links cost RAM on top of vectors (the defining limit); slow/expensive builds &amp; inserts (each insert runs a search); deletes are awkward (tombstone + periodic rebuild); all in-memory (DiskANN for on-disk).</li>
+</ul>
+<div class="trap"><span class="boxlabel">Interview trap</span>"How does HNSW scale to a billion vectors?" — honest answer: <strong>it doesn't, gracefully.</strong> That's where IVF-PQ, DiskANN, or sharding come in. Knowing the RAM ceiling is the senior signal.</div>
+</section>
+
+<section id="ivf">
+<h2 class="sec"><span class="num">SECTION 05</span>IVF — Inverted File index</h2>
+<p>Name borrowed from text search: an inverted file maps word → docs containing it. IVF does the spatial version — partition vector space into <strong>regions</strong>, map each region → the vectors in it. At query time, find which region(s) the query lands in and scan <em>only those</em>.</p>
+
+<h3>Yes — it's k-means</h3>
+<p>You partition by running <strong>k-means</strong> with <code>nlist</code> clusters. Each centroid defines a Voronoi cell. The centroids <em>are</em> the inverted file's keys.</p>
+<h4>How k-means picks/moves centroids</h4>
+<ul>
+<li><strong>Init (k-means++):</strong> first centroid random, then each next chosen with probability ∝ squared distance from the nearest existing centroid — so points far from existing centroids are likelier picked. This <em>spreads them out</em> (the "diverge" property), avoiding clumping.</li>
+<li><strong>Lloyd's loop:</strong> (1) assign every point to nearest centroid; (2) move each centroid to the mean of its points; repeat until stable.</li>
+</ul>
+<p>Centroids aren't engineered equidistant — they settle into the data's density; k-means++ just gives a good spread-out start.</p>
+
+<figure><div class="svgwrap">
+<svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+<rect x="20" y="20" width="520" height="220" rx="10" fill="none" stroke="#d8d2c4"/>
+<g fill="#eaf0f1" stroke="#1d4e57"><circle cx="110" cy="80" r="5"/><circle cx="140" cy="62" r="5"/><circle cx="95" cy="105" r="5"/></g>
+<circle cx="135" cy="100" r="8" fill="#1d4e57"/><text x="135" y="128" font-size="9" fill="#4a443b" text-anchor="middle">A</text>
+<g fill="#eef4ee" stroke="#5b6e2f"><circle cx="300" cy="72" r="5"/><circle cx="330" cy="90" r="5"/><circle cx="285" cy="100" r="5"/></g>
+<circle cx="310" cy="92" r="8" fill="#5b6e2f"/><text x="310" y="120" font-size="9" fill="#4a443b" text-anchor="middle">B</text>
+<g fill="#fbeee6" stroke="#9a3412"><circle cx="450" cy="180" r="5"/><circle cx="480" cy="196" r="5"/><circle cx="438" cy="205" r="5"/></g>
+<circle cx="462" cy="195" r="8" fill="#9a3412"/><text x="462" y="223" font-size="9" fill="#4a443b" text-anchor="middle">C</text>
+<g fill="#f7efd8" stroke="#a67c1a"><circle cx="130" cy="195" r="5"/><circle cx="160" cy="208" r="5"/></g>
+<circle cx="148" cy="202" r="8" fill="#a67c1a"/><text x="148" y="230" font-size="9" fill="#4a443b" text-anchor="middle">D</text>
+<circle cx="320" cy="160" r="7" fill="#1f1c17"/><text x="320" y="148" font-size="10" fill="#1f1c17" text-anchor="middle">query</text>
+<line x1="320" y1="160" x2="312" y2="100" stroke="#5b6e2f" stroke-width="1.2" stroke-dasharray="4 3"/>
+<line x1="320" y1="160" x2="455" y2="188" stroke="#9a3412" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.6"/>
+</svg>
+</div><figcaption>nprobe=2: scan cells B and C (nearest centroids), skip A and D. Risk: a true neighbor just inside A's border gets missed — the edge problem.</figcaption></figure>
+
+<h3>Parameters</h3>
+<ul>
+<li><code>nlist</code> — number of clusters. Rule of thumb ≈ √N. More cells = less to scan each, but more centroids to compare.</li>
+<li><code>nprobe</code> — cells scanned per query. The <strong>recall/speed dial</strong> (IVF's analogue of <code>ef</code>). Tunable live. <code>nprobe=1</code> fastest but misses border neighbors.</li>
+</ul>
+
+<h3>IVF vs HNSW</h3>
+<table>
+<tr><th></th><th>HNSW</th><th>IVF (flat)</th></tr>
+<tr><td>Structure</td><td>Layered proximity graph</td><td>k-means cells + inverted lists</td></tr>
+<tr><td>Build</td><td>Slow, no training</td><td>Needs k-means training</td></tr>
+<tr><td>Query</td><td>Fastest at high recall</td><td>Fast, slightly behind</td></tr>
+<tr><td>Memory</td><td><strong>Heavy</strong> (graph links)</td><td><strong>Light</strong> (centroids + assignments)</td></tr>
+<tr><td>Inserts / deletes</td><td>Expensive / awkward</td><td>Cheap / easy</td></tr>
+<tr><td>Dial</td><td><code>ef</code></td><td><code>nprobe</code></td></tr>
+</table>
+<div class="keypoint"><span class="boxlabel">When each dominates</span><strong>HNSW</strong> wins on recall-per-latency <em>when it fits in RAM</em> (most production RAG, up to tens of millions). <strong>IVF(+PQ)</strong> wins when RAM is the binding constraint and N is enormous (hundreds of millions to billions), or with high write/delete churn. They're different points on the memory-vs-quality frontier — which is why FAISS combines them.</div>
+</section>
+
+<section id="pq">
+<h2 class="sec"><span class="num">SECTION 06</span>Product Quantization (PQ)</h2>
+<p><strong>Problem:</strong> vectors are big. A 768-dim float32 = 3072 bytes; a billion = 3 TB, won't fit in RAM. PQ compresses each vector into a tiny code (e.g. 8 bytes).</p>
+
+<h3>How PQ encodes — the "product" trick</h3>
+<ol>
+<li><strong>Split</strong> each vector into <code>m</code> sub-vectors (768-dim, m=8 → 8 chunks of 96 dims).</li>
+<li><strong>Quantize each chunk</strong> with its own k-means (256 centroids per subspace, fits in 1 byte).</li>
+<li><strong>Vector → m bytes</strong> (the centroid ID per subspace). 3072 bytes → 8 bytes, ~380× compression.</li>
+</ol>
+<p>"Product" = the full approximation is the <em>Cartesian product</em> of per-subspace codebooks: m=8 subspaces × 256 options = 256⁸ ≈ 18 quintillion representable vectors, from only 8×256 stored centroids. Combinatorial power, tiny storage.</p>
+
+<h3>Search without decompressing — ADC</h3>
+<p><strong>Asymmetric Distance Computation:</strong> the query stays full-precision; database vectors are quantized (hence "asymmetric").</p>
+<ol>
+<li>Split the query into the same m sub-vectors.</li>
+<li>Build a lookup table: for each subspace, distance from the query's sub-vector to all 256 centroids → an 8×256 table. Cost: 2048 small distances, <strong>once per query</strong>.</li>
+<li>Score each database vector by its code: <code>table[0][42] + table[1][7] + ...</code> — m lookups + m adds. No per-vector distance math.</li>
+</ol>
+<p>Squared L2 is separable across dimension-chunks, so total distance = sum of per-subspace distances = sum of m table lookups. One vector: 768 multiply-adds → 8 lookups+adds (~50–100× faster) <em>plus</em> ~380× smaller.</p>
+
+<h3>Why PQ pairs with IVF (not HNSW)</h3>
+<ul>
+<li><strong>IVF + PQ are complementary:</strong> IVF answers "<em>which</em> vectors to look at" (prune by cell); PQ answers "how to store/compare each cheaply" (compress). Alone, IVF still stores fat vectors; alone, PQ must scan all N codes. Together (<strong>IVFPQ</strong>) = prune to a few cells <em>and</em> every vector is 8 bytes → billion-scale in RAM.</li>
+<li>IVFPQ stores the PQ code of the <strong>residual</strong> (vector minus cell centroid) — residuals are smaller/more similar within a cell, so PQ quantizes them more accurately. IVF gives PQ a better-conditioned input.</li>
+<li><strong>Why not PQ on HNSW:</strong> HNSW's greedy graph navigation needs <em>accurate</em> distances to pick the next hop; PQ's approximate distances make worse hops → recall degrades more than for IVF (where PQ only ranks an already-pruned shortlist). Also HNSW's real memory hog is the <em>links</em>, which PQ doesn't shrink. (<code>HNSWPQ</code> exists but the value is weaker.)</li>
+<li><strong>Why not PQ alone:</strong> works ("flat PQ") but scans all N codes — fine to a few million, want IVF's pruning beyond.</li>
+</ul>
+<div class="trap"><span class="boxlabel">What PQ costs</span>Recall — it's <em>lossy</em>. Standard fix: <strong>re-ranking</strong> — IVFPQ gets a coarse top-100 fast, then re-score those against the original full-precision vectors for an accurate top-10. Same coarse-then-exact philosophy as parent-child.</div>
+<pre><code><span class="kw">import</span> faiss
+quantizer = faiss.IndexFlatL2(d)
+index = faiss.IndexIVFPQ(quantizer, d, nlist, m, nbits)
+index.train(train_vec)   <span class="cm"># learns k-means centroids AND PQ codebooks</span>
+index.add(db_vec)        <span class="cm"># assigns to cells, stores PQ codes of residuals</span>
+index.nprobe = 16
+D, I = index.search(query, k=10)</code></pre>
+</section>
+
+<section id="lsh-kd">
+<h2 class="sec"><span class="num">SECTION 07</span>LSH &amp; KD-trees — the casualties of high dimensions</h2>
+
+<h3>LSH — Locality-Sensitive Hashing</h3>
+<p>Normal hashing scatters similar inputs apart; LSH does the opposite — hash functions where <strong>similar vectors collide on purpose</strong>. Hash the query, look only in its bucket.</p>
+<p><strong>Random hyperplane hashing</strong> (for cosine): a random hyperplane gives each vector 1 bit (which side). <code>b</code> hyperplanes → a b-bit signature; matching signatures = same bucket. Two vectors agree on a random plane with probability ∝ their angular closeness. Use <code>L</code> independent tables; a vector is a candidate if it collides in <em>any</em> table.</p>
+<ul>
+<li>Dials: <code>b</code> (bits/table — stricter buckets) and <code>L</code> (tables — more recall, more memory).</li>
+<li>Strengths: O(1) hashing, simple, distributable, trivial streaming inserts, strong theoretical guarantees.</li>
+<li>Weakness: needs many tables for HNSW-level recall → Pareto-dominated for dense embeddings.</li>
+<li><strong>Still alive for:</strong> extreme-scale distributed/streaming; and <strong>MinHash for Jaccard</strong> on sets (dedup, near-duplicate detection — used to dedupe LLM training corpora).</li>
+</ul>
+
+<h3>KD-tree — k-dimensional tree</h3>
+<p>Binary search generalized to space: recursively median-split, cycling axes (x, then y, then z…). Search descends to the query's leaf, then backtracks, pruning branches whose box is too far to contain anything closer.</p>
+<ul>
+<li><strong>Strength:</strong> <em>exact</em> NN and genuinely fast in <strong>low dimensions (≤ ~10–20)</strong> — geo, point clouds, small tabular k-NN.</li>
+<li><strong>Fatal weakness — curse of dimensionality:</strong> as dims grow, almost everything is roughly equidistant, the splitting planes stop separating near from far, pruning fails, and search degrades to ~O(N) (worse than brute force with overhead). At 768/1536 dims, useless.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">The unifying thread</span>KD-trees fail because exact spatial-partitioning pruning dies in high dimensions. LSH and the graph/cluster methods (HNSW, IVF) <em>survive</em> precisely because they're <strong>approximate</strong> and don't rely on clean geometric partitioning. "Why not a KD-tree for embeddings?" → <em>curse of dimensionality</em>; pruning becomes ineffective so it degenerates to a linear scan.</div>
+</section>
+
+<section id="complexity">
+<h2 class="sec"><span class="num">SECTION 08</span>Complexity table, decoded</h2>
+<p>N = vectors, d = dims, M = HNSW links/node, nlist = IVF clusters, nprobe = cells scanned.</p>
+<table>
+<tr><th>Algorithm</th><th>Build</th><th>Query</th><th>Memory</th></tr>
+<tr><td>Flat (exact)</td><td>O(1)</td><td>O(Nd)</td><td>O(Nd)</td></tr>
+<tr><td>HNSW</td><td>O(N log N · M)</td><td>O(log N · efSearch)</td><td>O(Nd + <strong>NM</strong>)</td></tr>
+<tr><td>IVF</td><td>O(N · kmeans_iters)</td><td>O(nprobe · N/nlist · d)</td><td>O(Nd + nlist·d)</td></tr>
+<tr><td>IVF-PQ</td><td>+ PQ train</td><td>same as IVF</td><td>O(<strong>N · code_bytes</strong>)</td></tr>
+</table>
+<ul>
+<li><strong>Flat query O(Nd):</strong> compare to all N vectors, each costs d. <strong>Memory O(Nd):</strong> store all vectors.</li>
+<li><strong>HNSW query O(log N · efSearch):</strong> ~log N hops, examining efSearch candidates each. <strong>Memory +NM</strong> = the graph links (N nodes × M links) — HNSW's memory tax.</li>
+<li><strong>IVF query:</strong> scan nprobe cells, each holding ~N/nlist vectors, each costing d. <strong>Memory + nlist·d</strong> = the centroids (tiny vs HNSW's NM).</li>
+<li><strong>IVF-PQ memory N · code_bytes:</strong> the <code>Nd</code> term <em>vanishes</em> — no full vectors stored, only compact codes. The billion-scale-in-RAM win.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">The two cells to memorize</span>HNSW memory has <strong>+ NM</strong> (heavy graph links). IVF-PQ is <strong>N · code_bytes</strong> with <em>no Nd</em> (vectors compressed away). That single contrast is the entire HNSW-vs-IVFPQ story: speed/recall vs. RAM.</div>
+</section>
+
+<section id="matryoshka">
+<h2 class="sec"><span class="num">SECTION 09</span>Matryoshka embeddings &amp; dimension truncation</h2>
+<p><strong>text-embedding-3-small</strong> (1536-dim) and <strong>-large</strong> (3072-dim) support Matryoshka-style truncation via the <code>dimensions</code> parameter — you can shorten a vector (e.g. 1536→512) with only minor quality loss. Matryoshka training packs the most important information into the leading dimensions, so prefixes remain useful embeddings on their own. Lets you trade a little accuracy for big memory/speed savings without re-embedding.</p>
+</section>
+
+<!-- ============ RETRIEVAL MECHANICS ============ -->
+<section id="hybrid">
+<h2 class="sec"><span class="num">SECTION 10 — RETRIEVAL MECHANICS</span>Hybrid retrieval &amp; fusion</h2>
+<p>Combine <strong>BM25 (lexical)</strong> and <strong>vector (semantic)</strong> first-stage retrieval. The 2026 default for text because each catches what the other misses:</p>
+<ul>
+<li><strong>BM25</strong> nails exact tokens vector search mangles: acronyms, SKUs, error codes, dollar thresholds, clause names.</li>
+<li><strong>Vector</strong> catches paraphrased questions where wording doesn't match the document.</li>
+</ul>
+<p>Fuse the two ranked lists with <strong>Reciprocal Rank Fusion (RRF)</strong> — parameter-free, robust, combines by <em>rank position</em> without needing to tune a weight between two incomparable score scales. The production-default fusion method.</p>
+</section>
+
+<section id="tfidf-bm25">
+<h2 class="sec"><span class="num">SECTION 11</span>TF-IDF &amp; BM25</h2>
+<h3>TF-IDF</h3>
+<p>Score per term per document = <strong>TF × IDF</strong>, summed over query terms.</p>
+<ul>
+<li><strong>TF</strong> — term frequency in <em>this</em> doc (how much it's about the term).</li>
+<li><strong>IDF</strong> — rarity across all docs. The log lives here:</li>
+</ul>
+<div class="formula">IDF(t) = log( N / df(t) )</div>
+<p>N = total docs, df(t) = docs containing t. <strong>Why the log:</strong> without it, IDF grows linearly and over-rewards ultra-rare terms; the log compresses that. A term in every doc → N/df=1 → log(1)=0 → contributes nothing. High TF-IDF = frequent <em>here</em>, rare <em>elsewhere</em> = distinctive.</p>
+
+<h3>BM25 — TF-IDF with two fixes</h3>
+<p>Same skeleton (TF-part × IDF-part, summed), with two corrections. The "weird terms" are the knobs implementing them.</p>
+<div class="formula">BM25(t,d) = IDF(t) ·
+<span class="frac"><span class="top">f · (k1 + 1)</span><span class="bot">f + k1 · (1 − b + b · |d|/avgdl)</span></span></div>
+<ul>
+<li><strong>Fix 1 — TF saturates</strong> (via <code>k1</code>, ~1.2–2.0): repeated terms hit diminishing returns instead of growing linearly. Spamming a keyword stops helping. <em>The biggest behavioral difference.</em></li>
+<li><strong>Fix 2 — length normalization</strong> (via <code>b</code>, ~0.75): documents longer than <code>avgdl</code> get discounted so they don't win just by being long. <code>b=0</code> ignores length, <code>b=1</code> full normalization.</li>
+</ul>
+<div class="interview"><span class="boxlabel">Interview line</span>"BM25 is TF-IDF with two corrections: term frequency saturates so spamming a keyword stops helping, and it normalizes for document length so long docs don't win by length alone. <strong>k1</strong> tunes saturation, <strong>b</strong> tunes the length penalty. That's why BM25 is the production default — the fixes match how relevance actually behaves."</div>
+</section>
+
+<section id="elastic">
+<h2 class="sec"><span class="num">SECTION 12</span>Elasticsearch &amp; Apache Lucene</h2>
+<p><strong>Elasticsearch</strong> is fundamentally a <strong>BM25 lexical/full-text search engine</strong> (and distributed document store) — <em>not</em> natively a hybrid. It dominated full-text search for over a decade (site search, e-commerce, the <strong>ELK stack</strong> for logs). Modern versions (8.x+) <em>added</em> dense vector + ANN (HNSW), so you <em>can</em> now do BM25+vector hybrid in it — but its DNA is keyword search, vectors bolted on later.</p>
+<ul>
+<li>Shows up in JDs because it's everywhere as infrastructure (logging, search, analytics, now RAG backend). "Elasticsearch experience" often means "we run a big search/logging system."</li>
+<li>vs. dedicated vector DBs: native vector DBs can be leaner for pure-vector workloads; Elasticsearch's pitch is mature lexical + vector + filtering in one scalable system you may already run.</li>
+<li><strong>OpenSearch</strong> = the open-source fork after a license change; often interchangeable in JDs.</li>
+</ul>
+<h3>Apache Lucene</h3>
+<p>The foundational <strong>Java search library</strong> — the actual engine that builds the inverted index, runs BM25, and (now) stores vectors + HNSW. Not run alone; products are built on it. <strong>Lucene is the engine; Elasticsearch / OpenSearch / Solr are the distributed cars built around it.</strong> When people say Elasticsearch "is BM25 under the hood," that implementation literally <em>is</em> Lucene.</p>
+</section>
+
+<section id="crossencoder">
+<h2 class="sec"><span class="num">SECTION 13</span>Cross-encoder reranking</h2>
+<p>Example model: <code>cross-encoder/ms-marco-MiniLM-L-6-v2</code> — the standard reranker baseline.</p>
+<h3>Architecture</h3>
+<p>A <strong>distilled BERT (MiniLM)</strong>: 6 transformer layers ("L-6"), hidden size 384, ~22M params — small/fast by design. The defining cross-encoder property is the <em>input</em>:</p>
+<pre><code>[CLS] query tokens [SEP] document tokens [SEP]
+   → 6 MiniLM layers (joint self-attention)
+   → take [CLS] final hidden state
+   → linear head → single relevance score</code></pre>
+<p>Query and doc are concatenated into <strong>one sequence</strong>, so self-attention runs across both <em>jointly</em> at every layer — the model sees them <em>interacting</em>. That's why cross-encoders are far more accurate than bi-encoders (which encode separately, compare only at the end).</p>
+<table>
+<tr><th></th><th>Bi-encoder (retrieval)</th><th>Cross-encoder (rerank)</th></tr>
+<tr><td>Input</td><td>query &amp; doc separately</td><td>concatenated, together</td></tr>
+<tr><td>Output</td><td>two vectors → cosine</td><td>one relevance scalar</td></tr>
+<tr><td>Interaction</td><td>none until the end</td><td>full attention every layer</td></tr>
+<tr><td>Speed / use</td><td>fast, retrieve over millions</td><td>slow, rerank a shortlist</td></tr>
+</table>
+<p>Can't precompute (needs both inputs together) → can't run over the whole corpus → used as a <strong>reranker</strong> on ~20–50 candidates: retrieve cheap with bi-encoder, rerank precise with cross-encoder.</p>
+<h3>Training &amp; fine-tuning</h3>
+<ul>
+<li><strong>Base:</strong> MiniLM pretrained by <em>distillation</em> (student mimics a larger BERT/RoBERTa).</li>
+<li><strong>Reranker fine-tune:</strong> on <strong>MS MARCO</strong> (real Bing queries + relevant/irrelevant passages) → the scalar learns "relevance."</li>
+<li><strong>Adapting to your domain:</strong> continue-train the ms-marco checkpoint on domain triplets <code>(query, positive, negative)</code> — crucially with <strong>hard negatives</strong> (topically similar but irrelevant). Random negatives teach little.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">When to fine-tune vs use off-the-shelf</span>Off-the-shelf ms-marco generalizes well — a fully defensible default. Fine-tune when the general model <strong>can't tell your relevant chunks from your hard negatives</strong> — i.e. when <em>domain-specific relevance distinctions</em> are too subtle (e.g. a current rule vs a superseded near-identical one). The trigger is confusion about <em>what "relevant" means in your domain</em>, not ranking precision.</div>
+<div class="trap"><span class="boxlabel">Reranker as filter vs ranker</span>Using it to get the right chunks into a tight top-5–8 is <em>set selection</em> (precision filter), subtly different from fine-grained ordering. Within that small set, order matters <em>less</em> (the LLM reads all of them) but not zero — <strong>position bias / "lost in the middle"</strong> means the single most decisive chunk still belongs near the top. Say "ranking mattered less than set-membership <em>for my config</em>," never "ranking didn't matter."</div>
+</section>
+
+<section id="infonce">
+<h2 class="sec"><span class="num">SECTION 14</span>InfoNCE</h2>
+<p><strong>Info</strong>rmation <strong>N</strong>oise-<strong>C</strong>ontrastive <strong>E</strong>stimation. The CE traces to Noise-Contrastive Estimation, and in practice it's a <strong>cross-entropy over similarity scores</strong> — pulling a positive pair together against a set of negatives. The standard contrastive loss for training embedding models.</p>
+</section>
+
+<!-- ============ RAG ARCHITECTURES ============ -->
+<section id="patterns">
+<h2 class="sec"><span class="num">SECTION 15 — RAG ARCHITECTURES</span>Beyond-naive patterns: HyDE → GraphRAG</h2>
+<p class="lead">Each pattern fixes a different failure mode of naive RAG. Frame each as "naive RAG fails when X → the pattern addressing X is Y."</p>
+
+<h4>HyDE — Hypothetical Document Embeddings</h4>
+<p><strong>Fixes:</strong> query≠answer embedding gap (questions are phrased unlike the text answering them). <strong>How:</strong> LLM hallucinates a fake answer; embed <em>that</em> (not the query) for retrieval. The fake answer, even if wrong, sits near real answers in embedding space — matching answer-to-answer. <strong>Cost:</strong> one extra LLM call; fails if the model can't even fake a plausible answer.</p>
+
+<h4>RAPTOR — Recursive Abstractive Processing for Tree-Organized Retrieval</h4>
+<p><strong>Fixes:</strong> chunks lose the big picture. <strong>How:</strong> at index time, cluster chunks → summarize each cluster → cluster the summaries → summarize again, recursively → a tree. Index every level; detail questions hit leaf chunks, thematic questions hit summary nodes. <strong>Cost:</strong> expensive to build (lots of summarization); summaries can drift. For corpora with both granular and synthesis questions.</p>
+
+<h4>Self-RAG — Self-Reflective RAG</h4>
+<p><strong>Fixes:</strong> always retrieves &amp; always trusts results. <strong>How:</strong> model emits <em>reflection tokens</em> to (1) decide whether to retrieve at all, (2) judge each passage's relevance, (3) check whether its output is actually supported by evidence (self-grounding). Can re-retrieve or discard. <strong>Cost:</strong> more calls; the "is this supported?" step is the gold.</p>
+
+<h4>CRAG — Corrective RAG</h4>
+<p><strong>Fixes:</strong> the bad-retrieval case specifically. <strong>How:</strong> a retrieval evaluator scores the set Correct / Ambiguous / Incorrect, then branches — Correct → refine &amp; use; Incorrect → <strong>fall back to web search</strong>; Ambiguous → both. <strong>Distinction from Self-RAG:</strong> Self-RAG reflects on its own <em>generation</em>; CRAG corrects the <em>retrieval</em> with an external safety net.</p>
+
+<h4>GraphRAG</h4>
+<p><strong>Fixes:</strong> can't connect facts across documents (multi-hop, global "connect-the-dots"). <strong>How:</strong> at index time an LLM extracts entities + relationships → a knowledge graph; clusters into communities with pre-made summaries. Query traverses the graph / uses community summaries. <strong>Cost:</strong> expensive to build, quality depends on extraction. For investigations, compliance, richly interconnected KBs. Overkill for simple lookup.</p>
+
+<table>
+<tr><th>Pattern</th><th>Fixes</th><th>Acts at</th></tr>
+<tr><td>HyDE</td><td>query≠answer embedding gap</td><td>pre-retrieval (query side)</td></tr>
+<tr><td>RAPTOR</td><td>chunks lose the big picture</td><td>indexing (summary tree)</td></tr>
+<tr><td>Self-RAG</td><td>blind retrieve + blind trust</td><td>reflection (own generation)</td></tr>
+<tr><td>CRAG</td><td>bad retrieval has no recovery</td><td>post-retrieval (correct + fallback)</td></tr>
+<tr><td>GraphRAG</td><td>can't connect facts across docs</td><td>indexing (knowledge graph)</td></tr>
+</table>
+</section>
+
+<section id="agentic">
+<h2 class="sec"><span class="num">SECTION 16</span>Agentic RAG</h2>
+<p><strong>Core intuition:</strong> everything above is a <em>fixed pipeline</em> — the path is designed at build time (even Self-RAG's reflection is a scripted checkpoint). Agentic RAG replaces the fixed pipeline with <strong>an LLM that decides what to do at each step</strong> in a loop. The control flow is generated at runtime by the model. <em>Traditional RAG follows a path you designed; agentic RAG decides the path as it goes.</em></p>
+<h3>What the loop unlocks</h3>
+<ul>
+<li><strong>Multi-step / iterative retrieval</strong> — retrieve, see what's missing, retrieve again with a refined query (the big one; impossible single-shot).</li>
+<li><strong>Query decomposition</strong> — break a compound question into sub-questions, retrieve each, synthesize.</li>
+<li><strong>Tool/source routing</strong> — choose vector DB vs SQL vs web vs calculator per sub-task.</li>
+<li><strong>Self-correction</strong> — change strategy on failure, not just flag it.</li>
+</ul>
+<h3>Tradeoffs — it is NOT strictly better</h3>
+<table>
+<tr><th></th><th>Fixed pipeline</th><th>Agentic</th></tr>
+<tr><td>Control flow</td><td>fixed, you design it</td><td>LLM decides at runtime</td></tr>
+<tr><td>Latency / cost</td><td>low, predictable</td><td>high, variable (N loops)</td></tr>
+<tr><td>Debuggability</td><td>easy (fixed path)</td><td>hard (non-deterministic)</td></tr>
+<tr><td>Failure mode</td><td>bad answer</td><td>loops, wrong tool, runaway cost</td></tr>
+<tr><td>Best for</td><td>simple single-hop</td><td>complex multi-hop / multi-source</td></tr>
+</table>
+<div class="keypoint"><span class="boxlabel">Decision rule + the trap</span>Match architecture to query complexity. Simple/homogeneous/latency-sensitive → pipeline. Complex/multi-source/quality-over-speed → agentic. Mature systems use a <strong>router</strong> sending easy queries to a cheap pipeline and hard ones to the agent. Trap: "if it's more capable, why not use it for everything?" → cost, latency, debuggability, and capability is <em>wasted</em> on simple queries. The earlier patterns become <em>tools the agent can choose to invoke</em>; CRAG's web-fallback is one hardcoded agentic decision that agentic RAG generalizes.</div>
+</section>
+
+<!-- ============ EVALUATION ============ -->
+<section id="metrics-rank">
+<h2 class="sec"><span class="num">SECTION 17 — EVALUATION</span>MRR &amp; nDCG@k</h2>
+<p>Both measure "did the good stuff land near the top," with different assumptions.</p>
+<h3>MRR — Mean Reciprocal Rank</h3>
+<p>Assumes <strong>one</strong> right answer. Find the rank of the first relevant result, take its reciprocal, average over queries.</p>
+<div class="formula">MRR = (1/Q) · Σ ( 1 / rank_of_first_relevant )</div>
+<p>Rank 1 → 1.0, rank 2 → 0.5, rank 3 → 0.33, not found → 0. Ignores everything after the first hit. Use for binary/singular relevance (factoid QA).</p>
+<h3>nDCG — Normalized Discounted Cumulative Gain</h3>
+<p>Assumes <strong>graded</strong> relevance and that all top-k positions matter with diminishing weight. The primary metric for <em>reranking</em>.</p>
+<div class="formula">DCG@k = Σ<sub>i=1..k</sub> ( rel<sub>i</sub> / log₂(i + 1) )</div>
+<div class="formula">nDCG@k = DCG@k / IDCG@k</div>
+<ol>
+<li><strong>Gain</strong> = each result's graded relevance (e.g. 0–3).</li>
+<li><strong>Discount</strong> = divide by log₂(rank+1): rank 1 divisor = log₂(2)=1 (full credit), rank 2 = log₂(3)≈1.585 (discounted)…</li>
+<li><strong>IDCG</strong> = DCG of the perfect ordering; <strong>normalize</strong> → 0 to 1, comparable across queries.</li>
+</ol>
+<div class="intuition"><span class="boxlabel">One-line split</span>MRR = "how high is the <em>first</em> good one" (binary, single answer). nDCG = "how good is the <em>whole ordering</em>" (graded, all positions). For reranking, lead with nDCG; graded labels are what make it meaningful (with binary labels it collapses toward simpler metrics).</div>
+<div class="trap"><span class="boxlabel">The real hard part</span>The metrics are trivial arithmetic. The engineering is <strong>getting the relevance labels</strong> — you <em>author</em> the relevance definition (e.g. a 0–3 rubric with examples). Lead an interview answer with "first I'd build a labeled eval set, here's how," not the nDCG formula.</div>
+</section>
+
+<section id="metrics-context">
+<h2 class="sec"><span class="num">SECTION 18</span>Contextual precision &amp; recall</h2>
+<p>RAGAS-style metrics judging the <em>retrieved set</em>; used here via the <strong>DeepEval</strong> library (RAGAS definitions). LLM-judged — the judge decides relevance against the expected answer.</p>
+
+<h3>Contextual recall — "did I get everything?"</h3>
+<p>Of the information the correct answer needs, how much is in the retrieved chunks. Computed by breaking the <strong>ground-truth answer</strong> into claims and checking the fraction supported by retrieved context.</p>
+<div class="formula">recall = (reference-answer claims supported by context) / (total claims)</div>
+
+<h3>Contextual precision — "is the good stuff ranked high?"</h3>
+<p>Whether relevant chunks appear <em>above</em> irrelevant ones. <strong>Rank-aware by design</strong> (mechanically like Average Precision / MAP).</p>
+<h4>Worked precision example</h4>
+<p>Retrieved 5 chunks, relevance: rank1=1, rank2=0, rank3=1, rank4=1, rank5=0. Precision@k only at ranks holding a relevant chunk:</p>
+<ul>
+<li>rank 1: 1/1 = 1.00 · rank 3: 2/3 = 0.67 · rank 4: 3/4 = 0.75</li>
+<li>Average over the 3 relevant positions: (1.00+0.67+0.75)/3 = <strong>0.81</strong></li>
+</ul>
+<p>Each relevant chunk's contribution = "how clean is the list up to and including me." Relevant-near-top → high precision@k; relevant-buried-below-junk → low. Same chunks in worse order → lower score.</p>
+
+<h3>Why rank-aware? And do we always need it?</h3>
+<p>Built rank-aware because retrieval feeds a <strong>position-sensitive LLM</strong> — the "lost in the middle" effect means a buried relevant chunk underperforms a top one. The metric predicts <em>generation</em> quality, not just retrieval correctness.</p>
+<div class="keypoint"><span class="boxlabel">2026 nuance</span>Rank-awareness is a hedge against LLM position-sensitivity; its importance scales with (a) how position-sensitive the model is and (b) how large the retrieved set is. For a small top-5–8 fed to a strong long-context model <em>after a reranker</em>, order matters <em>less</em> — a precision-as-filter framing is defensible. It scales back up the moment you widen k or use a more position-sensitive model. Say "ranking mattered less <em>for my config</em>," not "ranking doesn't matter."</div>
+
+<h3>The recall critique (and why it's valid)</h3>
+<p>RAGAS recall measures against the <strong>reference answer's claims, NOT the complete relevant-document set</strong> in your DB. So it conflates two different failures:</p>
+<ol>
+<li>Relevant chunk <em>exists in DB</em> but retrieval missed it → true retrieval failure (should be penalized). ✓</li>
+<li>Information <em>was never in the corpus</em> → still penalized, though retrieval did all it could. ✗ — a corpus-coverage gap blamed on retrieval.</li>
+</ol>
+<div class="interview"><span class="boxlabel">The defensible framing</span>"RAGAS recall is measured against the reference answer, so a corpus gap is penalized like a retrieval miss. <strong>True retriever recall needs the complete relevant-set labels, infeasible at 10–20K docs.</strong> So rather than a recall metric whose semantics didn't match what I wanted, I used contextual precision and graded nDCG — which I could compute rigorously." Don't say "recall is impractical"; say "this <em>operationalization</em> conflated corpus coverage with retrieval, and true recall needs labels I couldn't build."</div>
+</section>
+
+<section id="faithfulness">
+<h2 class="sec"><span class="num">SECTION 19</span>Faithfulness</h2>
+<p>A <strong>generation</strong> metric (nDCG/precision were retrieval metrics): <em>is every claim in the answer supported by the retrieved context?</em> Catches within-RAG hallucination — retrieval was fine but the model invented beyond the source.</p>
+<p><strong>Critical:</strong> faithfulness does NOT measure correctness — only grounding-in-context. An answer can be faithful-but-wrong (context was wrong) or correct-but-unfaithful (used parametric knowledge the context lacked).</p>
+<h3>How it's computed (LLM-judge, two steps)</h3>
+<ol>
+<li><strong>Claim decomposition</strong> — judge breaks the answer into atomic claims.</li>
+<li><strong>Verification</strong> — for each claim, can it be inferred from the retrieved context? yes/no.</li>
+</ol>
+<div class="formula">faithfulness = (claims supported by context) / (total claims)</div>
+<p>It's the rigorous version of a cosine-similarity grounding proxy — claim-level entailment catches paraphrased support that similarity misses.</p>
+<h3>Golden set — cheaper than for retrieval</h3>
+<p><strong>Reference-free:</strong> measured against the <em>retrieved context</em>, not a human ideal answer. A test case needs only: <code>input</code> (query), <code>actual_output</code> (what the system generated), <code>retrieval_context</code> (chunks actually retrieved). No expected-answer labels. So it's just representative queries + your system's real runtime outputs.</p>
+<ul>
+<li><strong>Stratify for coverage</strong> — include hard/compound/ambiguous cases; hallucination concentrates there, so an all-easy set reports a falsely rosy number.</li>
+<li><strong>Include "context doesn't contain the answer" cases</strong> — highest value; check the model <em>abstains</em> rather than confabulates.</li>
+<li><strong>Use real retrieved contexts</strong>, not idealized ones.</li>
+<li><strong>Always pair with answer relevancy</strong> — faithfulness alone is gameable (answer "I can't determine this" to everything → trivially faithful). High faithfulness + high relevancy is the target.</li>
+</ul>
+</section>
+
+<section id="goldenset">
+<h2 class="sec"><span class="num">SECTION 20</span>Golden sets, LLM judges &amp; the labeling pyramid</h2>
+<p>To compute any of these metrics you need relevance/quality labels. Three sources, a pyramid where each tier checks the one below:</p>
+<ol>
+<li><strong>Human annotation (gold standard / anchor)</strong> — ~100–300 representative queries graded on your rubric (e.g. 3=perfect, 2=relevant, 1=related, 0=irrelevant, with examples). Trusted, but doesn't scale. You <em>author</em> the rubric — relevance is operationally defined, not handed to you.</li>
+<li><strong>LLM-as-judge (scale)</strong> — a strong model grades against the same rubric, scaling to thousands of queries. <em>Must</em> be calibrated against the human core (~20–30 cases), and watch for position/length/self-preference bias. The reference-free design (esp. for recall/faithfulness) is what lets a judge work at all.</li>
+<li><strong>Implicit production signals (free, noisy)</strong> — clicks, dwell, accepted answers, 👍/👎, rephrasings. Massive scale but heavy <strong>position bias</strong> — needs debiasing.</li>
+</ol>
+<h3>Why LLM judges over human labels?</h3>
+<p>Scale: human labeling can't run as an automated regression gate on every change. But human labels are more trustworthy in specialized domains (an LLM judge may miss that two near-identical clauses differ decisively). The mature answer is <strong>both</strong>: human core to calibrate, LLM judge to extend coverage — each covering the other's weakness.</p>
+<h3>The operating loop</h3>
+<pre><code>golden set (human-labeled, frozen)
+  ├─ offline: nDCG@k / precision gate on every change
+  │            (beat retriever-only baseline, no regression)
+  ├─ LLM judge (calibrated) scales to 1000s of queries
+  └─ ship behind A/B → online: acceptance, 👍, rephrase rate
+            └─ log implicit signals → grow next golden set → repeat</code></pre>
+<div class="trap"><span class="boxlabel">Two truths</span>(1) Evaluate at the <strong>k that reaches the user</strong> — nDCG@5 if the LLM gets 5 chunks; nDCG@100 is academic. (2) Better retrieval metrics ≠ better answers — track the retrieval metric <em>and</em> the end-to-end answer metric; trust the second when they disagree (a reranker can lift nDCG without moving answer quality if retrieval wasn't the bottleneck).</div>
+</section>
+
+<!-- ============ SYSTEMS & FRONTIER ============ -->
+<section id="loaders">
+<h2 class="sec"><span class="num">SECTION 21 — SYSTEMS &amp; FRONTIER</span>Document loaders</h2>
+<p>Ingestion quality caps everything downstream. Key gotchas from the LangChain loader taxonomy:</p>
+<ul>
+<li><strong>.md / Markdown loader</strong> — preserves headers as metadata; use it (great for sectioned docs → structure-aware chunking + better citations).</li>
+<li><strong>.pdf text-based</strong> — PyPDFLoader; <strong>tables get linearized</strong> (the big risk, see §22).</li>
+<li><strong>.pdf scanned</strong> — Unstructured + Tesseract OCR; slow, OCR errors compound.</li>
+<li><strong>.pdf complex layout</strong> — <strong>Docling</strong> (IBM) is the 2026 open-source winner for tables; LlamaParse paid.</li>
+<li><strong>HTML/web</strong> — strip nav/ads or they pollute every chunk.</li>
+<li><strong>.docx</strong> — tracked changes can leak.</li>
+<li><strong>Code</strong> — language-specific splitter (<code>RecursiveCharacterTextSplitter.from_language</code>).</li>
+</ul>
+<p>When converting HTML→Markdown, tables become detectable pipe-delimited blocks (<code>| col | col |</code>), so you can isolate them programmatically.</p>
+</section>
+
+<section id="tables">
+<h2 class="sec"><span class="num">SECTION 22</span>Handling tables in RAG</h2>
+<p><strong>Why plain text/Markdown loaders fail tables:</strong> they <em>linearize</em> a grid into a token stream, destroying row/column structure. <code>Azure 15% $25,000 M365 10% $10,000</code> — the model can attach "15%" to the wrong product. In pricing/policy data that's a <em>correctness-critical</em> failure, and it happens at <em>ingestion</em>, before any reranker can help.</p>
+<h3>Table summarization for retrieval (multi-vector pattern)</h3>
+<p>The strong technique: extract each table as its own chunk, generate a <strong>natural-language summary</strong> with a small LLM, and index the <em>summary</em> for retrieval. A recognized best practice (LangChain <code>MultiVectorRetriever</code>) — the "index a summary, retrieve the original" idea.</p>
+<ul>
+<li><strong>Why:</strong> a raw grid of numbers embeds terribly (no semantic signal); a NL summary embeds richly and matches the query's phrasing. Decouples the match-friendly representation from the data-holding one — same parent-child philosophy.</li>
+<li><strong>Small LLM</strong> for summarization is fine on cost (bounded simple task).</li>
+</ul>
+<div class="trap"><span class="boxlabel">The crux question</span>What is passed to <em>generation</em> — the summary or the original table? <strong>Index the summary for retrieval, but pass the ORIGINAL table to the LLM for answering.</strong> A summary is a lossy compression; answering a precise threshold question from a paraphrase reintroduces the error you were avoiding. Retrieve on the summary, ground on the real numbers.</div>
+</section>
+
+<section id="citations">
+<h2 class="sec"><span class="num">SECTION 23</span>How citations actually work</h2>
+<p>Not magic — engineered provenance + a forced reference. Two halves:</p>
+<h3>Half 1 — Provenance tracking (system, deterministic)</h3>
+<p>Every chunk carries its metadata from creation: <code>chunk_id, text, embedding, {source, url, page, section, effective_date}</code>. Retrieval returns these full records, so the system <em>already knows</em> "this chunk came from page 14." A foreign key following the data — no intelligence needed. This is why metadata storage matters.</p>
+<h3>Half 2 — Getting the model to cite (prompt + parse)</h3>
+<ul>
+<li><strong>A — labeled context:</strong> inject chunks with IDs (<code>[1] (source, p.14): ...</code>), tell the model to cite the number; parse the <code>[1]</code> out and resolve to the real source. The model produces a pointer; your code resolves it.</li>
+<li><strong>B — structured output:</strong> model returns JSON <code>{answer, citations:[{claim, source_id}]}</code>. Cleaner to parse; the production default.</li>
+<li><strong>C — post-hoc attribution:</strong> model writes answer with no citations, a second pass attributes each sentence to its supporting chunk (similarity or LLM-judge). Independent verification.</li>
+</ul>
+<div class="trap"><span class="boxlabel">The honest catch</span>With A/B the model <em>chooses</em> which label to attach — and can attach the wrong one. The metadata is always correct (deterministic); <em>which</em> chunk the model points at is a fallible generation. Rigorous systems add a verification layer (does chunk [1] actually entail the claim?). Mental model: <strong>citation = deterministic provenance (always correct) + model's pointer choice (fallible) + parse-resolve (deterministic)</strong>. The metadata never lies; the pointer choice is the only soft link.</div>
+</section>
+
+<section id="ragtraining">
+<h2 class="sec"><span class="num">SECTION 24</span>RAG-aware training</h2>
+<p>Modern models <em>are</em> explicitly trained to use injected context better, not just rely on parametric memory:</p>
+<ul>
+<li><strong>SFT on RAG-shaped data</strong> — examples of (query + context → grounded answer); learns the behavior of answering <em>from</em> passages (RankRAG, RA-DIT).</li>
+<li><strong>Teaching the refusal case</strong> — negative examples where context <em>lacks</em> the answer, target = "the context doesn't answer this." Trains the "say I don't know" behavior into weights.</li>
+<li><strong>Preference alignment (DPO/RLHF)</strong> — faithful-to-context responses preferred over parametric-drift/hallucination.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">The subtle target</span>"Context as absolute ground truth" is <em>deliberately not</em> the goal — that makes the model trivially manipulable by bad retrieval / prompt injection and unable to flag wrong/stale context. The real target is <strong>faithful use of context while retaining judgment</strong> (the open "knowledge conflict" problem: what when context contradicts what the model knows?). It reduces but doesn't eliminate hallucination — which is why an external grounding/verification layer is still worth keeping.</div>
+</section>
+
+<section id="redis">
+<h2 class="sec"><span class="num">SECTION 25</span>Redis &amp; caching</h2>
+<p><strong>RE</strong>mote <strong>DI</strong>ctionary <strong>S</strong>erver — an in-memory key-value store: a fast, shared, networked dictionary. Two defining properties:</p>
+<ul>
+<li><strong>In-memory</strong> → microsecond reads (no disk seek); RAM-limited and (by default) volatile → for data you want <em>fast</em> and can afford to lose/regenerate.</li>
+<li><strong>A server</strong> → many app instances hit one shared store, persistent across restarts (beats an in-process dict that dies with the process and isn't shared).</li>
+</ul>
+<p><strong>Complexity:</strong> easy to use (<code>r.set(k, v, ex=3600)</code> — the <code>ex</code> TTL auto-expiry is 80% of caching value), one-command setup (<code>docker run redis</code>), no schema. The "complicated" reputation is <em>production ops</em> (clustering, replication, failover, eviction tuning), not using it.</p>
+<h3>When you need it (AI/RAG)</h3>
+<ul>
+<li><strong>Semantic / LLM response caching (the big one)</strong> — cache answers to repeated questions. Exact-match (same query string) or <em>semantic</em> (embed query, return a cached answer if similar enough). Cuts LLM cost + latency on hot queries.</li>
+<li><strong>Embedding cache</strong> — <code>text → embedding</code>, avoid re-embedding.</li>
+<li><strong>Rate limiting / session state / general app caching</strong> — why it's in every JD.</li>
+</ul>
+<div class="trap"><span class="boxlabel">The hard part: invalidation</span>Caching is an optimization you add when a specific repeated-cost shows up — not "because best practice." And in a policy/correctness domain, a stale cached answer = serving a wrong (superseded) rule. So caching <em>must</em> include <strong>TTL + invalidation tied to document updates</strong>. Caching the right thing is easy; knowing <em>when to throw the cache away</em> is the senior signal.</div>
+</section>
+
+<section id="websearch">
+<h2 class="sec"><span class="num">SECTION 26</span>Web search &amp; deep research as RAG</h2>
+<p>Web search <em>is</em> a (mildly agentic, live) RAG; deep research <em>is</em> a fully agentic multi-hop RAG. The skeleton is identical; every <em>corpus assumption</em> changes.</p>
+<table>
+<tr><th></th><th>Closed-corpus RAG</th><th>Web search</th></tr>
+<tr><td>Corpus / index</td><td>your docs, you build the index</td><td>the internet; index outsourced to a search engine</td></tr>
+<tr><td>Retrieval</td><td>your hybrid BM25+vector</td><td>a search API call (Bing/Google/Exa/Tavily)</td></tr>
+<tr><td>Trust</td><td>curated, trusted</td><td>unknown, adversarial</td></tr>
+</table>
+<h3>Web-search flow</h3>
+<p>(1) LLM formulates a query → (2) search API returns ranked URLs+snippets → (3) <em>fetch</em> promising pages, strip HTML to text → (4) inject as context → (5) generate with URL citations. Often still single-shot.</p>
+<h3>Deep research</h3>
+<p>Plan → decompose into sub-questions → iterative search loops (search, read, decide next search from what was learned) → read full pages → synthesize a long cited report → self-direct until done. = web RAG + agentic planning + multi-hop + long-form synthesis. Minutes and many calls = the agentic tax, paid deliberately.</p>
+<h3>The trust problem (the core, unsolved issue)</h3>
+<p>In closed-corpus RAG, retrieving the right chunk means it's correct <em>by assumption</em>. On the open web, <strong>retrieval succeeding tells you nothing about truth.</strong> Two separate failures: retrieval failure vs. <em>source corruption</em> (found perfectly, but wrong/biased/satire/propaganda/SEO-spam/fabricated).</p>
+<ul>
+<li><strong>Unknown source reliability</strong> — paper, Reddit comment, content farm all return as "results." Mitigated by domain authority, cross-corroboration, recency — heuristics, not guarantees.</li>
+<li><strong>SEO manipulation / adversarial content</strong> — the web is adversarially optimized; AI-generated slop now floods it (slop citing slop).</li>
+<li><strong>Indirect prompt injection</strong> — a fetched page can contain "ignore previous instructions…"; the agent reads attacker-controlled text and may act on it. Larger attack surface the more autonomous the agent. Not solved — mitigations: treat fetched content as untrusted, instruction/data separation, sandboxing.</li>
+<li><strong>Temporal conflicts</strong> — 2019 and 2026 answers both live; recency reasoning is error-prone.</li>
+<li><strong>Citation ≠ verification</strong> — a citation proves "claim came from this page," not "page is correct." A confidently-cited wrong source manufactures false trust.</li>
+</ul>
+<div class="interview"><span class="boxlabel">Interview-grade insight</span>"In closed-corpus RAG my job ends at retrieval quality — the corpus is trusted. Web search breaks that: retrieval can succeed perfectly while the source is wrong or adversarial. So open-web systems need a <strong>credibility layer on top of the relevance layer</strong> — source authority, cross-corroboration, recency — plus defenses against indirect prompt injection from fetched content. Even then it's mitigation, not a solution, which is why these systems hedge and cite rather than assert." The sharpest danger is the <em>intersection</em>: a page both SEO-optimized to rank <em>and</em> carrying prompt injection — it ranks, gets trusted, then manipulates the agent.</div>
+</section>
+
+<section id="longcontext">
+<h2 class="sec"><span class="num">SECTION 27</span>Long-context vs. RAG (quality, cost aside)</h2>
+<p>The naive intuition — "attention attends to everything, so stuffing the whole doc is better" — is <strong>half right</strong>. Long-context is better up to a point, then gets <em>worse</em>, and the crossover is well before a million tokens.</p>
+<h3>Context rot — the finding that breaks the intuition</h3>
+<p>Attention <em>can</em> technically reach every token (architecturally true) but performance <strong>degrades as context grows</strong> (behaviorally false that it's used equally). Two different tasks diverge:</p>
+<ul>
+<li><strong>Needle-in-haystack (retrieve one fact)</strong> — models are excellent now; this is what "improved" and what people cite. Intuition holds here.</li>
+<li><strong>Reasoning over full content (synthesize, compare distant parts)</strong> — degrades with length far faster. Finding a fact ≠ holding the whole haystack in working memory. "Lost in the middle" is reduced for retrieval, sticky for reasoning.</li>
+</ul>
+<h3>Why stuffing the full doc can hurt quality</h3>
+<ul>
+<li><strong>Distractor dilution</strong> — burying 3 relevant paragraphs in 1,000 pages forces the model to suppress 997 pages of plausible distractors; it can latch onto related-but-wrong text. <strong>RAG's filtering is itself a quality feature.</strong></li>
+<li><strong>Attention spread thin</strong> — a finite soft-weight budget diluted across a million tokens vs. concentrated on 5 chunks.</li>
+<li><strong>Position effects persist</strong> (reduced, not gone) — the "middle" of a million tokens is enormous.</li>
+</ul>
+<h3>When full-context genuinely wins on quality</h3>
+<ul>
+<li><strong>Whole-document synthesis</strong> on a bounded doc ("summarize this contract &amp; find contradictions") — RAG fragments structure and misses cross-references.</li>
+<li><strong>Chunking would sever critical structure</strong> (a clause + its definition 40 pages away).</li>
+<li><strong>Can't predict what's relevant</strong> — giving everything avoids the retrieval-miss failure.</li>
+</ul>
+<div class="keypoint"><span class="boxlabel">The decision rule</span>It's not whether the doc <em>fits</em> — it's <strong>what fraction is relevant + lookup vs synthesis.</strong> High relevant-fraction or whole-doc reasoning → full-context. Low relevant-fraction over a large corpus → RAG <em>wins on quality</em> (filtering removes distractors). The 2026 answer is <strong>composition</strong>: RAG to drop the irrelevant 95%, then long-context reasoning over the relevant 5% kept whole. Long context also lets RAG use bigger parent chunks. Caveat: advertised window size is partly marketing — usable-quality length is shorter than the headline, so treat "1M tokens" as an upper bound on <em>retrieval</em>, not a guarantee of <em>reasoning</em>.</div>
+</section>
+
+<section id="hfmodel">
+<h2 class="sec"><span class="num">SECTION 28</span>What downloads from Hugging Face (and why no optimizer)</h2>
+<p>A published HF model is an <strong>inference package</strong>. The files:</p>
+<ul>
+<li><strong>model.safetensors</strong> — the actual trained weights (the only file with the network). <code>.safetensors</code> = safe format (no arbitrary-code execution unlike old pickle <code>.bin</code>).</li>
+<li><strong>config.json</strong> — architecture blueprint (layers, hidden size, heads). Builds the empty skeleton that weights pour into.</li>
+<li><strong>Tokenizer (several files):</strong> <code>vocab.txt</code> (the vocabulary), <code>tokenizer.json</code> (fast Rust tokenizer), <code>tokenizer_config.json</code> (settings), <code>special_tokens_map.json</code> ([CLS],[SEP],[PAD],[MASK]). Multiple files = belt-and-suspenders for fast/slow loaders.</li>
+<li><strong>README.md</strong> — model card, docs only, not used at runtime.</li>
+</ul>
+<p>Essential trio for inference: <code>config.json</code> + <code>model.safetensors</code> + tokenizer files. Skip README and format duplicates.</p>
+<div class="intuition"><span class="boxlabel">Why no optimizer (the insight)</span>Optimizer state (Adam's momentum + variance, ~2× model size) exists only to compute the <em>next</em> weight update — it's <strong>training scaffolding, disposable once final weights exist</strong>. Inference is just a forward pass; you don't take gradient steps. So it's stripped from published models. You'd only see it in a <em>training checkpoint</em> saved to <em>resume</em> training (optimizer + LR scheduler + RNG state) — kept locally, not on the Hub. Same train-vs-infer split as "what's needed when."</div>
+</section>
+
+<hr class="fancy">
+<p style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px; color:#9a948a;">END OF REFERENCE · One session, fully captured · Re-read before interviews</p>
+
+</main>
+</div>
+</body>
+</html>
