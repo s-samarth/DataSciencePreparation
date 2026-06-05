@@ -20,6 +20,7 @@ knowledge bases. Open the hub, click a card, and you're routed into that topic's
 - [Deployment](#deployment)
 - [Configuration reference](#configuration-reference)
 - [Troubleshooting](#troubleshooting)
+- [Knowledge base for AI agents](#knowledge-base-for-ai-agents)
 - [Raw notes](#raw-notes)
 
 ---
@@ -255,6 +256,30 @@ update it the same way if you rename the repo.
 | **Links broken after renaming the repo** | Update the base URL everywhere — see [Configuration reference](#configuration-reference). |
 | **`mkdocs: command not found`** | Activate the env that has `mkdocs-material` (conda or `.venv`). |
 | **Stale page after deploy** | Hard-refresh the browser (Cmd/Ctrl + Shift + R) to bypass cached assets. |
+
+---
+
+## Knowledge base for AI agents
+
+This repo is designed to double as a **knowledge base for AI agents** (Codex, Claude Code, or
+any custom agent) doing *knowledge* tasks — explaining, comparing, deriving, interview prep —
+grounded in the seven study sites. The whole corpus is plain Markdown under each
+`<Topic>/docs/**`, which makes it cleanly retrievable.
+
+The entry point is **[`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md)** — a single machine-readable index
+that maps every **topic → section → page**, describes what each page covers, lists its key
+concepts (the page's `##` headings, used as retrieval anchors), and gives the exact file path to
+cite. An agent should **read `KNOWLEDGE_BASE.md` first** to plan a retrieval, then open only the
+pages it needs.
+
+It also defines a **mandatory attribution protocol**: anything an agent takes from this corpus
+must be cited to its knowledge-base path, and anything sourced elsewhere (web search, the model's
+own reasoning, tools) must be explicitly flagged as external — so there is always a clean,
+auditable line between *"we already have notes on this"* and *"this is new and may need study."*
+
+> Always read the Markdown **source** (`<Topic>/docs/**.md`), never the generated
+> `*/site/*.html`. The `RawNotes/` folder (below) is **not** part of the knowledge-base index and
+> is not a retrieval target.
 
 ---
 
